@@ -14,10 +14,11 @@
 
 ## Risks
 
-- Live provider writes and production deployment remain unverified until the user supplies provider authorization; all adapter code and exact setup steps are present.
+- Live provider writes are now exercised where credentials permit; production deployment and missing provider permissions remain user-owned blockers.
 - The default control tower uses a checked-in fallback fixture when `artifacts/demo-state.json` is absent, while `pnpm demo` regenerates measured state.
 - `INTEGRATION_MODE=mock` is deliberately credential-free: it records realistic adapter results locally and does not create real Slack, GitHub, Linear, PostHog, or deployment records.
 - The local `/product` route is the V1 customer-facing DailyCart surface. The upstream Google Online Boutique repository is referenced and contract-compatible, but is not silently cloned or deployed by this repository.
+- The local ignored environment is now set to `INTEGRATION_MODE=live`. Current read-only health is healthy for Slack, Linear, Supabase, Langfuse, PostHog, and Inngest; GitHub, Vercel, and the deployed sample product remain unconfigured. A live Linear smoke ticket was created, while its Slack notification exposed a missing `chat:write` scope.
 
 ## Assumptions
 

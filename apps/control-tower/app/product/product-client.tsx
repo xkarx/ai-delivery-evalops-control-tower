@@ -8,7 +8,7 @@ type CartLine = { product: Product; quantity: number };
 const customerId = "CUS-9001";
 
 function eventId(event: string) {
-  return `PROD-${event}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  return typeof crypto?.randomUUID === "function" ? crypto.randomUUID() : `PROD-${event}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
 function sendEvent(event: "session_started" | "product_viewed" | "search_used" | "cart_added" | "checkout_started" | "checkout_completed", properties: Record<string, string | number | boolean | null>) {

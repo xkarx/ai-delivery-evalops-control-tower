@@ -1,7 +1,7 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { productEventSchema } from "@dailycart/schemas";
-import { createProductAnalyticsAdapter } from "@dailycart/connectors";
+import { ConnectorError, createProductAnalyticsAdapter } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -17,7 +17,9 @@ export async function POST(request: Request) {
     await mkdir(eventsDir, { recursive: true });
     await appendFile(path.resolve(eventsDir, "product-events.jsonl"), `${JSON.stringify(event)}\n`);
     return NextResponse.json({ ok: true, eventId: event.id, sourceMode: reference.sourceMode, externalUrl: reference.url });
-  } catch {
-    return NextResponse.json({ ok: false, message: "Product event was rejected." }, { status: 400 });
+  } catch (error) {
+    const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "The analytics provider returned an unexpected error.";
+    console.error("Product event capture failed", detail);
+    return NextResponse.json({ ok: false, message: "Product event capture failed.", detail }, { status: 502 });
   }
 }

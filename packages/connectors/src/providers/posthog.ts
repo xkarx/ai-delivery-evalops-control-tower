@@ -9,6 +9,8 @@ import type {
   ProductAnalyticsAdapter
 } from "../types";
 
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function computeFunnel(
   allEvents: ProductEvent[],
   stages: FunnelStage[],
@@ -156,7 +158,7 @@ export class LivePostHogAnalyticsAdapter extends BaseConnector implements Produc
         event: validated.event,
         distinct_id: validated.customerId,
         timestamp: validated.timestamp,
-        uuid: validated.id,
+        ...(uuidPattern.test(validated.id) ? { uuid: validated.id } : {}),
         properties: { ...validated.properties, source_mode: validated.sourceMode }
       })
     });
@@ -184,7 +186,7 @@ export class LivePostHogAnalyticsAdapter extends BaseConnector implements Produc
           event: event.event,
           distinct_id: event.customerId,
           timestamp: event.timestamp,
-          uuid: event.id,
+          ...(uuidPattern.test(event.id) ? { uuid: event.id } : {}),
           properties: { ...event.properties, source_mode: event.sourceMode }
         }))
       })
