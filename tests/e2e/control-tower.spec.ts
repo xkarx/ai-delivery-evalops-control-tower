@@ -37,3 +37,12 @@ test("dense screens stay inside the viewport at tablet width", async ({ page }) 
     expect(overflow, `${route} has horizontal page overflow`).toBeLessThanOrEqual(1);
   }
 });
+
+test("mobile pages do not create horizontal page overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of ["/", "/features", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
+    await page.goto(route);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `${route} has horizontal mobile overflow`).toBeLessThanOrEqual(1);
+  }
+});
