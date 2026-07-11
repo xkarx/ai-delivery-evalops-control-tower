@@ -3,7 +3,11 @@ import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
 export type OperatorCommandResult = { ok: boolean; reply: string; url?: string; sourceMode?: string };
 
 function baseUrl(requestUrl?: string): string {
-  return process.env.APP_URL?.replace(/\/$/, "") || requestUrl?.replace(/\/$/, "") || "http://localhost:3000";
+  if (process.env.APP_URL?.trim()) return process.env.APP_URL.replace(/\/$/, "");
+  if (requestUrl) {
+    try { return new URL(requestUrl).origin; } catch { /* fall through to the local default */ }
+  }
+  return "http://localhost:3000";
 }
 
 export async function executeOperatorCommand(command: string, requestUrl?: string): Promise<OperatorCommandResult> {
