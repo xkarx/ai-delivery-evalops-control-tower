@@ -42,6 +42,22 @@ The demo works without credentials. It generates deterministic DailyCart data, e
 5. Use **Human review** to approve the pending release, then **Deployments** to record the release and **Incidents** to see how production feedback becomes a regression case.
 6. Use the **operator command** panel or Slack `/dailycart` command for `run workflow`, `approve release`, `create ticket: ...`, `sync delivery`, and `status`. Every command returns visible success/error feedback and updates the local workflow state.
 
+### Where each connected tool appears
+
+| Tool | V1 action | What it demonstrates |
+|---|---|---|
+| Linear (or GitHub Issues fallback) | **Sync delivery records** creates the three delivery tickets | Structured decomposition, dependencies, and external traceability |
+| Slack | Workflow status/approval notification and slash commands | Human-in-the-loop coordination and command-driven automation |
+| GitHub | Repository health, issue fallback, branches/PR/check/release links | Code-host integration and isolated engineering work |
+| Langfuse | Sync creates a delivery trace and `workflow_completed` score | Agent observability, lineage, and outcome scoring |
+| PostHog | Product interactions and bounded traffic are captured | Funnel, exposure, failure, and adoption measurement |
+| Supabase | Workflow records and lineage can be persisted through the adapter | Durable shared state and external references |
+| Inngest | Sync emits `dailycart/workflow.completed` | Event-driven orchestration boundary |
+| Vercel | Approved release calls the deployment adapter | Release gating and deployment evidence |
+| DailyCart sample product | Analytics → Traffic controls generates capped activity | A controllable product surface rather than a screenshot |
+
+After **Sync delivery records**, the UI exposes the actual ticket, Slack message, Langfuse trace, and Inngest event links. In live mode those links point to the connected provider; in demo mode they point to deterministic adapter records and are labeled as mocked.
+
 ## Live mode versus demo mode
 
 `DEMO_MODE=synthetic` is deliberately credential-free. It is useful for a repeatable product demo and still executes the workflow locally. Set `INTEGRATION_MODE=live` and provide provider secrets in the deployment secret store to use GitHub, Slack, Linear, Supabase, Langfuse, PostHog, Vercel, Inngest, and the sample-product traffic adapter. The Integrations page runs read-only health probes on load and on **Check all**; each provider card shows its actual mode, configuration, write capability, and missing variables.
