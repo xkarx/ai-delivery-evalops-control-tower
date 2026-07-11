@@ -18,6 +18,10 @@ That label is the source-of-truth for the current path. In `INTEGRATION_MODE=moc
 
 When live mode is active, the integration cards distinguish read-only health from write configuration. A provider can pass health and still reject a write (for example Slack `missing_scope`); the action result now reports the provider error and preserves any earlier successful ticket creation.
 
+## Slack commands and operator voice
+
+Configure the Slack app's slash-command Request URL as `https://<your-control-tower-host>/api/slack/commands`. The endpoint verifies Slack's signing secret and accepts `run workflow`, `approve release`, `create ticket: <title>`, `sync delivery`, and `status`. The `/runs` page exposes the same commands through text input or browser speech recognition. Outbound replies require the bot OAuth scope `chat:write`.
+
 ## Playwright cannot find a browser
 
 Run `corepack pnpm exec playwright install chromium`, or let the CI workflow install browsers with `--with-deps`.

@@ -34,3 +34,4 @@ Codex must update the implementation link and evidence columns.
 | R028 | Reusable skills | Skills | Complete — 15 generic skill contracts |
 | R029 | Manual connection checklist | Docs | Complete — exact user-owned steps |
 | R030 | V2 arbitrary-repo path | Architecture | Complete — adapter boundary + V2 scope/ADR |
+| R031 | Operator voice and Slack commands | Control plane | Complete — `/runs` voice/text command panel and signature-verified `/api/slack/commands` trigger workflow, approval, sync, status, and Linear ticket creation through shared live adapters |
