@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw, Sparkles } from "lucide-react";
+import { Play, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -25,5 +25,5 @@ export function DemoControls() {
     }
   }
 
-  return <div className="demo-controls"><button className="button secondary" onClick={() => execute("reset")} disabled={pending !== null}><RotateCcw size={15} />{pending === "reset" ? "Resetting…" : "Reset scenario"}</button><button className="button primary" onClick={() => execute("run")} disabled={pending !== null}><Sparkles size={16} />{pending === "run" ? "Running…" : "Run demo"}</button>{message && <span role="status">{message}</span>}</div>;
+  return <div className="demo-controls"><button className="button secondary" onClick={() => execute("reset")} disabled={pending !== null}><RotateCcw size={15} />{pending === "reset" ? "Resetting…" : "Reset scenario"}</button><button className="button primary" onClick={() => execute("run")} disabled={pending !== null}><Play size={16} />{pending === "run" ? "Running…" : "Run demo"}</button>{message && <span role="status">{message}</span>}</div>;
 }

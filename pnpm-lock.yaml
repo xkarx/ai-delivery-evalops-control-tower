@@ -96,6 +96,15 @@ importers:
         specifier: 1.0.0
         version: link:../schemas
 
+  packages/sample-product:
+    dependencies:
+      '@dailycart/connectors':
+        specifier: 1.0.0
+        version: link:../connectors
+      '@dailycart/schemas':
+        specifier: 1.0.0
+        version: link:../schemas
+
   packages/schemas:
     dependencies:
       zod:

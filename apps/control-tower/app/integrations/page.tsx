@@ -1,9 +1,11 @@
 import { KeyRound } from "lucide-react";
-import { createConnectorSuite } from "@dailycart/connectors";
+import { createConnectorSuite, type BaseAdapter } from "@dailycart/connectors";
 import { createSampleProductAdapter } from "@dailycart/sample-product";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { PageHeading } from "@/app/ui/page-heading";
 import { HealthClient, type HealthProviderView } from "./health-client";
+
+export const dynamic = "force-dynamic";
 
 export default async function IntegrationsPage() {
   const data = await loadDemoState();
@@ -19,11 +21,26 @@ export default async function IntegrationsPage() {
     ["inngest", suite.workflow.configurationStatus()],
     ["sample-product", createSampleProductAdapter({ env: process.env }).configurationStatus()]
   ]);
+  const adapters: BaseAdapter[] = [suite.codeHost, suite.chat, suite.issueTracker, suite.database, suite.trace, suite.productAnalytics, suite.deployment, suite.workflow, createSampleProductAdapter({ env: process.env })];
+  const viewKey = (adapter: BaseAdapter): string => {
+    if (adapter.provider === "workflow") return "inngest";
+    if (adapter.provider === "sample-product") return "sample-product";
+    if (adapter.kind === "code-host") return "github";
+    if (adapter.kind === "issue-tracker") return "issue-tracker";
+    if (adapter.kind === "chat") return "slack";
+    if (adapter.kind === "trace") return "langfuse";
+    if (adapter.kind === "product-analytics") return "posthog";
+    if (adapter.kind === "database") return "supabase";
+    if (adapter.kind === "deployment") return "vercel";
+    return adapter.provider;
+  };
+  const liveHealth = await Promise.all(adapters.map(async (adapter) => ({ adapter, health: await adapter.healthCheck() })));
+  const healthByKey = new Map(liveHealth.map(({ adapter, health }) => [viewKey(adapter), health]));
   const initial: HealthProviderView[] = data.integrations.map((integration) => ({
     key: integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider,
     provider: integration.provider,
     configuration: configured.get(integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider) ?? { configured: true, writeEnabled: false, missingEnvironment: [], message: integration.message },
-    health: { ...integration, mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mock", status: process.env.INTEGRATION_MODE === "live" && !(configured.get(integration.provider)?.configured ?? true) ? "unconfigured" : integration.status, message: process.env.INTEGRATION_MODE === "live" ? "Configured state loaded; run Check all for a live read-only probe." : integration.message }
+    health: healthByKey.get(integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider) ?? { ...integration, mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mock" }
   }));
   return (
     <div className="page-container">
