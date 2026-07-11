@@ -1,0 +1,47 @@
+[
+  {
+    "detectedAt": "2024-09-13T13:08:00.000Z",
+    "evidenceId": "EVD-0102",
+    "featureId": "FEAT-0006",
+    "id": "INC-0001",
+    "mitigatedAt": "2024-09-13T15:08:00.000Z",
+    "postmortemPath": "operations/postmortems/INC-0001.md",
+    "regressionCaseId": "EVALCASE-0001",
+    "resolvedAt": "2024-09-14T10:08:00.000Z",
+    "rootCause": "A payment retry path dropped server-side cart state after token refresh.",
+    "severity": "SEV-1",
+    "sourceMode": "synthetic",
+    "status": "resolved",
+    "title": "Resilient checkout and cart recovery production degradation"
+  },
+  {
+    "detectedAt": "2024-11-18T13:16:00.000Z",
+    "evidenceId": "EVD-0103",
+    "featureId": "FEAT-0007",
+    "id": "INC-0002",
+    "mitigatedAt": "2024-11-18T16:16:00.000Z",
+    "postmortemPath": "operations/postmortems/INC-0002.md",
+    "regressionCaseId": "EVALCASE-0002",
+    "resolvedAt": "2024-11-19T10:16:00.000Z",
+    "rootCause": "A catalogue synonym rollout bypassed a locale-specific query normalizer.",
+    "severity": "SEV-2",
+    "sourceMode": "synthetic",
+    "status": "resolved",
+    "title": "Intent-aware product discovery production degradation"
+  },
+  {
+    "detectedAt": "2025-01-23T13:24:00.000Z",
+    "evidenceId": "EVD-0104",
+    "featureId": "FEAT-0010",
+    "id": "INC-0003",
+    "mitigatedAt": "2025-01-23T17:24:00.000Z",
+    "postmortemPath": "operations/postmortems/INC-0003.md",
+    "regressionCaseId": "EVALCASE-0003",
+    "resolvedAt": "2025-01-24T10:24:00.000Z",
+    "rootCause": "A dynamic cart status message was not announced after a client-side update.",
+    "severity": "SEV-3",
+    "sourceMode": "synthetic",
+    "status": "resolved",
+    "title": "Accessible shopping controls production degradation"
+  }
+]

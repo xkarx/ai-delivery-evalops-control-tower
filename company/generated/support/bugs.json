@@ -1,0 +1,227 @@
+[
+  {
+    "affectedCustomerIds": [
+      "CUS-0004",
+      "CUS-0018"
+    ],
+    "evidenceId": "EVD-0071",
+    "firstSeenAt": "2024-12-11T07:01:00.000Z",
+    "id": "EXT-2001",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 1"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0009",
+      "CUS-0023"
+    ],
+    "evidenceId": "EVD-0072",
+    "firstSeenAt": "2024-12-16T08:02:00.000Z",
+    "id": "EXT-2002",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 2"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0014",
+      "CUS-0028"
+    ],
+    "evidenceId": "EVD-0073",
+    "firstSeenAt": "2024-12-21T09:03:00.000Z",
+    "id": "EXT-2003",
+    "reproducibility": "sometimes",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "investigating",
+    "theme": "delivery_clarity",
+    "title": "Delivery promise clarity: observed defect 3"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0019",
+      "CUS-0033"
+    ],
+    "evidenceId": "EVD-0074",
+    "firstSeenAt": "2024-12-26T10:04:00.000Z",
+    "id": "EXT-2004",
+    "reproducibility": "reliable",
+    "severity": "S2",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 4"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0024",
+      "CUS-0038"
+    ],
+    "evidenceId": "EVD-0075",
+    "firstSeenAt": "2024-12-31T11:05:00.000Z",
+    "id": "EXT-2005",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "fixed",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 5"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0029",
+      "CUS-0043"
+    ],
+    "evidenceId": "EVD-0076",
+    "firstSeenAt": "2025-01-05T12:06:00.000Z",
+    "id": "EXT-2006",
+    "reproducibility": "sometimes",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "investigating",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 6"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0034",
+      "CUS-0048"
+    ],
+    "evidenceId": "EVD-0077",
+    "firstSeenAt": "2025-01-10T13:07:00.000Z",
+    "id": "EXT-2007",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "accessible_shopping",
+    "title": "Accessible shopping controls: observed defect 7"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0039",
+      "CUS-0003"
+    ],
+    "evidenceId": "EVD-0078",
+    "firstSeenAt": "2025-01-15T14:08:00.000Z",
+    "id": "EXT-2008",
+    "reproducibility": "intermittent",
+    "severity": "S2",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 8"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0044",
+      "CUS-0008"
+    ],
+    "evidenceId": "EVD-0079",
+    "firstSeenAt": "2025-01-20T15:09:00.000Z",
+    "id": "EXT-2009",
+    "reproducibility": "sometimes",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "investigating",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 9"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0049",
+      "CUS-0013"
+    ],
+    "evidenceId": "EVD-0080",
+    "firstSeenAt": "2025-01-25T16:10:00.000Z",
+    "id": "EXT-2010",
+    "reproducibility": "reliable",
+    "severity": "S1",
+    "sourceMode": "synthetic",
+    "status": "fixed",
+    "theme": "search_quality",
+    "title": "Intent-aware product discovery: observed defect 10"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0004",
+      "CUS-0018"
+    ],
+    "evidenceId": "EVD-0081",
+    "firstSeenAt": "2025-01-30T17:11:00.000Z",
+    "id": "EXT-2011",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "loyalty_value",
+    "title": "Useful loyalty value: observed defect 11"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0009",
+      "CUS-0023"
+    ],
+    "evidenceId": "EVD-0082",
+    "firstSeenAt": "2025-02-04T06:12:00.000Z",
+    "id": "EXT-2012",
+    "reproducibility": "sometimes",
+    "severity": "S2",
+    "sourceMode": "synthetic",
+    "status": "investigating",
+    "theme": "accessible_shopping",
+    "title": "Accessible shopping controls: observed defect 12"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0014",
+      "CUS-0028"
+    ],
+    "evidenceId": "EVD-0083",
+    "firstSeenAt": "2025-02-09T07:13:00.000Z",
+    "id": "EXT-2013",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "delivery_clarity",
+    "title": "Delivery promise clarity: observed defect 13"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0019",
+      "CUS-0033"
+    ],
+    "evidenceId": "EVD-0084",
+    "firstSeenAt": "2025-02-14T08:14:00.000Z",
+    "id": "EXT-2014",
+    "reproducibility": "reliable",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "triaged",
+    "theme": "delivery_clarity",
+    "title": "Delivery promise clarity: observed defect 14"
+  },
+  {
+    "affectedCustomerIds": [
+      "CUS-0024",
+      "CUS-0038"
+    ],
+    "evidenceId": "EVD-0085",
+    "firstSeenAt": "2025-02-19T09:15:00.000Z",
+    "id": "EXT-2015",
+    "reproducibility": "sometimes",
+    "severity": "S3",
+    "sourceMode": "synthetic",
+    "status": "fixed",
+    "theme": "checkout_recovery",
+    "title": "Resilient checkout and cart recovery: observed defect 15"
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "evidenceIds": [
+      "EVD-0092"
+    ],
+    "featureIds": [
+      "FEAT-0006"
+    ],
+    "id": "REL-0001",
+    "notes": "Synthetic historical release associated with checkout completion rate. Outcomes are baseline fixtures, not measured live results.",
+    "releasedAt": "2024-03-26T18:00:00.000Z",
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Resilient checkout and cart recovery",
+    "version": "2024.2.0"
+  },
+  {
+    "evidenceIds": [
+      "EVD-0095"
+    ],
+    "featureIds": [
+      "FEAT-0007"
+    ],
+    "id": "REL-0002",
+    "notes": "Synthetic historical release associated with search-to-cart conversion. Outcomes are baseline fixtures, not measured live results.",
+    "releasedAt": "2024-05-29T18:00:00.000Z",
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Intent-aware product discovery",
+    "version": "2024.3.0"
+  },
+  {
+    "evidenceIds": [
+      "EVD-0093"
+    ],
+    "featureIds": [
+      "FEAT-0008"
+    ],
+    "id": "REL-0003",
+    "notes": "Synthetic historical release associated with shipping-step abandonment. Outcomes are baseline fixtures, not measured live results.",
+    "releasedAt": "2024-08-01T18:00:00.000Z",
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Delivery promise clarity",
+    "version": "2024.4.0"
+  },
+  {
+    "evidenceIds": [
+      "EVD-0081"
+    ],
+    "featureIds": [
+      "FEAT-0009"
+    ],
+    "id": "REL-0004",
+    "notes": "Synthetic historical release associated with 90-day repeat purchase rate. Outcomes are baseline fixtures, not measured live results.",
+    "releasedAt": "2024-10-04T18:00:00.000Z",
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Useful loyalty value",
+    "version": "2024.5.0"
+  },
+  {
+    "evidenceIds": [
+      "EVD-0088"
+    ],
+    "featureIds": [
+      "FEAT-0010"
+    ],
+    "id": "REL-0005",
+    "notes": "Synthetic historical release associated with accessible task completion. Outcomes are baseline fixtures, not measured live results.",
+    "releasedAt": "2024-12-07T18:00:00.000Z",
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Accessible shopping controls",
+    "version": "2024.6.0"
+  }
+]

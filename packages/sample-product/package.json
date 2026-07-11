@@ -1,0 +1,11 @@
+{
+  "name": "@dailycart/sample-product",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@dailycart/connectors": "1.0.0",
+    "@dailycart/schemas": "1.0.0"
+  }
+}

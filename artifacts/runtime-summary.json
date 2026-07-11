@@ -1,0 +1,11 @@
+{
+  "pmRun": "RUN-0100",
+  "recommendation": "FEAT-0001",
+  "workstreams": [
+    "RUN-0102",
+    "RUN-0103"
+  ],
+  "blockedCampaign": "EVAL-0001",
+  "passedCampaign": "EVAL-0002",
+  "trafficRun": "TRAFFIC-20260710-0001"
+}

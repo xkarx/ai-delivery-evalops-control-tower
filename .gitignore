@@ -1,0 +1,15 @@
+node_modules/
+.pnpm-store/
+.next/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.local
+*.log
+artifacts/runtime/
+artifacts/*.jsonl
+artifacts/workflow-run.json
+artifacts/workflow-external-sync.json
+company/.generation-tmp/

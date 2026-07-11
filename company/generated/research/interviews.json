@@ -1,0 +1,98 @@
+[
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0003",
+    "evidenceId": "EVD-0001",
+    "id": "EXT-3001",
+    "occurredAt": "2025-01-23T10:03:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "theme": "delivery_clarity",
+    "transcriptPath": "research/interviews/EXT-3001.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0010",
+    "evidenceId": "EVD-0002",
+    "id": "EXT-3002",
+    "occurredAt": "2025-01-31T11:06:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. The customer described material task friction and supplied reproducible context.",
+    "theme": "search_quality",
+    "transcriptPath": "research/interviews/EXT-3002.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0017",
+    "evidenceId": "EVD-0003",
+    "id": "EXT-3003",
+    "occurredAt": "2025-02-08T12:09:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper.",
+    "theme": "checkout_recovery",
+    "transcriptPath": "research/interviews/EXT-3003.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0024",
+    "evidenceId": "EVD-0004",
+    "id": "EXT-3004",
+    "occurredAt": "2025-02-16T13:12:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “I care more about item quality than an exact arrival estimate.” This conflicts with other delivery promise clarity signals and should not be discarded.",
+    "theme": "delivery_clarity",
+    "transcriptPath": "research/interviews/EXT-3004.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0031",
+    "evidenceId": "EVD-0005",
+    "id": "EXT-3005",
+    "occurredAt": "2025-02-24T09:15:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs.",
+    "theme": "checkout_recovery",
+    "transcriptPath": "research/interviews/EXT-3005.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0038",
+    "evidenceId": "EVD-0006",
+    "id": "EXT-3006",
+    "occurredAt": "2025-03-04T10:18:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "theme": "checkout_recovery",
+    "transcriptPath": "research/interviews/EXT-3006.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0045",
+    "evidenceId": "EVD-0007",
+    "id": "EXT-3007",
+    "occurredAt": "2025-03-12T11:21:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. The customer described material task friction and supplied reproducible context.",
+    "theme": "delivery_clarity",
+    "transcriptPath": "research/interviews/EXT-3007.md"
+  },
+  {
+    "consent": "synthetic-not-applicable",
+    "customerId": "CUS-0002",
+    "evidenceId": "EVD-0008",
+    "id": "EXT-3008",
+    "occurredAt": "2025-03-20T12:24:00.000Z",
+    "researcher": "Synthetic Researcher A",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals and should not be discarded.",
+    "theme": "checkout_recovery",
+    "transcriptPath": "research/interviews/EXT-3008.md"
+  }
+]

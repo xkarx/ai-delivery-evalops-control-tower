@@ -11,4 +11,27 @@ This repository is the durable source of truth for a visual, reusable, end-to-en
 5. `context/REQUIREMENTS_TRACEABILITY.md`
 6. `tasks/MASTER_BUILD_PLAN.md`
 
+## Run the completed V1
+
+```bash
+corepack pnpm install
+corepack pnpm demo
+corepack pnpm dev
+```
+
+The demo works without credentials. It generates deterministic DailyCart data, executes the PM/TPM/engineering/EvalOps lifecycle, demonstrates a blocked critical gate followed by a corrected passing rerun, and serves the responsive control tower at `http://localhost:3000`.
+
+Useful checks:
+
+```bash
+corepack pnpm validate:data
+corepack pnpm lint
+corepack pnpm typecheck
+corepack pnpm test
+corepack pnpm test:e2e
+corepack pnpm security:scan
+```
+
+See `docs/DEMO_RUNBOOK.md`, `docs/TROUBLESHOOTING.md`, and `MANUAL_CONNECTION_CHECKLIST.md` for connected-mode setup.
+
 For a new Codex task, paste `codex/INITIAL_PROMPT.md`.

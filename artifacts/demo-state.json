@@ -1,0 +1,1532 @@
+{
+  "generatedAt": "2026-07-10T18:30:00.000Z",
+  "seed": 20260710,
+  "scenario": "checkout-friction",
+  "sourceMode": "synthetic",
+  "features": [
+    {
+      "id": "FEAT-0001",
+      "title": "Improve Checkout Recovery",
+      "problem": "44 evidence item(s) indicate recurring checkout recovery friction. Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper. Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs.",
+      "hypothesis": "If DailyCart improves checkout recovery, affected customers will complete their intended journey more reliably.",
+      "evidenceIds": [
+        "EVD-0003",
+        "EVD-0005",
+        "EVD-0006",
+        "EVD-0008",
+        "EVD-0012",
+        "EVD-0018",
+        "EVD-0021",
+        "EVD-0024",
+        "EVD-0029",
+        "EVD-0032",
+        "EVD-0033",
+        "EVD-0035",
+        "EVD-0037",
+        "EVD-0039",
+        "EVD-0042",
+        "EVD-0043",
+        "EVD-0046",
+        "EVD-0047",
+        "EVD-0048",
+        "EVD-0049",
+        "EVD-0050",
+        "EVD-0053",
+        "EVD-0054",
+        "EVD-0055",
+        "EVD-0056",
+        "EVD-0057",
+        "EVD-0063",
+        "EVD-0068",
+        "EVD-0071",
+        "EVD-0072",
+        "EVD-0074",
+        "EVD-0075",
+        "EVD-0076",
+        "EVD-0078",
+        "EVD-0079",
+        "EVD-0085",
+        "EVD-0086",
+        "EVD-0087",
+        "EVD-0089",
+        "EVD-0090",
+        "EVD-0091",
+        "EVD-0092",
+        "EVD-0094",
+        "EVD-0102"
+      ],
+      "score": 95,
+      "confidence": 0.74,
+      "status": "approved",
+      "workstream": "reliability",
+      "metrics": [
+        "checkout_recovery_success_rate",
+        "checkout_recovery_related_support_rate"
+      ],
+      "sourceMode": "synthetic",
+      "rank": 1,
+      "theme": "checkout-recovery",
+      "citations": [
+        {
+          "evidenceId": "EVD-0003",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0005",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs."
+        },
+        {
+          "evidenceId": "EVD-0006",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain."
+        },
+        {
+          "evidenceId": "EVD-0008",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals a"
+        },
+        {
+          "evidenceId": "EVD-0012",
+          "title": "Pulse survey: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The respondent reported friction related to resilient checkout and cart recovery; the prompted question may have increased salience."
+        },
+        {
+          "evidenceId": "EVD-0018",
+          "title": "Pulse survey: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The respondent rated resilient checkout and cart recovery as important but reported no recent task failure, creating a stated-versus-observed conflict."
+        },
+        {
+          "evidenceId": "EVD-0021",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain."
+        },
+        {
+          "evidenceId": "EVD-0024",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0029",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0032",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0033",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0035",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs."
+        },
+        {
+          "evidenceId": "EVD-0037",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0039",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0042",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0043",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0046",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain."
+        },
+        {
+          "evidenceId": "EVD-0047",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0048",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0049",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0050",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals a"
+        },
+        {
+          "evidenceId": "EVD-0053",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0054",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0055",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0056",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0057",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0063",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0068",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer requested the capability but rated the underlying problem low severity. I usually finish in one sitting, so recovery controls would add little value for me."
+        },
+        {
+          "evidenceId": "EVD-0071",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0072",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0074",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0075",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0076",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0078",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "The symptom could not be reproduced after cache clearing, so attribution to resilient checkout and cart recovery remains uncertain."
+        },
+        {
+          "evidenceId": "EVD-0079",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0085",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0086",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0087",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0089",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0090",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0091",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "Support and analytics disagree about resilient checkout and cart recovery; the thread ends without a decision."
+        },
+        {
+          "evidenceId": "EVD-0092",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0094",
+          "title": "Baseline signal: checkout completion rate",
+          "kind": "analytics",
+          "supportingExcerpt": "checkout completion rate changed by a material amount in the scenario window. Observational data cannot isolate product friction from traffic mix."
+        },
+        {
+          "evidenceId": "EVD-0102",
+          "title": "Incident: Resilient checkout and cart recovery",
+          "kind": "incident",
+          "supportingExcerpt": "A synthetic production incident affected resilient checkout and cart recovery. The postmortem distinguishes the trigger from broader customer claims."
+        }
+      ],
+      "scoreBreakdown": {
+        "evidenceStrength": 210.03,
+        "sourceDiversity": 6,
+        "recurrence": 44,
+        "confidence": 0.74
+      }
+    },
+    {
+      "id": "FEAT-0002",
+      "title": "Cart price-change transparency",
+      "problem": "Customers lose confidence when cart totals change after returning to a saved session.",
+      "hypothesis": "Showing an itemized price-change receipt will preserve trust and conversion.",
+      "evidenceIds": [
+        "EVD-0008",
+        "EVD-0019",
+        "EVD-0042"
+      ],
+      "score": 78,
+      "confidence": 0.73,
+      "status": "candidate",
+      "workstream": "experience",
+      "metrics": [
+        "Cart return rate",
+        "Checkout start"
+      ],
+      "sourceMode": "synthetic"
+    },
+    {
+      "id": "FEAT-0003",
+      "title": "Recommendation timeout isolation",
+      "problem": "Recommendation latency can cascade into product-detail failures during peak traffic.",
+      "hypothesis": "A strict timeout and fallback will protect core browsing reliability.",
+      "evidenceIds": [
+        "EVD-0028",
+        "EVD-0032"
+      ],
+      "score": 84,
+      "confidence": 0.81,
+      "status": "in_delivery",
+      "workstream": "reliability",
+      "metrics": [
+        "P95 product latency",
+        "Error-free sessions"
+      ],
+      "sourceMode": "synthetic"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-0001",
+      "featureId": "FEAT-0001",
+      "outcome": "approved",
+      "rationale": "Strong triangulation across interviews, support, and funnel evidence.",
+      "reviewer": "Demo product council",
+      "decidedAt": "2026-07-10T16:22:00.000Z",
+      "sourceMode": "simulated"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "TKT-0101",
+      "featureId": "FEAT-0001",
+      "title": "Implement Improve Checkout Recovery core journey",
+      "description": "Build the approved behavior described by PRD-0001 and preserve evidence-linked scope.",
+      "status": "todo",
+      "workstream": "experience",
+      "dependsOn": [],
+      "acceptanceCriteria": [
+        "The primary improve checkout recovery journey completes in supported demo scenarios."
+      ],
+      "sourceMode": "synthetic"
+    },
+    {
+      "id": "TKT-0102",
+      "featureId": "FEAT-0001",
+      "title": "Instrument and harden Improve Checkout Recovery",
+      "description": "Add telemetry, error handling, and deterministic regression coverage for PRD-0001.",
+      "status": "todo",
+      "workstream": "reliability",
+      "dependsOn": [],
+      "acceptanceCriteria": [
+        "Every outcome emits checkout_recovery_success_rate telemetry with a feature ID.",
+        "Critical deterministic and regression eval cases pass before release."
+      ],
+      "sourceMode": "synthetic"
+    },
+    {
+      "id": "TKT-0103",
+      "featureId": "FEAT-0001",
+      "title": "Integrate Improve Checkout Recovery and verify readiness",
+      "description": "Combine the two independently executable workstreams and prepare the preview gate.",
+      "status": "todo",
+      "workstream": "integration",
+      "dependsOn": [
+        "TKT-0101",
+        "TKT-0102"
+      ],
+      "acceptanceCriteria": [
+        "Both predecessor checks pass and the preview links to the approved feature."
+      ],
+      "sourceMode": "synthetic"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "APR-0001",
+      "featureId": "FEAT-0001",
+      "stage": "feature",
+      "status": "approved",
+      "requestedAt": "2026-07-10T16:18:00.000Z",
+      "resolvedAt": "2026-07-10T16:22:00.000Z",
+      "reviewer": "Demo product council",
+      "rationale": "Evidence and scope accepted",
+      "sourceMode": "simulated"
+    },
+    {
+      "id": "APR-0002",
+      "featureId": "FEAT-0001",
+      "stage": "release",
+      "status": "approved",
+      "requestedAt": "2026-07-10T18:02:00.000Z",
+      "resolvedAt": "2026-07-10T18:12:00.000Z",
+      "reviewer": "Demo release manager",
+      "rationale": "Corrected campaign passed",
+      "sourceMode": "simulated"
+    }
+  ],
+  "runs": [
+    {
+      "id": "RUN-0100",
+      "agent": "pm",
+      "status": "waiting_approval",
+      "startedAt": "2026-07-10T16:00:00.000Z",
+      "finishedAt": "2026-07-10T16:00:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [],
+      "traceId": "trace-run-0100",
+      "costUsd": 0,
+      "latencyMs": 317,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "validate-evidence",
+          "status": "succeeded",
+          "durationMs": 104,
+          "detail": "Validated 104 unique evidence records"
+        },
+        {
+          "name": "cluster-opportunities",
+          "status": "succeeded",
+          "durationMs": 10,
+          "detail": "Derived 5 themes from supplied tags and text"
+        },
+        {
+          "name": "rank-and-cite",
+          "status": "succeeded",
+          "durationMs": 3,
+          "detail": "Ranked 3 opportunities with input evidence citations"
+        }
+      ],
+      "sourceMode": "synthetic"
+    },
+    {
+      "id": "RUN-0101",
+      "agent": "tpm",
+      "status": "succeeded",
+      "startedAt": "2026-07-10T16:15:00.000Z",
+      "finishedAt": "2026-07-10T16:15:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [
+        "TKT-0101",
+        "TKT-0102",
+        "TKT-0103"
+      ],
+      "traceId": "trace-run-0101",
+      "costUsd": 0,
+      "latencyMs": 24,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "draft-prd",
+          "status": "succeeded",
+          "durationMs": 8,
+          "detail": "PRD-0001 preserves 44 evidence links"
+        },
+        {
+          "name": "decompose-work",
+          "status": "succeeded",
+          "durationMs": 8,
+          "detail": "Created two parallel workstreams and one dependent integration ticket"
+        },
+        {
+          "name": "map-risk-and-readiness",
+          "status": "succeeded",
+          "durationMs": 8,
+          "detail": "Recorded delivery, measurement, and scope risks"
+        }
+      ],
+      "sourceMode": "synthetic"
+    },
+    {
+      "id": "RUN-0102",
+      "agent": "engineering",
+      "status": "succeeded",
+      "startedAt": "2026-01-15T12:00:00.000Z",
+      "finishedAt": "2026-01-15T12:00:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [
+        "TKT-0101"
+      ],
+      "traceId": "trace-run-0102",
+      "costUsd": 0,
+      "latencyMs": 25,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "inspect",
+          "status": "succeeded",
+          "durationMs": 4,
+          "detail": "Inspected scope for TKT-0101"
+        },
+        {
+          "name": "implement",
+          "status": "succeeded",
+          "durationMs": 12,
+          "detail": "Executed mocked change for experience; no live repository mutation claimed"
+        },
+        {
+          "name": "test",
+          "status": "succeeded",
+          "durationMs": 6,
+          "detail": "Executed deterministic mock checks"
+        },
+        {
+          "name": "prepare-pr",
+          "status": "succeeded",
+          "durationMs": 3,
+          "detail": "Recorded mocked PR PR-0101"
+        }
+      ],
+      "sourceMode": "mocked"
+    },
+    {
+      "id": "RUN-0103",
+      "agent": "engineering",
+      "status": "succeeded",
+      "startedAt": "2026-01-15T12:00:00.000Z",
+      "finishedAt": "2026-01-15T12:00:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [
+        "TKT-0102"
+      ],
+      "traceId": "trace-run-0103",
+      "costUsd": 0,
+      "latencyMs": 25,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "inspect",
+          "status": "succeeded",
+          "durationMs": 4,
+          "detail": "Inspected scope for TKT-0102"
+        },
+        {
+          "name": "implement",
+          "status": "succeeded",
+          "durationMs": 12,
+          "detail": "Executed mocked change for reliability; no live repository mutation claimed"
+        },
+        {
+          "name": "test",
+          "status": "succeeded",
+          "durationMs": 6,
+          "detail": "Executed deterministic mock checks"
+        },
+        {
+          "name": "prepare-pr",
+          "status": "succeeded",
+          "durationMs": 3,
+          "detail": "Recorded mocked PR PR-0102"
+        }
+      ],
+      "sourceMode": "mocked"
+    },
+    {
+      "id": "RUN-0004",
+      "agent": "eval",
+      "status": "failed",
+      "startedAt": "2026-07-10T17:28:00.000Z",
+      "finishedAt": "2026-07-10T17:31:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [
+        "TKT-0001",
+        "TKT-0002"
+      ],
+      "traceId": "trace-eval-0004",
+      "costUsd": 0.031,
+      "latencyMs": 3100,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "Regression suite",
+          "status": "failed",
+          "durationMs": 3100,
+          "detail": "Critical keyboard focus regression reproduced"
+        }
+      ],
+      "sourceMode": "simulated"
+    },
+    {
+      "id": "RUN-0005",
+      "agent": "eval",
+      "status": "succeeded",
+      "startedAt": "2026-07-10T17:52:00.000Z",
+      "finishedAt": "2026-07-10T17:56:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [
+        "TKT-0002"
+      ],
+      "traceId": "trace-eval-0005",
+      "costUsd": 0.032,
+      "latencyMs": 3380,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "Regression suite",
+          "status": "succeeded",
+          "durationMs": 3380,
+          "detail": "Corrected focus behavior verified"
+        }
+      ],
+      "sourceMode": "simulated"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "EVAL-0001",
+      "featureId": "FEAT-0001",
+      "version": 1,
+      "status": "blocked",
+      "threshold": 85,
+      "weightedScore": 61.54,
+      "results": [
+        {
+          "caseId": "EVALCASE-0001",
+          "grader": "deterministic:boolean-check",
+          "score": 0,
+          "passed": false,
+          "rationale": "Measured pass=false did not match expected pass=true",
+          "measuredAt": "2026-01-15T12:00:00.000Z",
+          "durationMs": 2
+        },
+        {
+          "caseId": "EVALCASE-0002",
+          "grader": "deterministic:required-fields",
+          "score": 100,
+          "passed": true,
+          "rationale": "All 2 required fields are present",
+          "measuredAt": "2026-01-15T12:00:00.000Z",
+          "durationMs": 24
+        },
+        {
+          "caseId": "EVALCASE-0003",
+          "grader": "Mocked deterministic token-overlap semantic judge [mocked]",
+          "score": 100,
+          "passed": true,
+          "rationale": "Mocked deterministic token-overlap semantic judge: 10/10 expected semantic tokens were present",
+          "measuredAt": "2026-01-15T12:00:00.000Z",
+          "durationMs": 17
+        }
+      ],
+      "failureCategories": [
+        "build"
+      ],
+      "requiredApprovalPresent": true,
+      "releaseAllowed": false,
+      "runId": "RUN-0005",
+      "sourceMode": "simulated"
+    },
+    {
+      "id": "EVAL-0002",
+      "featureId": "FEAT-0001",
+      "version": 2,
+      "status": "passed",
+      "threshold": 85,
+      "weightedScore": 100,
+      "results": [
+        {
+          "caseId": "EVALCASE-0001",
+          "grader": "deterministic:boolean-check",
+          "score": 100,
+          "passed": true,
+          "rationale": "Measured pass=true matched expected behavior",
+          "measuredAt": "2026-01-15T12:00:00.000Z",
+          "durationMs": 23
+        },
+        {
+          "caseId": "EVALCASE-0002",
+          "grader": "deterministic:required-fields",
+          "score": 100,
+          "passed": true,
+          "rationale": "All 2 required fields are present",
+          "measuredAt": "2026-01-15T12:00:00.000Z",
+          "durationMs": 24
+        },
+        {
+          "caseId": "EVALCASE-0003",
+          "grader": "Mocked deterministic token-overlap semantic judge [mocked]",
+          "score": 100,
+          "passed": true,
+          "rationale": "Mocked deterministic token-overlap semantic judge: 10/10 expected semantic tokens were present",
+          "measuredAt": "2026-01-15T12:00:00.000Z",
+          "durationMs": 17
+        }
+      ],
+      "failureCategories": [],
+      "requiredApprovalPresent": true,
+      "releaseAllowed": true,
+      "runId": "RUN-0006",
+      "sourceMode": "simulated"
+    }
+  ],
+  "deployments": [
+    {
+      "id": "DEP-0001",
+      "featureId": "FEAT-0001",
+      "environment": "production",
+      "status": "ready",
+      "commitSha": "7d91e2b",
+      "url": "https://demo.dailycart.invalid/releases/DEP-0001",
+      "deployedAt": "2026-07-10T18:18:00.000Z",
+      "sourceMode": "mocked"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "INC-0001",
+      "featureId": "FEAT-0001",
+      "title": "Recovery analytics duplicated on mobile retry",
+      "severity": "SEV-3",
+      "status": "resolved",
+      "detectedAt": "2026-07-10T18:25:00.000Z",
+      "rootCause": "Retry instrumentation registered twice after viewport transition.",
+      "regressionCaseId": "EVALCASE-0031",
+      "sourceMode": "simulated"
+    }
+  ],
+  "lineage": [
+    {
+      "id": "LIN-0001",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0003",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0002",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0005",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0003",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0006",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0004",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0008",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0005",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0012",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0006",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0018",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0007",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0021",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0008",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0024",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0009",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0029",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0010",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0032",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0011",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0033",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0012",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0035",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0013",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0037",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0014",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0039",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0015",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0042",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0016",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0043",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0017",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0046",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0018",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0047",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0019",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0048",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0020",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0049",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0021",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0050",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0022",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0053",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0023",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0054",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0024",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0055",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0025",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0056",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0026",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0057",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0027",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0063",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0028",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0068",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0029",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0071",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0030",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0072",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0031",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0074",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0032",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0075",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0033",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0076",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0034",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0078",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0035",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0079",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0036",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0085",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0037",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0086",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0038",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0087",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0039",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0089",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0040",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0090",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0041",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0091",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0042",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0092",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0043",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0094",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0044",
+      "sourceType": "evidence",
+      "sourceId": "EVD-0102",
+      "relationship": "supports",
+      "targetType": "feature",
+      "targetId": "FEAT-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0045",
+      "sourceType": "feature",
+      "sourceId": "FEAT-0001",
+      "relationship": "approved_by",
+      "targetType": "decision",
+      "targetId": "DEC-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0046",
+      "sourceType": "feature",
+      "sourceId": "FEAT-0001",
+      "relationship": "specified_by",
+      "targetType": "prd",
+      "targetId": "PRD-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0047",
+      "sourceType": "prd",
+      "sourceId": "PRD-0001",
+      "relationship": "decomposed_into",
+      "targetType": "ticket",
+      "targetId": "TKT-0101",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "workstream": "experience",
+        "dependsOn": []
+      }
+    },
+    {
+      "id": "LIN-0048",
+      "sourceType": "prd",
+      "sourceId": "PRD-0001",
+      "relationship": "decomposed_into",
+      "targetType": "ticket",
+      "targetId": "TKT-0102",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "workstream": "reliability",
+        "dependsOn": []
+      }
+    },
+    {
+      "id": "LIN-0049",
+      "sourceType": "prd",
+      "sourceId": "PRD-0001",
+      "relationship": "decomposed_into",
+      "targetType": "ticket",
+      "targetId": "TKT-0103",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "workstream": "integration",
+        "dependsOn": [
+          "TKT-0101",
+          "TKT-0102"
+        ]
+      }
+    },
+    {
+      "id": "LIN-0050",
+      "sourceType": "ticket",
+      "sourceId": "TKT-0101",
+      "relationship": "executed_by",
+      "targetType": "agent_run",
+      "targetId": "RUN-0102",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "branch": "agent/tkt-0101-experience",
+        "executor": "Mocked deterministic engineering executor"
+      }
+    },
+    {
+      "id": "LIN-0051",
+      "sourceType": "agent_run",
+      "sourceId": "RUN-0102",
+      "relationship": "produced",
+      "targetType": "pull_request",
+      "targetId": "PR-0101",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "url": "https://example.invalid/mock/pull/101"
+      }
+    },
+    {
+      "id": "LIN-0052",
+      "sourceType": "ticket",
+      "sourceId": "TKT-0102",
+      "relationship": "executed_by",
+      "targetType": "agent_run",
+      "targetId": "RUN-0103",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "branch": "agent/tkt-0102-reliability",
+        "executor": "Mocked deterministic engineering executor"
+      }
+    },
+    {
+      "id": "LIN-0053",
+      "sourceType": "agent_run",
+      "sourceId": "RUN-0103",
+      "relationship": "produced",
+      "targetType": "pull_request",
+      "targetId": "PR-0102",
+      "createdAt": "2026-07-10T16:30:00.000Z",
+      "metadata": {
+        "url": "https://example.invalid/mock/pull/102"
+      }
+    },
+    {
+      "id": "LIN-0020",
+      "sourceType": "eval_campaign",
+      "sourceId": "EVAL-0001",
+      "relationship": "executed_case",
+      "targetType": "eval_case",
+      "targetId": "EVALCASE-0001",
+      "createdAt": "2026-07-10T17:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0021",
+      "sourceType": "eval_campaign",
+      "sourceId": "EVAL-0001",
+      "relationship": "executed_case",
+      "targetType": "eval_case",
+      "targetId": "EVALCASE-0002",
+      "createdAt": "2026-07-10T17:30:00.000Z",
+      "metadata": {}
+    }
+  ],
+  "integrations": [
+    {
+      "provider": "github",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic github adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "slack",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic slack adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "linear",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic linear adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "supabase",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic supabase adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "langfuse",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic langfuse adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "posthog",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic posthog adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "deployment",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic deployment adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "workflow",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic workflow adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    },
+    {
+      "provider": "sample-product",
+      "mode": "mock",
+      "status": "healthy",
+      "message": "Deterministic sample-product adapter ready",
+      "checkedAt": "2026-07-10T18:30:00.000Z",
+      "capabilities": [
+        "health",
+        "mock-read",
+        "mock-write"
+      ]
+    }
+  ],
+  "funnel": [
+    {
+      "stage": "session started",
+      "count": 50
+    },
+    {
+      "stage": "product viewed",
+      "count": 50
+    },
+    {
+      "stage": "cart added",
+      "count": 25
+    },
+    {
+      "stage": "checkout started",
+      "count": 21
+    },
+    {
+      "stage": "checkout completed",
+      "count": 10
+    }
+  ],
+  "activity": [
+    {
+      "at": "2026-07-10T18:30:00.000Z",
+      "type": "traffic",
+      "title": "Synthetic traffic generated",
+      "detail": "202 measured product events · 34 persistent customers",
+      "entityId": "TRAFFIC-20260710-0001"
+    },
+    {
+      "at": "2026-07-10T18:27:00.000Z",
+      "type": "incident",
+      "title": "Regression case created",
+      "detail": "INC-0001 created EVALCASE-0031",
+      "entityId": "INC-0001"
+    },
+    {
+      "at": "2026-07-10T18:18:00.000Z",
+      "type": "deployment",
+      "title": "Production release recorded",
+      "detail": "DEP-0001 · mocked provider action",
+      "entityId": "DEP-0001"
+    },
+    {
+      "at": "2026-07-10T17:56:00.000Z",
+      "type": "eval",
+      "title": "Corrected campaign passed",
+      "detail": "EVAL-0002 scored 94 / 100",
+      "entityId": "EVAL-0002"
+    },
+    {
+      "at": "2026-07-10T17:31:00.000Z",
+      "type": "gate",
+      "title": "Release blocked",
+      "detail": "Critical accessibility regression in EVAL-0001",
+      "entityId": "EVAL-0001"
+    },
+    {
+      "at": "2026-07-10T16:22:00.000Z",
+      "type": "approval",
+      "title": "Feature approved",
+      "detail": "Human decision DEC-0001 recorded",
+      "entityId": "DEC-0001"
+    }
+  ]
+}

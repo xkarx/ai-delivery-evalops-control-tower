@@ -1,0 +1,392 @@
+[
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0001.",
+      "The checkout completion rate measurement is defined and testable."
+    ],
+    "dependsOn": [],
+    "description": "Deliver the instrument baseline slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0001",
+    "id": "TKT-0001",
+    "sourceMode": "synthetic",
+    "status": "done",
+    "title": "Resilient checkout and cart recovery: Instrument baseline",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0001.",
+      "The checkout completion rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0001"
+    ],
+    "description": "Deliver the prototype behavior slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0001",
+    "id": "TKT-0002",
+    "sourceMode": "synthetic",
+    "status": "in_progress",
+    "title": "Resilient checkout and cart recovery: Prototype behavior",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0001.",
+      "The checkout completion rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0002"
+    ],
+    "description": "Deliver the implement service path slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0001",
+    "id": "TKT-0003",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Resilient checkout and cart recovery: Implement service path",
+    "workstream": "service"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0001.",
+      "The checkout completion rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0003"
+    ],
+    "description": "Deliver the add accessible ui slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0001",
+    "id": "TKT-0004",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Resilient checkout and cart recovery: Add accessible UI",
+    "workstream": "experience"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0001.",
+      "The checkout completion rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0004"
+    ],
+    "description": "Deliver the verify rollout slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0001",
+    "id": "TKT-0005",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Resilient checkout and cart recovery: Verify rollout",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0002.",
+      "The search-to-cart conversion measurement is defined and testable."
+    ],
+    "dependsOn": [],
+    "description": "Deliver the instrument baseline slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0002",
+    "id": "TKT-0006",
+    "sourceMode": "synthetic",
+    "status": "done",
+    "title": "Intent-aware product discovery: Instrument baseline",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0002.",
+      "The search-to-cart conversion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0006"
+    ],
+    "description": "Deliver the prototype behavior slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0002",
+    "id": "TKT-0007",
+    "sourceMode": "synthetic",
+    "status": "in_progress",
+    "title": "Intent-aware product discovery: Prototype behavior",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0002.",
+      "The search-to-cart conversion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0007"
+    ],
+    "description": "Deliver the implement service path slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0002",
+    "id": "TKT-0008",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Intent-aware product discovery: Implement service path",
+    "workstream": "service"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0002.",
+      "The search-to-cart conversion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0008"
+    ],
+    "description": "Deliver the add accessible ui slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0002",
+    "id": "TKT-0009",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Intent-aware product discovery: Add accessible UI",
+    "workstream": "experience"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0002.",
+      "The search-to-cart conversion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0009"
+    ],
+    "description": "Deliver the verify rollout slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0002",
+    "id": "TKT-0010",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Intent-aware product discovery: Verify rollout",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0003.",
+      "The shipping-step abandonment measurement is defined and testable."
+    ],
+    "dependsOn": [],
+    "description": "Deliver the instrument baseline slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0003",
+    "id": "TKT-0011",
+    "sourceMode": "synthetic",
+    "status": "done",
+    "title": "Delivery promise clarity: Instrument baseline",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0003.",
+      "The shipping-step abandonment measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0011"
+    ],
+    "description": "Deliver the prototype behavior slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0003",
+    "id": "TKT-0012",
+    "sourceMode": "synthetic",
+    "status": "in_progress",
+    "title": "Delivery promise clarity: Prototype behavior",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0003.",
+      "The shipping-step abandonment measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0012"
+    ],
+    "description": "Deliver the implement service path slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0003",
+    "id": "TKT-0013",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Delivery promise clarity: Implement service path",
+    "workstream": "service"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0003.",
+      "The shipping-step abandonment measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0013"
+    ],
+    "description": "Deliver the add accessible ui slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0003",
+    "id": "TKT-0014",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Delivery promise clarity: Add accessible UI",
+    "workstream": "experience"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0003.",
+      "The shipping-step abandonment measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0014"
+    ],
+    "description": "Deliver the verify rollout slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0003",
+    "id": "TKT-0015",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Delivery promise clarity: Verify rollout",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0004.",
+      "The 90-day repeat purchase rate measurement is defined and testable."
+    ],
+    "dependsOn": [],
+    "description": "Deliver the instrument baseline slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0004",
+    "id": "TKT-0016",
+    "sourceMode": "synthetic",
+    "status": "done",
+    "title": "Useful loyalty value: Instrument baseline",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0004.",
+      "The 90-day repeat purchase rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0016"
+    ],
+    "description": "Deliver the prototype behavior slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0004",
+    "id": "TKT-0017",
+    "sourceMode": "synthetic",
+    "status": "in_progress",
+    "title": "Useful loyalty value: Prototype behavior",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0004.",
+      "The 90-day repeat purchase rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0017"
+    ],
+    "description": "Deliver the implement service path slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0004",
+    "id": "TKT-0018",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Useful loyalty value: Implement service path",
+    "workstream": "service"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0004.",
+      "The 90-day repeat purchase rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0018"
+    ],
+    "description": "Deliver the add accessible ui slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0004",
+    "id": "TKT-0019",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Useful loyalty value: Add accessible UI",
+    "workstream": "experience"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0004.",
+      "The 90-day repeat purchase rate measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0019"
+    ],
+    "description": "Deliver the verify rollout slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0004",
+    "id": "TKT-0020",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Useful loyalty value: Verify rollout",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0005.",
+      "The accessible task completion measurement is defined and testable."
+    ],
+    "dependsOn": [],
+    "description": "Deliver the instrument baseline slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0005",
+    "id": "TKT-0021",
+    "sourceMode": "synthetic",
+    "status": "done",
+    "title": "Accessible shopping controls: Instrument baseline",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0005.",
+      "The accessible task completion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0021"
+    ],
+    "description": "Deliver the prototype behavior slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0005",
+    "id": "TKT-0022",
+    "sourceMode": "synthetic",
+    "status": "in_progress",
+    "title": "Accessible shopping controls: Prototype behavior",
+    "workstream": "enablement"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0005.",
+      "The accessible task completion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0022"
+    ],
+    "description": "Deliver the implement service path slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0005",
+    "id": "TKT-0023",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Accessible shopping controls: Implement service path",
+    "workstream": "service"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0005.",
+      "The accessible task completion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0023"
+    ],
+    "description": "Deliver the add accessible ui slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0005",
+    "id": "TKT-0024",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Accessible shopping controls: Add accessible UI",
+    "workstream": "experience"
+  },
+  {
+    "acceptanceCriteria": [
+      "Behavior is traceable to FEAT-0005.",
+      "The accessible task completion measurement is defined and testable."
+    ],
+    "dependsOn": [
+      "TKT-0024"
+    ],
+    "description": "Deliver the verify rollout slice with evidence-linked acceptance checks.",
+    "featureId": "FEAT-0005",
+    "id": "TKT-0025",
+    "sourceMode": "synthetic",
+    "status": "todo",
+    "title": "Accessible shopping controls: Verify rollout",
+    "workstream": "enablement"
+  }
+]

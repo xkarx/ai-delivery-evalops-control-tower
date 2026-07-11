@@ -1,0 +1,72 @@
+[
+  {
+    "constraints": [
+      "short sessions",
+      "frequent mobile-to-desktop switching"
+    ],
+    "description": "Shops between obligations and expects interrupted work to recover cleanly.",
+    "goals": [
+      "finish a purchase quickly",
+      "trust delivery promises"
+    ],
+    "id": "PER-0001",
+    "name": "Time-boxed Professional",
+    "sourceMode": "synthetic"
+  },
+  {
+    "constraints": [
+      "price sensitivity",
+      "shared purchasing decisions"
+    ],
+    "description": "Compares alternatives and total delivered cost before committing.",
+    "goals": [
+      "stay within a household budget",
+      "compare substitutions"
+    ],
+    "id": "PER-0002",
+    "name": "Budget-aware Household Planner",
+    "sourceMode": "synthetic"
+  },
+  {
+    "constraints": [
+      "inconsistent focus management",
+      "unannounced validation"
+    ],
+    "description": "Relies on keyboard, screen reader, zoom, or reduced-motion settings.",
+    "goals": [
+      "complete every flow independently",
+      "understand dynamic updates"
+    ],
+    "id": "PER-0003",
+    "name": "Accessibility-first Shopper",
+    "sourceMode": "synthetic"
+  },
+  {
+    "constraints": [
+      "larger baskets",
+      "delivery deadlines"
+    ],
+    "description": "Places repeat orders and values predictable availability and receipts.",
+    "goals": [
+      "reorder known products",
+      "track business expenses"
+    ],
+    "id": "PER-0004",
+    "name": "Small-business Replenisher",
+    "sourceMode": "synthetic"
+  },
+  {
+    "constraints": [
+      "low catalogue familiarity",
+      "uncertain search vocabulary"
+    ],
+    "description": "Visits infrequently with a specific recipient or occasion in mind.",
+    "goals": [
+      "find an appropriate item",
+      "deliver it on time"
+    ],
+    "id": "PER-0005",
+    "name": "Occasional Gift Buyer",
+    "sourceMode": "synthetic"
+  }
+]
