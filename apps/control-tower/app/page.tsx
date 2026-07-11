@@ -4,12 +4,14 @@ import { loadDemoState } from "@/lib/load-demo-state";
 import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { DemoControls } from "@/app/ui/demo-controls";
+import { getRuntimeMode } from "@/lib/runtime-mode";
 
 export default async function OverviewPage() {
   const data = await loadDemoState();
   const primary = data.features[0];
   const latestCampaign = data.campaigns.at(-1);
   const healthy = data.integrations.filter((item) => item.status === "healthy").length;
+  const runtimeMode = getRuntimeMode();
   const maxFunnel = data.funnel[0]?.count ?? 1;
 
   return (
@@ -20,7 +22,7 @@ export default async function OverviewPage() {
         <article className="metric-card"><span className="metric-icon violet"><LayersIcon /></span><div><p>Active features</p><strong>{data.features.length}</strong><small><TrendingUp size={13} /> 1 released this cycle</small></div></article>
         <article className="metric-card"><span className="metric-icon blue"><Clock3 size={19} /></span><div><p>Agent runs</p><strong>{data.runs.length}</strong><small>{data.runs.filter((run) => run.status === "succeeded").length} completed · {data.runs.reduce((sum, run) => sum + run.retries, 0)} retry</small></div></article>
         <article className="metric-card"><span className="metric-icon green"><CheckCircle2 size={19} /></span><div><p>Latest eval score</p><strong>{latestCampaign?.weightedScore ?? 0}</strong><small>Threshold {latestCampaign?.threshold ?? 85} · release allowed</small></div></article>
-        <article className="metric-card"><span className="metric-icon amber"><NetworkIcon /></span><div><p>Integration health</p><strong>{healthy}/{data.integrations.length}</strong><small>Mock providers · credential-free</small></div></article>
+        <article className="metric-card"><span className="metric-icon amber"><NetworkIcon /></span><div><p>Integration health</p><strong>{healthy}/{data.integrations.length}</strong><small>{runtimeMode === "live" ? "Live adapters · read-only health" : "Mock adapters · credential-free"}</small></div></article>
       </section>
       <div className="overview-grid">
         <section className="panel span-8">

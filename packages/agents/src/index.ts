@@ -492,10 +492,10 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
     retries: 0,
     steps: [
       {
-        name: "draft-prd",
+        name: "review-prd-and-scope",
         status: "succeeded",
         durationMs: 8,
-        detail: `${prd.id} preserves ${prd.evidenceIds.length} evidence links`
+        detail: `Reviewed ${prd.id}; PM-owned scope preserves ${prd.evidenceIds.length} evidence links`
       },
       {
         name: "decompose-work",
@@ -504,10 +504,16 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
         detail: "Created two parallel workstreams and one dependent integration ticket"
       },
       {
-        name: "map-risk-and-readiness",
+        name: "map-dependencies-and-risk",
         status: "succeeded",
         durationMs: 8,
         detail: "Recorded delivery, measurement, and scope risks"
+      },
+      {
+        name: "prepare-delivery-readiness",
+        status: "succeeded",
+        durationMs: 8,
+        detail: "Prepared integration gate, ownership, and release-readiness checklist"
       }
     ],
     sourceMode: feature.sourceMode

@@ -8,7 +8,7 @@ Codex must update the implementation link and evidence columns.
 | R002 | Visual control tower | UI | Complete — Next routes, route-specific layouts, executable demo controls + `tests/e2e/control-tower.spec.ts` |
 | R003 | Feature lineage timeline | UI + DB | Complete — `/lineage`, lineage package, Supabase migration |
 | R004 | Deterministic synthetic data | Generator | Complete — same-seed test |
-| R005 | Structured company files | `company/` | Complete — validator + minimum dataset |
+| R005 | Structured company files | `company/` | Complete — validator + minimum dataset; `/company` previews representative transcript/support/analytics records and links each to lineage |
 | R006 | PM evidence analysis | Agent | Complete — `analyzeProductEvidence` citations |
 | R007 | Recommendation not hardcoded | Agent | Complete — scenario-change acceptance test |
 | R008 | Human approval gate | Workflow | Complete — serialized pause/resume test |
@@ -26,7 +26,7 @@ Codex must update the implementation link and evidence columns.
 | R020 | Supabase lineage state | Database | Complete — migration + database adapter |
 | R021 | No committed credentials | Security | Complete — `.env.example` + secret scan |
 | R022 | Credential-free demo mode | Adapters | Complete — `pnpm demo` without credentials |
-| R023 | Live mode | Adapters | Complete — `/api/integrations/health`, workflow sync, ticket, Slack, analytics, sample-product sidecar, and Vercel deployment paths use live adapters when `INTEGRATION_MODE=live`; Slack `chat:write` permission remains the outstanding provider permission |
+| R023 | Live mode | Adapters | Complete — `/api/integrations/health`, workflow sync, ticket, Slack, analytics, sample-product sidecar, and Vercel deployment paths use live adapters when `INTEGRATION_MODE=live`; the Integrations page now probes adapters on initial load as well as on demand |
 | R024 | Open-source attribution | References | Complete — `references/OPEN_SOURCE_ATTRIBUTION.md` |
 | R025 | Responsive UI | UI | Complete — route-specific desktop/mobile layouts + Playwright mobile project |
 | R026 | Two independent workstreams | Orchestration | Complete — separate concurrent `RUN-*` records |

@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Scale, ShieldAlert, Sparkles, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, FlaskConical, Scale, ShieldAlert, XCircle } from "lucide-react";
 import Link from "next/link";
 import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
@@ -20,7 +20,7 @@ export default async function EvalsPage() {
   const runtimeMode = getRuntimeMode();
   return (
     <div className="page-container">
-      <PageHeading eyebrow="Quality operations" title="Eval campaigns" description="Versioned datasets, measured per-case results, human calibration, and release policy." actions={<><ActionFeedbackButton>New dataset</ActionFeedbackButton><ActionFeedbackButton className="button primary"><Sparkles size={15} /> Run campaign</ActionFeedbackButton></>} />
+      <PageHeading eyebrow="Quality operations" title="Eval campaigns" description="Versioned datasets, measured per-case results, human calibration, and release policy." actions={<><ActionFeedbackButton>New dataset</ActionFeedbackButton><ActionFeedbackButton className="button primary"><FlaskConical size={15} /> Run campaign</ActionFeedbackButton></>} />
       <section className="recovery-banner"><div className="recovery-step failed"><XCircle size={20} /><div><span>Version 1</span><b>Release blocked</b><small>{blocked?.weightedScore} / 100</small></div></div><ArrowRight size={17} /><div className="recovery-change"><span>Correction</span><b>Focus-trap regression fixed</b><small>TKT-0002 · RUN-0003</small></div><ArrowRight size={17} /><div className="recovery-step passed"><CheckCircle2 size={20} /><div><span>Version 2</span><b>Gate passed</b><small>{passed?.weightedScore} / 100</small></div></div></section>
       <div className="eval-layout">
         <section className="panel eval-matrix-panel"><div className="section-title"><div><p className="eyebrow">Measured results</p><h2>Version comparison</h2></div><span className="source-label">Dataset dailycart-checkout@1</span></div><div className="eval-matrix"><div className="matrix-head"><span>Criterion</span><span>EVAL-0001</span><span>EVAL-0002</span><span>Grader</span></div>{matrix.map((row) => <div className="matrix-row" key={row.criterion}><b>{row.criterion}</b><span className={row.v1 < 85 ? "score-cell fail" : "score-cell pass"}>{row.v1}</span><span className={row.v2 < 85 ? "score-cell fail" : "score-cell pass"}>{row.v2}</span><small>{row.deterministic ? "Deterministic" : runtimeMode === "live" ? "Live OpenAI judge" : "Mocked AI judge"}</small></div>)}</div><div className="matrix-note"><ShieldAlert size={16} /><p><b>Why EVAL-0001 blocked:</b> critical cases override the weighted average. Keyboard focus scored 0, so release remained blocked despite other passing results.</p></div></section>
