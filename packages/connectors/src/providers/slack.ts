@@ -20,6 +20,12 @@ interface SlackResponse {
   user?: string;
 }
 
+function normalizeSlackMetadata(metadata: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  if (!metadata) return undefined;
+  if (typeof metadata.event_type === "string" && metadata.event_payload !== undefined) return metadata;
+  return { event_type: "dailycart_message", event_payload: metadata };
+}
+
 export class MockSlackChatAdapter extends BaseConnector implements ChatAdapter {
   readonly kind = "chat" as const;
   readonly provider = "slack" as const;
@@ -140,7 +146,7 @@ export class LiveSlackChatAdapter extends BaseConnector implements ChatAdapter {
       text: input.text,
       thread_ts: input.threadId,
       blocks: input.blocks,
-      metadata: input.metadata
+      metadata: normalizeSlackMetadata(input.metadata)
     });
     const threadId = response.ts as string;
     return {

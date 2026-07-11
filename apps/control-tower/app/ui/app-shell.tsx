@@ -29,6 +29,7 @@ const nav = [
   { href: "/", label: "Overview", icon: CircleGauge },
   { href: "/product", label: "Customer product", icon: ShoppingBag },
   { href: "/features", label: "Feature portfolio", icon: Layers3 },
+  { href: "/delivery", label: "Delivery roadmap", icon: GitBranch },
   { href: "/lineage", label: "Feature lineage", icon: GitBranch },
   { href: "/runs", label: "Agent runs", icon: Activity },
   { href: "/evals", label: "Eval campaigns", icon: ShieldCheck },

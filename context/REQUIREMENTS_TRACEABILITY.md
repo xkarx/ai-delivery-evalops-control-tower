@@ -35,3 +35,10 @@ Codex must update the implementation link and evidence columns.
 | R029 | Manual connection checklist | Docs | Complete — exact user-owned steps |
 | R030 | V2 arbitrary-repo path | Architecture | Complete — adapter boundary + V2 scope/ADR |
 | R031 | Operator voice and Slack commands | Control plane | Complete — `/runs` voice/text command panel and signature-verified `/api/slack/commands` trigger workflow, approval, sync, status, and Linear ticket creation through shared live adapters |
+| R032 | PM/UX/feasibility role loop | Agent orchestration | Complete — PM-owned implementation brief, deterministic UX and engineering-feasibility review AgentRuns, explicit PM→review→approval ordering, and TPM brief-only planning |
+| R033 | Versioned company context pack | Company context | Complete — manifest/category/evidence loader with context-pack version and evidence IDs attached to the workflow start |
+| R034 | Linear delivery roadmap | Delivery UI + connector | Complete — `/delivery` board with completed/backlog/active/review/blocked states, owners, dependencies, evidence, and live/mock external links plus status sync |
+| R035 | Logical multi-agent Slack thread | Slack | Complete — one DailyCart bot posts PM, UX, feasibility, TPM, engineering, EvalOps, and release handoffs in one workflow thread; `/dailycart ask` and status read persisted workflow context |
+| R036 | Visible product feature behavior | Customer product | Complete — checkout interruption/recovery interaction, accessible focus restoration, recovery telemetry, and workflow-created preview build action |
+| R037 | Follow-along workflow console | Control plane | Complete — collapsible `/runs` console with current phase, actor, history, next action, source mode, polling, and contextual questions |
+| R038 | Preview-target evaluation gate | Preview + release | Complete — preview build records a target URL, `/api/workflow/preview-eval` probes/evaluates that target, persists checks and source mode, and release approval/deployment reject missing or failing preview results |

@@ -12,3 +12,4 @@ export * from "./providers/posthog";
 export * from "./providers/supabase";
 export * from "./providers/vercel";
 export * from "./providers/inngest";
+export * from "./agent-handoffs";

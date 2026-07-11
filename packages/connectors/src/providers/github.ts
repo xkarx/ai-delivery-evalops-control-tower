@@ -11,6 +11,8 @@ import type {
   CodeHostAdapter,
   ConfigurationStatus,
   ExternalReference,
+  FileCommitInput,
+  FileCommitRecord,
   IssueInput,
   IssueRecord,
   PullRequestInput,
@@ -100,6 +102,11 @@ export class MockGitHubCodeHostAdapter extends BaseConnector implements CodeHost
     };
     this.branches.set(externalId, record);
     return record;
+  }
+
+  async commitFile(input: FileCommitInput): Promise<FileCommitRecord> {
+    const commitSha = `mock-commit-${this.branches.size + 1}`;
+    return { provider: "github", externalId: commitSha, path: input.path, commitSha, branch: input.branch, url: this.externalUrl(`blob/${encodeURIComponent(input.branch)}/${input.path}`) as string, sourceMode: "mocked" };
   }
 
   async openPullRequest(input: PullRequestInput): Promise<PullRequestRecord> {
@@ -296,6 +303,22 @@ export class LiveGitHubCodeHostAdapter extends BaseConnector implements CodeHost
       url: this.externalUrl(`tree/${encodeURIComponent(input.name)}`) as string,
       sourceMode: "live"
     };
+  }
+
+  async commitFile(input: FileCommitInput): Promise<FileCommitRecord> {
+    let currentSha = input.sha;
+    if (!currentSha) {
+      try {
+        const current = await this.request<{ sha: string }>(`/repos/${this.repository()}/contents/${input.path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(input.branch)}`);
+        currentSha = current.sha;
+      } catch { /* New files do not have a current blob SHA. */ }
+    }
+    const response = await this.request<{ content?: { path?: string }; commit?: { sha?: string } }>(`/repos/${this.repository()}/contents/${input.path.split("/").map(encodeURIComponent).join("/")}`, {
+      method: "PUT",
+      body: JSON.stringify({ message: input.message, content: Buffer.from(input.content, "utf8").toString("base64"), branch: input.branch, ...(currentSha ? { sha: currentSha } : {}) })
+    });
+    const commitSha = response.commit?.sha ?? "";
+    return { provider: "github", externalId: commitSha, path: response.content?.path ?? input.path, commitSha, branch: input.branch, url: this.externalUrl(`blob/${encodeURIComponent(input.branch)}/${input.path}`) as string, sourceMode: "live" };
   }
 
   async openPullRequest(input: PullRequestInput): Promise<PullRequestRecord> {

@@ -3,6 +3,7 @@ import { productEventSchema, type ProductEvent } from "../packages/schemas/src/i
 import {
   ConnectorError,
   LiveGitHubCodeHostAdapter,
+  LiveLinearIssueTrackerAdapter,
   MockPostHogAnalyticsAdapter,
   createConnectorSuite,
   createIssueTrackerAdapter
@@ -118,5 +119,50 @@ describe("connector suite", () => {
     });
     expect(tracker.provider).toBe("github");
     expect(tracker.mode).toBe("live");
+  });
+
+  it("preserves delivery metadata and workflow status in the deterministic Linear fallback", async () => {
+    const tracker = createIssueTrackerAdapter({ env: { INTEGRATION_MODE: "mock" }, now });
+    const created = await tracker.createTicket({
+      title: "Instrument checkout recovery",
+      description: "Emit a durable recovery event.",
+      featureId: "FEAT-0001",
+      ticketId: "TKT-0102",
+      prdId: "PRD-0001",
+      evidenceIds: ["EVD-0003", "EVD-0011"],
+      owner: "Engineering · Priya",
+      dependsOn: ["TKT-0101"],
+      workflowStatus: "in_progress"
+    });
+
+    expect(created.workflowStatus).toBe("in_progress");
+    expect(created.state).toBe("open");
+    expect(created.metadata).toMatchObject({ featureId: "FEAT-0001", ticketId: "TKT-0102", prdId: "PRD-0001", owner: "Engineering · Priya", evidenceIds: ["EVD-0003", "EVD-0011"], dependsOn: ["TKT-0101"] });
+
+    const updated = await tracker.updateTicketState(created.externalId, "done");
+    expect(updated.workflowStatus).toBe("done");
+    expect(updated.state).toBe("closed");
+  });
+
+  it("maps delivery status to a Linear workflow state and keeps metadata in the issue body", async () => {
+    const requests: Array<{ query: string; variables: Record<string, unknown> }> = [];
+    const fetcher = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as { query: string; variables: Record<string, unknown> };
+      requests.push(body);
+      if (body.query.includes("TeamStates")) {
+        return new Response(JSON.stringify({ data: { workflowStates: { nodes: [{ id: "state-progress", type: "started", name: "In Progress" }] } } }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ data: { issueCreate: { success: true, issue: { id: "lin-1", identifier: "DC-1", title: "Recovery", url: "https://linear.app/acme/issue/DC-1", state: { type: "started", name: "In Progress" }, project: null } } } }), { status: 200 });
+    });
+    const tracker = new LiveLinearIssueTrackerAdapter({ env: { INTEGRATION_MODE: "live", LINEAR_API_KEY: "test-key", LINEAR_TEAM_ID: "team-1" }, fetch: fetcher, now });
+    const created = await tracker.createTicket({ title: "Recovery", description: "Build it", featureId: "FEAT-0001", ticketId: "TKT-0001", prdId: "PRD-0001", evidenceIds: ["EVD-0003"], owner: "PM · Maya", workflowStatus: "in_progress" });
+
+    expect(created.sourceMode).toBe("live");
+    expect(created.workflowStatus).toBe("in_progress");
+    expect(requests).toHaveLength(2);
+    expect(requests[1].variables.input).toMatchObject({ teamId: "team-1", stateId: "state-progress" });
+    expect(String((requests[1].variables.input as { description: string }).description)).toContain("PRD: PRD-0001");
+    expect(String((requests[1].variables.input as { description: string }).description)).toContain("Evidence: EVD-0003");
+    expect(String((requests[1].variables.input as { description: string }).description)).toContain("Owner: PM · Maya");
   });
 });

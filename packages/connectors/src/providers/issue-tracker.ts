@@ -7,10 +7,34 @@ import type {
   AdapterRuntime,
   CodeHostAdapter,
   ConfigurationStatus,
+  DeliveryTicketStatus,
   IssueTrackerAdapter,
   TicketInput,
   TicketRecord
 } from "../types";
+
+function asWorkflowStatus(state: string | undefined, name?: string): DeliveryTicketStatus {
+  if (name?.toLowerCase().includes("block")) return "blocked";
+  if (state === "completed") return "done";
+  if (state === "canceled") return "blocked";
+  if (state === "started") return "in_progress";
+  return "todo";
+}
+
+function asOpenClosed(status: DeliveryTicketStatus | "open" | "closed" | undefined): "open" | "closed" {
+  return status === "done" || status === "blocked" || status === "closed" ? "closed" : "open";
+}
+
+function metadataFor(input: TicketInput) {
+  return {
+    featureId: input.featureId,
+    ticketId: input.ticketId,
+    prdId: input.prdId,
+    evidenceIds: input.evidenceIds,
+    owner: input.owner,
+    dependsOn: input.dependsOn
+  };
+}
 
 export class MockIssueTrackerAdapter extends BaseConnector implements IssueTrackerAdapter {
   readonly kind = "issue-tracker" as const;
@@ -39,10 +63,12 @@ export class MockIssueTrackerAdapter extends BaseConnector implements IssueTrack
       externalId,
       identifier: `DC-${sequence}`,
       title: input.title,
-      state: "open",
+      state: asOpenClosed(input.workflowStatus ?? "todo"),
       projectId: input.projectId,
       url: this.externalUrl(`issue/DC-${sequence}`),
-      sourceMode: "mocked"
+      sourceMode: "mocked",
+      workflowStatus: input.workflowStatus ?? "todo",
+      metadata: metadataFor(input)
     };
     this.tickets.set(externalId, record);
     return record;
@@ -52,12 +78,13 @@ export class MockIssueTrackerAdapter extends BaseConnector implements IssueTrack
     return this.tickets.get(externalId);
   }
 
-  async updateTicketState(externalId: string, state: "open" | "closed"): Promise<TicketRecord> {
+  async updateTicketState(externalId: string, state: "open" | "closed" | DeliveryTicketStatus): Promise<TicketRecord> {
     const current = this.tickets.get(externalId);
     if (!current) {
       throw new ConnectorError({ provider: this.provider, code: "NOT_FOUND", message: `Ticket ${externalId} was not found.` });
     }
-    const updated = { ...current, state };
+    const workflowStatus = state === "open" || state === "closed" ? current.workflowStatus : state;
+    const updated = { ...current, state: asOpenClosed(state), workflowStatus };
     this.tickets.set(externalId, updated);
     return updated;
   }
@@ -68,7 +95,7 @@ interface LinearIssueNode {
   identifier: string;
   title: string;
   url: string;
-  state?: { type?: string };
+  state?: { type?: string; name?: string };
   project?: { id: string } | null;
 }
 
@@ -120,8 +147,9 @@ export class LiveLinearIssueTrackerAdapter extends BaseConnector implements Issu
     }, this.externalUrl());
   }
 
-  private record(issue: LinearIssueNode): TicketRecord {
+  private record(issue: LinearIssueNode, metadata?: TicketRecord["metadata"]): TicketRecord {
     const closedTypes = new Set(["completed", "canceled"]);
+    const workflowStatus = asWorkflowStatus(issue.state?.type, issue.state?.name);
     return {
       provider: "linear",
       externalId: issue.id,
@@ -130,8 +158,32 @@ export class LiveLinearIssueTrackerAdapter extends BaseConnector implements Issu
       state: closedTypes.has(issue.state?.type ?? "") ? "closed" : "open",
       projectId: issue.project?.id,
       url: issue.url,
-      sourceMode: "live"
+      sourceMode: "live",
+      workflowStatus,
+      metadata
     };
+  }
+
+  private async workflowStateId(status: DeliveryTicketStatus): Promise<string | undefined> {
+    const states = await this.graphql<{ workflowStates: { nodes: Array<{ id: string; type: string; name?: string }> } }>(
+      "query TeamStates($teamId: ID!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id type name } } }",
+      { teamId: this.env.LINEAR_TEAM_ID }
+    );
+    const nodes = states.workflowStates.nodes;
+    const byName = status === "blocked"
+      ? nodes.find((candidate) => candidate.name?.toLowerCase().includes("block"))
+      : status === "in_review"
+        ? nodes.find((candidate) => candidate.name?.toLowerCase().includes("review"))
+        : undefined;
+    if (byName) return byName.id;
+    const desiredTypes: Record<DeliveryTicketStatus, string[]> = {
+      todo: ["backlog", "unstarted"],
+      in_progress: ["started"],
+      in_review: ["started"],
+      done: ["completed"],
+      blocked: ["canceled", "started"]
+    };
+    return nodes.find((candidate) => desiredTypes[status].includes(candidate.type))?.id;
   }
 
   async createTicket(input: TicketInput): Promise<TicketRecord> {
@@ -139,22 +191,27 @@ export class LiveLinearIssueTrackerAdapter extends BaseConnector implements Issu
       input.description,
       input.featureId ? `Feature: ${input.featureId}` : undefined,
       input.ticketId ? `Control tower ticket: ${input.ticketId}` : undefined,
-      input.dependsOn?.length ? `Depends on: ${input.dependsOn.join(", ")}` : undefined
+      input.prdId ? `PRD: ${input.prdId}` : undefined,
+      input.evidenceIds?.length ? `Evidence: ${input.evidenceIds.join(", ")}` : undefined,
+      input.owner ? `Owner: ${input.owner}` : undefined,
+      input.dependsOn?.length ? `Depends on: ${input.dependsOn.join(", ")}` : undefined,
+      input.workflowStatus ? `Delivery status: ${input.workflowStatus}` : undefined
     ].filter(Boolean).join("\n\n");
+    const stateId = input.workflowStatus ? await this.workflowStateId(input.workflowStatus) : undefined;
     const data = await this.graphql<{ issueCreate: { success: boolean; issue?: LinearIssueNode } }>(
-      "mutation CreateIssue($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier title url state { type } project { id } } } }",
-      { input: { teamId: this.env.LINEAR_TEAM_ID, title: input.title, description, projectId: input.projectId, parentId: input.parentId } }
+      "mutation CreateIssue($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier title url state { type name } project { id } } } }",
+      { input: { teamId: this.env.LINEAR_TEAM_ID, title: input.title, description, projectId: input.projectId, parentId: input.parentId, stateId } }
     );
     if (!data.issueCreate.success || !data.issueCreate.issue) {
       throw new ConnectorError({ provider: this.provider, code: "PROVIDER_ERROR", message: "Linear did not create the ticket." });
     }
-    return this.record(data.issueCreate.issue);
+    return this.record(data.issueCreate.issue, metadataFor(input));
   }
 
   async getTicket(externalId: string): Promise<TicketRecord | undefined> {
     try {
       const data = await this.graphql<{ issue: LinearIssueNode | null }>(
-        "query GetIssue($id: String!) { issue(id: $id) { id identifier title url state { type } project { id } } }",
+        "query GetIssue($id: String!) { issue(id: $id) { id identifier title url state { type name } project { id } } }",
         { id: externalId }
       );
       return data.issue ? this.record(data.issue) : undefined;
@@ -164,19 +221,15 @@ export class LiveLinearIssueTrackerAdapter extends BaseConnector implements Issu
     }
   }
 
-  async updateTicketState(externalId: string, state: "open" | "closed"): Promise<TicketRecord> {
-    const states = await this.graphql<{ workflowStates: { nodes: Array<{ id: string; type: string }> } }>(
-      "query TeamStates($teamId: ID!) { workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id type } } }",
-      { teamId: this.env.LINEAR_TEAM_ID }
-    );
-    const desiredTypes = state === "closed" ? ["completed", "canceled"] : ["started", "unstarted", "backlog"];
-    const target = states.workflowStates.nodes.find((candidate) => desiredTypes.includes(candidate.type));
+  async updateTicketState(externalId: string, state: "open" | "closed" | DeliveryTicketStatus): Promise<TicketRecord> {
+    const workflowStatus = state === "open" || state === "closed" ? undefined : state;
+    const target = await this.workflowStateId(workflowStatus ?? (state === "closed" ? "done" : "in_progress"));
     if (!target) {
       throw new ConnectorError({ provider: this.provider, code: "PROVIDER_ERROR", message: `No Linear workflow state can represent ${state}.` });
     }
     const data = await this.graphql<{ issueUpdate: { success: boolean; issue?: LinearIssueNode } }>(
-      "mutation UpdateIssue($id: String!, $input: IssueUpdateInput!) { issueUpdate(id: $id, input: $input) { success issue { id identifier title url state { type } project { id } } } }",
-      { id: externalId, input: { stateId: target.id } }
+      "mutation UpdateIssue($id: String!, $input: IssueUpdateInput!) { issueUpdate(id: $id, input: $input) { success issue { id identifier title url state { type name } project { id } } } }",
+      { id: externalId, input: { stateId: target } }
     );
     if (!data.issueUpdate.success || !data.issueUpdate.issue) {
       throw new ConnectorError({ provider: this.provider, code: "PROVIDER_ERROR", message: "Linear did not update the ticket." });
@@ -209,7 +262,7 @@ export class GitHubIssueTrackerAdapter implements IssueTrackerAdapter {
 
   async createTicket(input: TicketInput): Promise<TicketRecord> {
     const issue = await this.codeHost.createIssue(input);
-    const record: TicketRecord = { ...issue, projectId: input.projectId };
+    const record: TicketRecord = { ...issue, projectId: input.projectId, workflowStatus: input.workflowStatus ?? "todo", metadata: metadataFor(input) };
     this.tickets.set(record.externalId, record);
     return record;
   }
@@ -218,7 +271,7 @@ export class GitHubIssueTrackerAdapter implements IssueTrackerAdapter {
     return this.tickets.get(externalId);
   }
 
-  async updateTicketState(externalId: string, state: "open" | "closed"): Promise<TicketRecord> {
+  async updateTicketState(externalId: string, state: "open" | "closed" | DeliveryTicketStatus): Promise<TicketRecord> {
     const current = this.tickets.get(externalId);
     if (!current) {
       throw new ConnectorError({ provider: this.provider, code: "NOT_FOUND", message: `GitHub issue ${externalId} is not in the adapter cache.` });
@@ -230,7 +283,8 @@ export class GitHubIssueTrackerAdapter implements IssueTrackerAdapter {
         message: "Closing GitHub Issues is not enabled by this minimal fallback scaffold; update it in GitHub using the external URL."
       });
     }
-    const updated = { ...current, state };
+    const workflowStatus = state === "open" || state === "closed" ? current.workflowStatus : state;
+    const updated = { ...current, state: asOpenClosed(state), workflowStatus };
     this.tickets.set(externalId, updated);
     return updated;
   }

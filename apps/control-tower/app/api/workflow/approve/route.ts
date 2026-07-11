@@ -13,6 +13,8 @@ export async function POST(request: Request) {
   const workflowPath = path.resolve(root, "artifacts/workflow-run.json");
   try {
     const body = await request.json().catch(() => ({})) as { reviewer?: string; rationale?: string };
+    const previewEval = await readFile(path.resolve(root, "artifacts/workflow-preview-eval.json"), "utf8").then((value) => JSON.parse(value) as { passed?: boolean }).catch(() => undefined);
+    if (!previewEval?.passed) throw new Error("Run the preview evaluation successfully before approving the release.");
     const reviewer = body.reviewer?.trim() || "operator";
     const rationale = body.rationale?.trim() || "Human release approval granted after the corrected evaluation passed.";
     const stored = JSON.parse(await readFile(workflowPath, "utf8")) as { workflow: Parameters<typeof DeliveryWorkflow.hydrate>[0]; releaseApprovalId: string; featureId: string };

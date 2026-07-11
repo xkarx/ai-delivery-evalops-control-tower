@@ -1,13 +1,15 @@
 import { appendFile, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
+import { postAgentHandoffThread, type AgentHandoffThreadResult } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
 import { loadDemoState } from "@/lib/load-demo-state";
+import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type SyncState = { ticketRecords: Array<{ internalId: string; identifier: string; url: string; sourceMode: string }>; notification?: { provider: string; url: string; sourceMode: string }; trace?: { url: string; sourceMode: string }; workflowEvent?: { url: string; sourceMode: string }; errors: string[] };
+type SyncState = { ticketRecords: Array<{ internalId: string; identifier: string; url: string; sourceMode: string }>; notification?: { provider: string; url: string; sourceMode: string }; handoffThread?: AgentHandoffThreadResult; trace?: { url: string; sourceMode: string }; workflowEvent?: { url: string; sourceMode: string }; errors: string[] };
 
 async function readSync(file: string): Promise<SyncState | undefined> { try { return JSON.parse(await readFile(file, "utf8")) as SyncState; } catch { return undefined; } }
 
@@ -16,15 +18,17 @@ export async function POST() {
   const file = path.resolve(root, "artifacts/workflow-external-sync.json");
   try {
     const existing = await readSync(file);
-    const workflow = JSON.parse(await readFile(path.resolve(root, "artifacts/workflow-run.json"), "utf8")) as { featureId: string };
+    const workflow = JSON.parse(await readFile(path.resolve(root, "artifacts/workflow-run.json"), "utf8")) as { featureId: string; featureTitle?: string; evidenceIds?: string[]; ticketIds?: string[]; engineeringRunIds?: string[]; blockedCampaignId?: string; passedCampaignId?: string; releaseApprovalId?: string; workflow?: { id?: string } ; handoffThread?: AgentHandoffThreadResult };
     const data = await loadDemoState();
     const suite = createConnectorSuite({ env: process.env });
     const state: SyncState = existing ?? { ticketRecords: [], errors: [] };
+    if (!state.handoffThread && workflow.handoffThread) state.handoffThread = workflow.handoffThread;
     const known = new Set(state.ticketRecords.map((record) => record.internalId));
     for (const ticket of data.tickets.filter((item) => item.featureId === workflow.featureId)) {
       if (known.has(ticket.id)) continue;
       try {
-        const record = await suite.issueTracker.createTicket({ title: ticket.title, description: ticket.description, featureId: ticket.featureId, ticketId: ticket.id, dependsOn: ticket.dependsOn });
+        const feature = data.features.find((candidate) => candidate.id === ticket.featureId);
+        const record = await suite.issueTracker.createTicket({ title: ticket.title, description: ticket.description, featureId: ticket.featureId, ticketId: ticket.id, prdId: `PRD-${ticket.featureId.slice(-4)}`, evidenceIds: feature?.evidenceIds ?? [], owner: ticket.workstream === "experience" ? "PM · Maya" : ticket.workstream === "reliability" ? "TPM · Noah" : "Engineering · Priya", workflowStatus: ticket.status, dependsOn: ticket.dependsOn });
         state.ticketRecords.push({ internalId: ticket.id, identifier: record.identifier, url: record.url, sourceMode: record.sourceMode });
       } catch (error) {
         state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Issue tracker write failed.");
@@ -35,6 +39,27 @@ export async function POST() {
         const notification = await suite.chat.postMessage({ text: `DailyCart workflow delivery records synced: ${state.ticketRecords.map((record) => record.identifier).join(", ") || "none"}.`, metadata: { source: "dailycart-workflow-sync", featureId: workflow.featureId } });
         state.notification = { provider: notification.provider, url: notification.url, sourceMode: notification.sourceMode };
       } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Slack write failed."); }
+    }
+    if (!state.handoffThread) {
+      try {
+        const handoffThread = await postAgentHandoffThread(
+          suite.chat,
+          buildWorkflowHandoffs({
+            workflowId: workflow.workflow?.id ?? "PROJ-0101",
+            featureId: workflow.featureId,
+            featureTitle: workflow.featureTitle ?? workflow.featureId,
+            ticketIds: workflow.ticketIds ?? state.ticketRecords.map((ticket) => ticket.internalId),
+            engineeringRunIds: workflow.engineeringRunIds ?? [],
+            blockedCampaignId: workflow.blockedCampaignId ?? "EVAL-0001",
+            passedCampaignId: workflow.passedCampaignId ?? "EVAL-0002",
+            releaseApprovalId: workflow.releaseApprovalId ?? "APR-0102",
+            evidenceIds: workflow.evidenceIds
+          }),
+          { title: `DailyCart workflow ${workflow.workflow?.id ?? "PROJ-0101"}` }
+        );
+        state.handoffThread = handoffThread;
+        await persistHandoffThread(root, handoffThread);
+      } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Agent handoff write failed."); }
     }
     if (!state.trace) {
       try {

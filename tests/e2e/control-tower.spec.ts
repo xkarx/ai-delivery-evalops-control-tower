@@ -10,7 +10,7 @@ test("overview exposes the evidence-to-release story", async ({ page }) => {
 });
 
 test("required pages render on a narrow viewport", async ({ page }) => {
-  for (const route of ["/features", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
+  for (const route of ["/features", "/delivery", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
   }
@@ -30,7 +30,7 @@ test("customer product records a cart interaction", async ({ page }) => {
 
 test("dense screens stay inside the viewport at tablet width", async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 900 });
-  for (const route of ["/incidents", "/company", "/runs", "/reviews", "/integrations"]) {
+  for (const route of ["/incidents", "/company", "/runs", "/reviews", "/integrations", "/delivery"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -40,11 +40,19 @@ test("dense screens stay inside the viewport at tablet width", async ({ page }) 
 
 test("mobile pages do not create horizontal page overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ["/", "/features", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
+  for (const route of ["/", "/features", "/delivery", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
     await page.goto(route);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, `${route} has horizontal mobile overflow`).toBeLessThanOrEqual(1);
   }
+});
+
+test("delivery roadmap exposes status columns and sync feedback", async ({ page }) => {
+  await page.goto("/delivery");
+  await expect(page.getByRole("heading", { name: "Linear delivery roadmap" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Completed" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Backlog" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sync to Linear" })).toBeVisible();
 });
 
 test("analytics traffic controls run a bounded scenario", async ({ page }) => {
@@ -57,9 +65,16 @@ test("analytics traffic controls run a bounded scenario", async ({ page }) => {
 });
 
 test("agent workflow runs through eval and stops at release approval", async ({ page }) => {
+  await page.request.post("/api/demo/reset");
   await page.goto("/runs");
   await page.getByRole("button", { name: "Start workflow" }).click();
   await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Confirm selected opportunity" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirm selected opportunity" }).click();
+  await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("status")).toContainText(/release approval is pending/i);
   await expect(page.locator(".workflow-result")).toContainText(/EVAL-0002 passed/);
+  await page.getByRole("button", { name: "Build product preview" }).click();
+  await expect(page.locator("small[role=status]")).toContainText(/Preview evaluated/i, { timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Approve release" })).toBeEnabled();
 });

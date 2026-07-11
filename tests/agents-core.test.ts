@@ -96,10 +96,10 @@ describe("TPM and engineering delivery", () => {
     const candidate = analysis.opportunities[0];
     if (!candidate) throw new Error("Expected a PM opportunity");
     const approved = featureSchema.parse({ ...candidate, status: "approved" });
-    const plan = createTpmPlan(approved, { now });
+    const plan = createTpmPlan(approved, { implementationBrief: analysis.implementationBrief, now });
 
-    expect(plan.prd.evidenceIds).toEqual(approved.evidenceIds);
-    expect(plan.prd.acceptanceCriteria.length).toBeGreaterThanOrEqual(3);
+    expect(plan.implementationBrief.evidenceIds).toEqual(approved.evidenceIds);
+    expect(plan.implementationBrief.acceptanceCriteria.length).toBeGreaterThanOrEqual(3);
     expect(plan.tickets).toHaveLength(3);
     expect(plan.tickets.filter((ticket) => ticket.dependsOn.length === 0)).toHaveLength(2);
     expect(plan.dependencies[0]?.predecessorTicketIds).toHaveLength(2);
@@ -123,7 +123,7 @@ describe("TPM and engineering delivery", () => {
       evidenceIds: approved.evidenceIds,
       featureId: approved.id,
       decisionId: "DEC-0001",
-      prdId: plan.prd.id,
+      prdId: plan.implementationBrief.id,
       tickets: plan.tickets,
       workstreams,
       createdAt: now
@@ -138,6 +138,6 @@ describe("TPM and engineering delivery", () => {
     const analysis = analyzeProductEvidence([evidence("EVD-0001", "returns")], { now });
     const candidate = analysis.opportunities[0];
     if (!candidate) throw new Error("Expected a PM opportunity");
-    expect(() => createTpmPlan(candidate, { now })).toThrow(/approved feature/i);
+    expect(() => createTpmPlan(candidate, { implementationBrief: analysis.implementationBrief, now })).toThrow(/approved feature/i);
   });
 });

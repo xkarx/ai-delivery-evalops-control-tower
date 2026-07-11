@@ -60,6 +60,10 @@ export interface IssueInput {
   assigneeIds?: string[];
   featureId?: string;
   ticketId?: string;
+  /** Stable delivery metadata retained in provider descriptions/records. */
+  prdId?: string;
+  evidenceIds?: string[];
+  owner?: string;
 }
 
 export interface IssueRecord extends ExternalReference {
@@ -118,26 +122,55 @@ export interface CodeHostAdapter extends BaseAdapter {
   inspectRepository(): Promise<RepositorySnapshot>;
   createIssue(input: IssueInput): Promise<IssueRecord>;
   createBranch(input: BranchInput): Promise<BranchRecord>;
+  commitFile(input: FileCommitInput): Promise<FileCommitRecord>;
   openPullRequest(input: PullRequestInput): Promise<PullRequestRecord>;
   listChecks(ref: string): Promise<CheckRecord[]>;
   createRelease(input: ReleaseInput): Promise<ExternalReference>;
+}
+
+export interface FileCommitInput {
+  path: string;
+  content: string;
+  message: string;
+  branch: string;
+  sha?: string;
+}
+
+export interface FileCommitRecord extends ExternalReference {
+  path: string;
+  commitSha: string;
+  branch: string;
 }
 
 export interface TicketInput extends IssueInput {
   projectId?: string;
   parentId?: string;
   dependsOn?: string[];
+  workflowStatus?: DeliveryTicketStatus;
+}
+
+export type DeliveryTicketStatus = "todo" | "in_progress" | "in_review" | "done" | "blocked";
+
+export interface TicketMetadata {
+  featureId?: string;
+  ticketId?: string;
+  prdId?: string;
+  evidenceIds?: string[];
+  owner?: string;
+  dependsOn?: string[];
 }
 
 export interface TicketRecord extends IssueRecord {
   projectId?: string;
+  workflowStatus?: DeliveryTicketStatus;
+  metadata?: TicketMetadata;
 }
 
 export interface IssueTrackerAdapter extends BaseAdapter {
   readonly kind: "issue-tracker";
   createTicket(input: TicketInput): Promise<TicketRecord>;
   getTicket(externalId: string): Promise<TicketRecord | undefined>;
-  updateTicketState(externalId: string, state: "open" | "closed"): Promise<TicketRecord>;
+  updateTicketState(externalId: string, state: "open" | "closed" | DeliveryTicketStatus): Promise<TicketRecord>;
 }
 
 export interface ChatMessageInput {

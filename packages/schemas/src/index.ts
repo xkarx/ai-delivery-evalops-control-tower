@@ -65,7 +65,7 @@ export type Ticket = z.infer<typeof ticketSchema>;
 
 export const agentRunSchema = z.object({
   id: z.string().regex(/^RUN-\d{4,}$/),
-  agent: z.enum(["pm", "tpm", "engineering", "eval", "release", "incident"]),
+  agent: z.enum(["pm", "ux", "engineering_feasibility", "tpm", "engineering", "eval", "release", "incident"]),
   status: z.enum(["queued", "running", "waiting_approval", "failed", "blocked", "succeeded"]),
   startedAt: timestampSchema,
   finishedAt: timestampSchema.optional(),
@@ -187,7 +187,7 @@ export type IntegrationHealth = z.infer<typeof integrationHealthSchema>;
 
 export const productEventSchema = z.object({
   id: z.string(),
-  event: z.enum(["session_started", "product_viewed", "search_used", "cart_added", "checkout_started", "checkout_completed", "feature_exposed", "error_seen"]),
+  event: z.enum(["session_started", "product_viewed", "search_used", "cart_added", "checkout_started", "checkout_interrupted", "checkout_recovery_used", "checkout_completed", "feature_exposed", "error_seen"]),
   customerId: z.string().regex(/^CUS-\d{4,}$/),
   timestamp: timestampSchema,
   properties: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),

@@ -1,0 +1,168 @@
+{
+  "featureId": "FEAT-0001",
+  "implementationBrief": {
+    "id": "PRD-0001",
+    "featureId": "FEAT-0001",
+    "title": "Improve Checkout Recovery — implementation brief",
+    "problem": "44 evidence item(s) indicate recurring checkout recovery friction. Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper. Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs.",
+    "objective": "If DailyCart improves checkout recovery, affected customers will complete their intended journey more reliably.",
+    "evidenceIds": [
+      "EVD-0003",
+      "EVD-0005",
+      "EVD-0006",
+      "EVD-0008",
+      "EVD-0012",
+      "EVD-0018",
+      "EVD-0021",
+      "EVD-0024",
+      "EVD-0029",
+      "EVD-0032",
+      "EVD-0033",
+      "EVD-0035",
+      "EVD-0037",
+      "EVD-0039",
+      "EVD-0042",
+      "EVD-0043",
+      "EVD-0046",
+      "EVD-0047",
+      "EVD-0048",
+      "EVD-0049",
+      "EVD-0050",
+      "EVD-0053",
+      "EVD-0054",
+      "EVD-0055",
+      "EVD-0056",
+      "EVD-0057",
+      "EVD-0063",
+      "EVD-0068",
+      "EVD-0071",
+      "EVD-0072",
+      "EVD-0074",
+      "EVD-0075",
+      "EVD-0076",
+      "EVD-0078",
+      "EVD-0079",
+      "EVD-0085",
+      "EVD-0086",
+      "EVD-0087",
+      "EVD-0089",
+      "EVD-0090",
+      "EVD-0091",
+      "EVD-0092",
+      "EVD-0094",
+      "EVD-0102"
+    ],
+    "inScope": [
+      "Deliver the core improve checkout recovery user journey",
+      "Instrument success, failure, and exposure events",
+      "Protect the journey with deterministic regression coverage"
+    ],
+    "nonGoals": [
+      "Unrelated product-area redesigns",
+      "Multi-tenant policy customization reserved for V2"
+    ],
+    "userStories": [
+      "As an affected shopper, I can use improve checkout recovery without avoidable friction.",
+      "As a product operator, I can measure adoption and failures by persistent customer ID."
+    ],
+    "metrics": [
+      "checkout_recovery_success_rate",
+      "checkout_recovery_related_support_rate"
+    ],
+    "acceptanceCriteria": [
+      "The primary improve checkout recovery journey completes in supported demo scenarios.",
+      "Every outcome emits checkout_recovery_success_rate telemetry with a feature ID.",
+      "Critical deterministic and regression eval cases pass before release."
+    ],
+    "createdAt": "2026-07-10T19:00:00.000Z",
+    "sourceMode": "simulated"
+  },
+  "uxReview": {
+    "id": "EXT-0200",
+    "featureId": "FEAT-0001",
+    "reviewType": "ux",
+    "status": "passed",
+    "findings": [
+      {
+        "id": "EXT-0204",
+        "severity": "info",
+        "title": "Journey is reviewable",
+        "detail": "User stories and observable acceptance criteria are present.",
+        "recommendation": "Validate the journey with human review at preview."
+      }
+    ],
+    "run": {
+      "id": "RUN-0110",
+      "agent": "ux",
+      "status": "succeeded",
+      "startedAt": "2026-07-10T19:00:00.000Z",
+      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [],
+      "traceId": "trace-run-0110",
+      "costUsd": 0,
+      "latencyMs": 4,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "review-ux",
+          "status": "succeeded",
+          "durationMs": 4,
+          "detail": "1 deterministic finding(s) recorded"
+        },
+        {
+          "name": "record-findings",
+          "status": "succeeded",
+          "durationMs": 1,
+          "detail": "Findings are linked to the PM-owned implementation brief"
+        }
+      ],
+      "sourceMode": "simulated"
+    },
+    "sourceMode": "simulated"
+  },
+  "feasibilityReview": {
+    "id": "EXT-0210",
+    "featureId": "FEAT-0001",
+    "reviewType": "engineering-feasibility",
+    "status": "passed",
+    "findings": [
+      {
+        "id": "EXT-0214",
+        "severity": "info",
+        "title": "Implementation is bounded",
+        "detail": "Scope, exclusions, metrics, and evidence links are present.",
+        "recommendation": "Proceed to TPM dependency mapping and readiness checks."
+      }
+    ],
+    "run": {
+      "id": "RUN-0111",
+      "agent": "engineering_feasibility",
+      "status": "succeeded",
+      "startedAt": "2026-07-10T19:00:00.000Z",
+      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "featureId": "FEAT-0001",
+      "ticketIds": [],
+      "traceId": "trace-run-0111",
+      "costUsd": 0,
+      "latencyMs": 4,
+      "retries": 0,
+      "steps": [
+        {
+          "name": "review-engineering-feasibility",
+          "status": "succeeded",
+          "durationMs": 4,
+          "detail": "1 deterministic finding(s) recorded"
+        },
+        {
+          "name": "record-findings",
+          "status": "succeeded",
+          "durationMs": 1,
+          "detail": "Findings are linked to the PM-owned implementation brief"
+        }
+      ],
+      "sourceMode": "simulated"
+    },
+    "sourceMode": "simulated"
+  }
+}
