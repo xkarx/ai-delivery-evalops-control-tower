@@ -512,10 +512,10 @@
       "retries": 0,
       "steps": [
         {
-          "name": "draft-prd",
+          "name": "review-prd-and-scope",
           "status": "succeeded",
           "durationMs": 8,
-          "detail": "PRD-0001 preserves 44 evidence links"
+          "detail": "Reviewed PRD-0001; PM-owned scope preserves 44 evidence links"
         },
         {
           "name": "decompose-work",
@@ -524,10 +524,16 @@
           "detail": "Created two parallel workstreams and one dependent integration ticket"
         },
         {
-          "name": "map-risk-and-readiness",
+          "name": "map-dependencies-and-risk",
           "status": "succeeded",
           "durationMs": 8,
           "detail": "Recorded delivery, measurement, and scope risks"
+        },
+        {
+          "name": "prepare-delivery-readiness",
+          "status": "succeeded",
+          "durationMs": 8,
+          "detail": "Prepared integration gate, ownership, and release-readiness checklist"
         }
       ],
       "sourceMode": "synthetic"
