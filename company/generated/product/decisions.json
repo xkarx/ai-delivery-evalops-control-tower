@@ -1,0 +1,47 @@
+[
+  {
+    "decidedAt": "2025-03-14T16:00:00.000Z",
+    "featureId": "FEAT-0001",
+    "id": "DEC-0001",
+    "outcome": "changes_requested",
+    "rationale": "Narrow the problem statement and resolve conflicting cohort evidence before delivery.",
+    "reviewer": "Synthetic Product Council",
+    "sourceMode": "synthetic"
+  },
+  {
+    "decidedAt": "2025-03-17T16:01:00.000Z",
+    "featureId": "FEAT-0002",
+    "id": "DEC-0002",
+    "outcome": "approved",
+    "rationale": "Approved for discovery work only; release still requires evaluation and human approval.",
+    "reviewer": "Synthetic GM Review",
+    "sourceMode": "synthetic"
+  },
+  {
+    "decidedAt": "2025-03-20T16:02:00.000Z",
+    "featureId": "FEAT-0003",
+    "id": "DEC-0003",
+    "outcome": "rejected",
+    "rationale": "Current evidence does not justify opportunity cost; retain linked signals for later review.",
+    "reviewer": "Synthetic Product Council",
+    "sourceMode": "synthetic"
+  },
+  {
+    "decidedAt": "2025-03-23T16:03:00.000Z",
+    "featureId": "FEAT-0004",
+    "id": "DEC-0004",
+    "outcome": "changes_requested",
+    "rationale": "Narrow the problem statement and resolve conflicting cohort evidence before delivery.",
+    "reviewer": "Synthetic GM Review",
+    "sourceMode": "synthetic"
+  },
+  {
+    "decidedAt": "2025-03-26T16:04:00.000Z",
+    "featureId": "FEAT-0005",
+    "id": "DEC-0005",
+    "outcome": "approved",
+    "rationale": "Approved for discovery work only; release still requires evaluation and human approval.",
+    "reviewer": "Synthetic Product Council",
+    "sourceMode": "synthetic"
+  }
+]

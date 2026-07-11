@@ -1,0 +1,11 @@
+{
+  "name": "@dailycart/evals",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@dailycart/lineage": "1.0.0",
+    "@dailycart/schemas": "1.0.0"
+  }
+}

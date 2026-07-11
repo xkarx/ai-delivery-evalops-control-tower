@@ -1,0 +1,6 @@
+stage,count,conversionFromPrevious,sourceMode
+session_started,120,1,synthetic
+product_viewed,116,0.9667,synthetic
+cart_added,60,0.5172,synthetic
+checkout_started,44,0.7333,synthetic
+checkout_completed,29,0.6591,synthetic

@@ -1,0 +1,134 @@
+[
+  {
+    "customerId": "CUS-0005",
+    "evidenceId": "EVD-0009",
+    "id": "EXT-8001",
+    "occurredAt": "2025-01-06T15:02:00.000Z",
+    "question": "How much did accessible shopping controls affect your latest shopping task?",
+    "rating": 5,
+    "response": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0024",
+    "evidenceId": "EVD-0010",
+    "id": "EXT-8002",
+    "occurredAt": "2025-01-12T15:04:00.000Z",
+    "question": "How much did delivery promise clarity affect your latest shopping task?",
+    "rating": 4,
+    "response": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0043",
+    "evidenceId": "EVD-0011",
+    "id": "EXT-8003",
+    "occurredAt": "2025-01-18T15:06:00.000Z",
+    "question": "How much did useful loyalty value affect your latest shopping task?",
+    "rating": 4,
+    "response": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0012",
+    "evidenceId": "EVD-0012",
+    "id": "EXT-8004",
+    "occurredAt": "2025-01-24T15:08:00.000Z",
+    "question": "How much did resilient checkout and cart recovery affect your latest shopping task?",
+    "rating": 5,
+    "response": "Returning shoppers lose cart or checkout state after an interruption and must repeat work.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0031",
+    "evidenceId": "EVD-0013",
+    "id": "EXT-8005",
+    "occurredAt": "2025-01-30T15:10:00.000Z",
+    "question": "How much did accessible shopping controls affect your latest shopping task?",
+    "rating": 3,
+    "response": "Important in general, but it did not affect my latest task.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0050",
+    "evidenceId": "EVD-0014",
+    "id": "EXT-8006",
+    "occurredAt": "2025-02-05T15:12:00.000Z",
+    "question": "How much did useful loyalty value affect your latest shopping task?",
+    "rating": 5,
+    "response": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0019",
+    "evidenceId": "EVD-0015",
+    "id": "EXT-8007",
+    "occurredAt": "2025-02-11T15:14:00.000Z",
+    "question": "How much did accessible shopping controls affect your latest shopping task?",
+    "rating": 4,
+    "response": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0038",
+    "evidenceId": "EVD-0016",
+    "id": "EXT-8008",
+    "occurredAt": "2025-02-17T15:16:00.000Z",
+    "question": "How much did delivery promise clarity affect your latest shopping task?",
+    "rating": 5,
+    "response": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0007",
+    "evidenceId": "EVD-0017",
+    "id": "EXT-8009",
+    "occurredAt": "2025-02-23T15:18:00.000Z",
+    "question": "How much did useful loyalty value affect your latest shopping task?",
+    "rating": 5,
+    "response": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0026",
+    "evidenceId": "EVD-0018",
+    "id": "EXT-8010",
+    "occurredAt": "2025-03-01T15:20:00.000Z",
+    "question": "How much did resilient checkout and cart recovery affect your latest shopping task?",
+    "rating": 3,
+    "response": "Important in general, but it did not affect my latest task.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0045",
+    "evidenceId": "EVD-0019",
+    "id": "EXT-8011",
+    "occurredAt": "2025-03-07T15:22:00.000Z",
+    "question": "How much did intent-aware product discovery affect your latest shopping task?",
+    "rating": 4,
+    "response": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  },
+  {
+    "customerId": "CUS-0014",
+    "evidenceId": "EVD-0020",
+    "id": "EXT-8012",
+    "occurredAt": "2025-03-13T15:24:00.000Z",
+    "question": "How much did intent-aware product discovery affect your latest shopping task?",
+    "rating": 5,
+    "response": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly.",
+    "sourceMode": "synthetic",
+    "survey": "2025-Q1 purchase confidence pulse"
+  }
+]

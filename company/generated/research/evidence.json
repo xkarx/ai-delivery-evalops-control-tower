@@ -1,0 +1,1471 @@
+[
+  {
+    "customerId": "CUS-0003",
+    "id": "EVD-0001",
+    "kind": "interview",
+    "occurredAt": "2025-01-23T10:03:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "delivery_clarity",
+      "interview"
+    ],
+    "title": "Interview: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0010",
+    "id": "EVD-0002",
+    "kind": "interview",
+    "occurredAt": "2025-01-31T11:06:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "search_quality",
+      "interview"
+    ],
+    "title": "Interview: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0017",
+    "id": "EVD-0003",
+    "kind": "interview",
+    "occurredAt": "2025-02-08T12:09:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "checkout_recovery",
+      "interview"
+    ],
+    "title": "Interview: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0024",
+    "id": "EVD-0004",
+    "kind": "interview",
+    "occurredAt": "2025-02-16T13:12:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “I care more about item quality than an exact arrival estimate.” This conflicts with other delivery promise clarity signals and should not be discarded.",
+    "tags": [
+      "delivery_clarity",
+      "interview"
+    ],
+    "title": "Interview: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0031",
+    "id": "EVD-0005",
+    "kind": "interview",
+    "occurredAt": "2025-02-24T09:15:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs.",
+    "tags": [
+      "checkout_recovery",
+      "interview"
+    ],
+    "title": "Interview: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0038",
+    "id": "EVD-0006",
+    "kind": "interview",
+    "occurredAt": "2025-03-04T10:18:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "checkout_recovery",
+      "interview"
+    ],
+    "title": "Interview: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0045",
+    "id": "EVD-0007",
+    "kind": "interview",
+    "occurredAt": "2025-03-12T11:21:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "delivery_clarity",
+      "interview",
+      "noisy"
+    ],
+    "title": "Interview: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0002",
+    "id": "EVD-0008",
+    "kind": "interview",
+    "occurredAt": "2025-03-20T12:24:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals and should not be discarded.",
+    "tags": [
+      "checkout_recovery",
+      "interview"
+    ],
+    "title": "Interview: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0005",
+    "id": "EVD-0009",
+    "kind": "survey",
+    "occurredAt": "2025-01-06T15:02:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to accessible shopping controls; the prompted question may have increased salience.",
+    "tags": [
+      "accessible_shopping",
+      "survey"
+    ],
+    "title": "Pulse survey: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0024",
+    "id": "EVD-0010",
+    "kind": "survey",
+    "occurredAt": "2025-01-12T15:04:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to delivery promise clarity; the prompted question may have increased salience.",
+    "tags": [
+      "delivery_clarity",
+      "survey"
+    ],
+    "title": "Pulse survey: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0043",
+    "id": "EVD-0011",
+    "kind": "survey",
+    "occurredAt": "2025-01-18T15:06:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to useful loyalty value; the prompted question may have increased salience.",
+    "tags": [
+      "loyalty_value",
+      "survey",
+      "conflict"
+    ],
+    "title": "Pulse survey: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0012",
+    "id": "EVD-0012",
+    "kind": "survey",
+    "occurredAt": "2025-01-24T15:08:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to resilient checkout and cart recovery; the prompted question may have increased salience.",
+    "tags": [
+      "checkout_recovery",
+      "survey"
+    ],
+    "title": "Pulse survey: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0031",
+    "id": "EVD-0013",
+    "kind": "survey",
+    "occurredAt": "2025-01-30T15:10:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The respondent rated accessible shopping controls as important but reported no recent task failure, creating a stated-versus-observed conflict.",
+    "tags": [
+      "accessible_shopping",
+      "survey",
+      "ambiguous"
+    ],
+    "title": "Pulse survey: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0050",
+    "id": "EVD-0014",
+    "kind": "survey",
+    "occurredAt": "2025-02-05T15:12:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to useful loyalty value; the prompted question may have increased salience.",
+    "tags": [
+      "loyalty_value",
+      "survey",
+      "noisy"
+    ],
+    "title": "Pulse survey: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0019",
+    "id": "EVD-0015",
+    "kind": "survey",
+    "occurredAt": "2025-02-11T15:14:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to accessible shopping controls; the prompted question may have increased salience.",
+    "tags": [
+      "accessible_shopping",
+      "survey"
+    ],
+    "title": "Pulse survey: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0038",
+    "id": "EVD-0016",
+    "kind": "survey",
+    "occurredAt": "2025-02-17T15:16:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to delivery promise clarity; the prompted question may have increased salience.",
+    "tags": [
+      "delivery_clarity",
+      "survey"
+    ],
+    "title": "Pulse survey: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0007",
+    "id": "EVD-0017",
+    "kind": "survey",
+    "occurredAt": "2025-02-23T15:18:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to useful loyalty value; the prompted question may have increased salience.",
+    "tags": [
+      "loyalty_value",
+      "survey"
+    ],
+    "title": "Pulse survey: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0026",
+    "id": "EVD-0018",
+    "kind": "survey",
+    "occurredAt": "2025-03-01T15:20:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The respondent rated resilient checkout and cart recovery as important but reported no recent task failure, creating a stated-versus-observed conflict.",
+    "tags": [
+      "checkout_recovery",
+      "survey"
+    ],
+    "title": "Pulse survey: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0045",
+    "id": "EVD-0019",
+    "kind": "survey",
+    "occurredAt": "2025-03-07T15:22:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to intent-aware product discovery; the prompted question may have increased salience.",
+    "tags": [
+      "search_quality",
+      "survey"
+    ],
+    "title": "Pulse survey: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0014",
+    "id": "EVD-0020",
+    "kind": "survey",
+    "occurredAt": "2025-03-13T15:24:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "The respondent reported friction related to intent-aware product discovery; the prompted question may have increased salience.",
+    "tags": [
+      "search_quality",
+      "survey"
+    ],
+    "title": "Pulse survey: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0002",
+    "id": "EVD-0021",
+    "kind": "support",
+    "occurredAt": "2024-10-31T08:01:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0013",
+    "id": "EVD-0022",
+    "kind": "support",
+    "occurredAt": "2024-11-04T09:02:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "search_quality",
+      "support"
+    ],
+    "title": "Support: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0024",
+    "id": "EVD-0023",
+    "kind": "support",
+    "occurredAt": "2024-11-08T10:03:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "loyalty_value",
+      "support"
+    ],
+    "title": "Support: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0035",
+    "id": "EVD-0024",
+    "kind": "support",
+    "occurredAt": "2024-11-12T11:04:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0046",
+    "id": "EVD-0025",
+    "kind": "support",
+    "occurredAt": "2024-11-16T12:05:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows. The report is specific but does not establish how often the problem occurs.",
+    "tags": [
+      "accessible_shopping",
+      "support"
+    ],
+    "title": "Support: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0007",
+    "id": "EVD-0026",
+    "kind": "support",
+    "occurredAt": "2024-11-20T13:06:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "delivery_clarity",
+      "support"
+    ],
+    "title": "Support: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0018",
+    "id": "EVD-0027",
+    "kind": "support",
+    "occurredAt": "2024-11-24T14:07:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "delivery_clarity",
+      "support",
+      "noisy"
+    ],
+    "title": "Support: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0029",
+    "id": "EVD-0028",
+    "kind": "support",
+    "occurredAt": "2024-11-28T15:08:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "loyalty_value",
+      "support"
+    ],
+    "title": "Support: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0040",
+    "id": "EVD-0029",
+    "kind": "support",
+    "occurredAt": "2024-12-02T16:09:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0001",
+    "id": "EVD-0030",
+    "kind": "support",
+    "occurredAt": "2024-12-06T17:10:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “The current flow worked on my device, though I only tested a simple purchase.” This conflicts with other accessible shopping controls signals and should not be discarded.",
+    "tags": [
+      "accessible_shopping",
+      "support"
+    ],
+    "title": "Support: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0012",
+    "id": "EVD-0031",
+    "kind": "support",
+    "occurredAt": "2024-12-10T18:11:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "loyalty_value",
+      "support",
+      "conflict"
+    ],
+    "title": "Support: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0023",
+    "id": "EVD-0032",
+    "kind": "support",
+    "occurredAt": "2024-12-14T19:12:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0034",
+    "id": "EVD-0033",
+    "kind": "support",
+    "occurredAt": "2024-12-18T07:13:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "checkout_recovery",
+      "support",
+      "ambiguous"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0045",
+    "id": "EVD-0034",
+    "kind": "support",
+    "occurredAt": "2024-12-22T08:14:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. The signal agrees with behavioral data directionally, not causally.",
+    "tags": [
+      "search_quality",
+      "support",
+      "noisy"
+    ],
+    "title": "Support: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0006",
+    "id": "EVD-0035",
+    "kind": "support",
+    "occurredAt": "2024-12-26T09:15:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0017",
+    "id": "EVD-0036",
+    "kind": "support",
+    "occurredAt": "2024-12-30T10:16:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "search_quality",
+      "support"
+    ],
+    "title": "Support: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0028",
+    "id": "EVD-0037",
+    "kind": "support",
+    "occurredAt": "2025-01-03T11:17:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0039",
+    "id": "EVD-0038",
+    "kind": "support",
+    "occurredAt": "2025-01-07T12:18:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "accessible_shopping",
+      "support"
+    ],
+    "title": "Support: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0050",
+    "id": "EVD-0039",
+    "kind": "support",
+    "occurredAt": "2025-01-11T13:19:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0011",
+    "id": "EVD-0040",
+    "kind": "support",
+    "occurredAt": "2025-01-15T14:20:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “I browse categories and rarely use search, so richer search would not change my routine.” This conflicts with other intent-aware product discovery signals and should not be discarded.",
+    "tags": [
+      "search_quality",
+      "support"
+    ],
+    "title": "Support: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0022",
+    "id": "EVD-0041",
+    "kind": "support",
+    "occurredAt": "2025-01-19T15:21:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "loyalty_value",
+      "support",
+      "noisy"
+    ],
+    "title": "Support: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0033",
+    "id": "EVD-0042",
+    "kind": "support",
+    "occurredAt": "2025-01-23T16:22:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "checkout_recovery",
+      "support",
+      "conflict"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0044",
+    "id": "EVD-0043",
+    "kind": "support",
+    "occurredAt": "2025-01-27T17:23:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0005",
+    "id": "EVD-0044",
+    "kind": "support",
+    "occurredAt": "2025-01-31T18:24:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. The signal agrees with behavioral data directionally, not causally.",
+    "tags": [
+      "search_quality",
+      "support"
+    ],
+    "title": "Support: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0016",
+    "id": "EVD-0045",
+    "kind": "support",
+    "occurredAt": "2025-02-04T19:25:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. The report is specific but does not establish how often the problem occurs.",
+    "tags": [
+      "search_quality",
+      "support"
+    ],
+    "title": "Support: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0027",
+    "id": "EVD-0046",
+    "kind": "support",
+    "occurredAt": "2025-02-08T07:26:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain.",
+    "tags": [
+      "checkout_recovery",
+      "support",
+      "ambiguous"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0038",
+    "id": "EVD-0047",
+    "kind": "support",
+    "occurredAt": "2025-02-12T08:27:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0049",
+    "id": "EVD-0048",
+    "kind": "support",
+    "occurredAt": "2025-02-16T09:28:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper.",
+    "tags": [
+      "checkout_recovery",
+      "support",
+      "noisy"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0010",
+    "id": "EVD-0049",
+    "kind": "support",
+    "occurredAt": "2025-02-20T10:29:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0021",
+    "id": "EVD-0050",
+    "kind": "support",
+    "occurredAt": "2025-02-24T11:30:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals and should not be discarded.",
+    "tags": [
+      "checkout_recovery",
+      "support"
+    ],
+    "title": "Support: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0006",
+    "id": "EVD-0051",
+    "kind": "survey",
+    "occurredAt": "2024-11-30T11:02:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0019",
+    "id": "EVD-0052",
+    "kind": "survey",
+    "occurredAt": "2024-12-04T12:04:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to show the delivery date and full shipping cost before I start checkout. Stated demand is not proof of adoption.",
+    "tags": [
+      "delivery_clarity",
+      "feature_request"
+    ],
+    "title": "Feature request: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0032",
+    "id": "EVD-0053",
+    "kind": "survey",
+    "occurredAt": "2024-12-08T13:06:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0045",
+    "id": "EVD-0054",
+    "kind": "survey",
+    "occurredAt": "2024-12-12T14:08:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0008",
+    "id": "EVD-0055",
+    "kind": "survey",
+    "occurredAt": "2024-12-16T15:10:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0021",
+    "id": "EVD-0056",
+    "kind": "survey",
+    "occurredAt": "2024-12-20T16:12:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0034",
+    "id": "EVD-0057",
+    "kind": "survey",
+    "occurredAt": "2024-12-24T17:14:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request",
+      "noisy"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0047",
+    "id": "EVD-0058",
+    "kind": "survey",
+    "occurredAt": "2024-12-28T10:16:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to make filters, cart updates, and validation messages reliable with keyboard and screen-reader navigation. Stated demand is not proof of adoption.",
+    "tags": [
+      "accessible_shopping",
+      "feature_request"
+    ],
+    "title": "Feature request: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0010",
+    "id": "EVD-0059",
+    "kind": "survey",
+    "occurredAt": "2025-01-01T11:18:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The customer requested the capability but rated the underlying problem low severity. I browse categories and rarely use search, so richer search would not change my routine.",
+    "tags": [
+      "search_quality",
+      "feature_request"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0023",
+    "id": "EVD-0060",
+    "kind": "survey",
+    "occurredAt": "2025-01-05T12:20:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to show the delivery date and full shipping cost before I start checkout. Stated demand is not proof of adoption.",
+    "tags": [
+      "delivery_clarity",
+      "feature_request"
+    ],
+    "title": "Feature request: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0036",
+    "id": "EVD-0061",
+    "kind": "survey",
+    "occurredAt": "2025-01-09T13:22:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request",
+      "conflict"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0049",
+    "id": "EVD-0062",
+    "kind": "survey",
+    "occurredAt": "2025-01-13T14:24:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0012",
+    "id": "EVD-0063",
+    "kind": "survey",
+    "occurredAt": "2025-01-17T15:26:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request",
+      "ambiguous"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0025",
+    "id": "EVD-0064",
+    "kind": "survey",
+    "occurredAt": "2025-01-21T16:28:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request",
+      "noisy"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0038",
+    "id": "EVD-0065",
+    "kind": "survey",
+    "occurredAt": "2025-01-25T17:30:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0001",
+    "id": "EVD-0066",
+    "kind": "survey",
+    "occurredAt": "2025-01-29T10:32:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0014",
+    "id": "EVD-0067",
+    "kind": "survey",
+    "occurredAt": "2025-02-02T11:34:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to understand descriptive searches and common misspellings instead of returning an empty result. Stated demand is not proof of adoption.",
+    "tags": [
+      "search_quality",
+      "feature_request"
+    ],
+    "title": "Feature request: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0027",
+    "id": "EVD-0068",
+    "kind": "survey",
+    "occurredAt": "2025-02-06T12:36:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The customer requested the capability but rated the underlying problem low severity. I usually finish in one sitting, so recovery controls would add little value for me.",
+    "tags": [
+      "checkout_recovery",
+      "feature_request"
+    ],
+    "title": "Feature request: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0040",
+    "id": "EVD-0069",
+    "kind": "survey",
+    "occurredAt": "2025-02-10T13:38:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to show the delivery date and full shipping cost before I start checkout. Stated demand is not proof of adoption.",
+    "tags": [
+      "delivery_clarity",
+      "feature_request"
+    ],
+    "title": "Feature request: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0003",
+    "id": "EVD-0070",
+    "kind": "survey",
+    "occurredAt": "2025-02-14T14:40:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The customer asked DailyCart to show the delivery date and full shipping cost before I start checkout. Stated demand is not proof of adoption.",
+    "tags": [
+      "delivery_clarity",
+      "feature_request"
+    ],
+    "title": "Feature request: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0004",
+    "id": "EVD-0071",
+    "kind": "support",
+    "occurredAt": "2024-12-11T07:01:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0009",
+    "id": "EVD-0072",
+    "kind": "support",
+    "occurredAt": "2024-12-16T08:02:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug",
+      "noisy"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0014",
+    "id": "EVD-0073",
+    "kind": "support",
+    "occurredAt": "2024-12-21T09:03:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "delivery_clarity",
+      "bug"
+    ],
+    "title": "Bug report: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0019",
+    "id": "EVD-0074",
+    "kind": "support",
+    "occurredAt": "2024-12-26T10:04:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug",
+      "conflict"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0024",
+    "id": "EVD-0075",
+    "kind": "support",
+    "occurredAt": "2024-12-31T11:05:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0029",
+    "id": "EVD-0076",
+    "kind": "support",
+    "occurredAt": "2025-01-05T12:06:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0034",
+    "id": "EVD-0077",
+    "kind": "support",
+    "occurredAt": "2025-01-10T13:07:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "accessible_shopping",
+      "bug"
+    ],
+    "title": "Bug report: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0039",
+    "id": "EVD-0078",
+    "kind": "support",
+    "occurredAt": "2025-01-15T14:08:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The symptom could not be reproduced after cache clearing, so attribution to resilient checkout and cart recovery remains uncertain.",
+    "tags": [
+      "checkout_recovery",
+      "bug"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0044",
+    "id": "EVD-0079",
+    "kind": "support",
+    "occurredAt": "2025-01-20T15:09:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug",
+      "noisy"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "customerId": "CUS-0049",
+    "id": "EVD-0080",
+    "kind": "support",
+    "occurredAt": "2025-01-25T16:10:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "search_quality",
+      "bug"
+    ],
+    "title": "Bug report: Intent-aware product discovery"
+  },
+  {
+    "customerId": "CUS-0004",
+    "id": "EVD-0081",
+    "kind": "support",
+    "occurredAt": "2025-01-30T17:11:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "loyalty_value",
+      "bug"
+    ],
+    "title": "Bug report: Useful loyalty value"
+  },
+  {
+    "customerId": "CUS-0009",
+    "id": "EVD-0082",
+    "kind": "support",
+    "occurredAt": "2025-02-04T06:12:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "accessible_shopping",
+      "bug",
+      "ambiguous"
+    ],
+    "title": "Bug report: Accessible shopping controls"
+  },
+  {
+    "customerId": "CUS-0014",
+    "id": "EVD-0083",
+    "kind": "support",
+    "occurredAt": "2025-02-09T07:13:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "delivery_clarity",
+      "bug"
+    ],
+    "title": "Bug report: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0019",
+    "id": "EVD-0084",
+    "kind": "support",
+    "occurredAt": "2025-02-14T08:14:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "delivery_clarity",
+      "bug"
+    ],
+    "title": "Bug report: Delivery promise clarity"
+  },
+  {
+    "customerId": "CUS-0024",
+    "id": "EVD-0085",
+    "kind": "support",
+    "occurredAt": "2025-02-19T09:15:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms.",
+    "tags": [
+      "checkout_recovery",
+      "bug",
+      "conflict"
+    ],
+    "title": "Bug report: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0086",
+    "kind": "discussion",
+    "occurredAt": "2025-02-14T11:04:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations.",
+    "tags": [
+      "checkout_recovery",
+      "discussion"
+    ],
+    "title": "Slack discussion: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0087",
+    "kind": "discussion",
+    "occurredAt": "2025-02-19T11:08:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations.",
+    "tags": [
+      "checkout_recovery",
+      "discussion"
+    ],
+    "title": "Slack discussion: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0088",
+    "kind": "discussion",
+    "occurredAt": "2025-02-24T11:12:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "Support and analytics disagree about accessible shopping controls; the thread ends without a decision.",
+    "tags": [
+      "accessible_shopping",
+      "discussion",
+      "noisy"
+    ],
+    "title": "Slack discussion: Accessible shopping controls"
+  },
+  {
+    "id": "EVD-0089",
+    "kind": "discussion",
+    "occurredAt": "2025-03-01T11:16:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations.",
+    "tags": [
+      "checkout_recovery",
+      "discussion"
+    ],
+    "title": "Slack discussion: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0090",
+    "kind": "discussion",
+    "occurredAt": "2025-03-06T11:20:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations.",
+    "tags": [
+      "checkout_recovery",
+      "discussion",
+      "ambiguous"
+    ],
+    "title": "Slack discussion: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0091",
+    "kind": "discussion",
+    "occurredAt": "2025-03-11T11:24:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "Support and analytics disagree about resilient checkout and cart recovery; the thread ends without a decision.",
+    "tags": [
+      "checkout_recovery",
+      "discussion",
+      "conflict"
+    ],
+    "title": "Slack discussion: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0092",
+    "kind": "discussion",
+    "occurredAt": "2025-03-16T11:28:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations.",
+    "tags": [
+      "checkout_recovery",
+      "discussion"
+    ],
+    "title": "Slack discussion: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0093",
+    "kind": "discussion",
+    "occurredAt": "2025-03-21T11:32:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "A cross-functional discussion links customer reports to shipping-step abandonment, while calling out sampling limitations.",
+    "tags": [
+      "delivery_clarity",
+      "discussion"
+    ],
+    "title": "Slack discussion: Delivery promise clarity"
+  },
+  {
+    "id": "EVD-0094",
+    "kind": "analytics",
+    "occurredAt": "2025-03-25T17:01:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "checkout completion rate changed by a material amount in the scenario window. Observational data cannot isolate product friction from traffic mix.",
+    "tags": [
+      "checkout_recovery",
+      "analytics"
+    ],
+    "title": "Baseline signal: checkout completion rate"
+  },
+  {
+    "id": "EVD-0095",
+    "kind": "analytics",
+    "occurredAt": "2025-03-25T17:02:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "search-to-cart conversion changed by a modest amount in the scenario window. Observational data cannot isolate product friction from traffic mix.",
+    "tags": [
+      "search_quality",
+      "analytics"
+    ],
+    "title": "Baseline signal: search-to-cart conversion"
+  },
+  {
+    "id": "EVD-0096",
+    "kind": "analytics",
+    "occurredAt": "2025-03-25T17:03:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "shipping-step abandonment changed by a modest amount in the scenario window. Observational data cannot isolate product friction from traffic mix.",
+    "tags": [
+      "delivery_clarity",
+      "analytics"
+    ],
+    "title": "Baseline signal: shipping-step abandonment"
+  },
+  {
+    "id": "EVD-0097",
+    "kind": "analytics",
+    "occurredAt": "2025-03-25T17:04:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "90-day repeat purchase rate changed by a modest amount in the scenario window. Observational data cannot isolate product friction from traffic mix.",
+    "tags": [
+      "loyalty_value",
+      "analytics"
+    ],
+    "title": "Baseline signal: 90-day repeat purchase rate"
+  },
+  {
+    "id": "EVD-0098",
+    "kind": "analytics",
+    "occurredAt": "2025-03-25T17:05:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "accessible task completion changed by a modest amount in the scenario window. Observational data cannot isolate product friction from traffic mix.",
+    "tags": [
+      "accessible_shopping",
+      "analytics"
+    ],
+    "title": "Baseline signal: accessible task completion"
+  },
+  {
+    "id": "EVD-0099",
+    "kind": "analytics",
+    "occurredAt": "2025-01-15T16:01:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The test estimate for search-to-cart conversion crossed zero; no conclusive causal effect was established.",
+    "tags": [
+      "search_quality",
+      "experiment",
+      "inconclusive"
+    ],
+    "title": "Experiment: Intent-aware product discovery"
+  },
+  {
+    "id": "EVD-0100",
+    "kind": "analytics",
+    "occurredAt": "2025-02-09T16:02:00.000Z",
+    "sentiment": "mixed",
+    "sourceMode": "synthetic",
+    "summary": "The test showed a positive shipping-step abandonment direction but was underpowered after an instrumentation gap.",
+    "tags": [
+      "delivery_clarity",
+      "experiment",
+      "underpowered"
+    ],
+    "title": "Experiment: Delivery promise clarity"
+  },
+  {
+    "id": "EVD-0101",
+    "kind": "analytics",
+    "occurredAt": "2025-03-06T16:03:00.000Z",
+    "sentiment": "neutral",
+    "sourceMode": "synthetic",
+    "summary": "The test estimate for 90-day repeat purchase rate crossed zero; no conclusive causal effect was established.",
+    "tags": [
+      "loyalty_value",
+      "experiment",
+      "inconclusive"
+    ],
+    "title": "Experiment: Useful loyalty value"
+  },
+  {
+    "id": "EVD-0102",
+    "kind": "incident",
+    "occurredAt": "2024-09-13T13:08:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "A synthetic production incident affected resilient checkout and cart recovery. The postmortem distinguishes the trigger from broader customer claims.",
+    "tags": [
+      "checkout_recovery",
+      "incident",
+      "noisy",
+      "ambiguous",
+      "confirmed_failure"
+    ],
+    "title": "Incident: Resilient checkout and cart recovery"
+  },
+  {
+    "id": "EVD-0103",
+    "kind": "incident",
+    "occurredAt": "2024-11-18T13:16:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "A synthetic production incident affected intent-aware product discovery. The postmortem distinguishes the trigger from broader customer claims.",
+    "tags": [
+      "search_quality",
+      "incident",
+      "confirmed_failure"
+    ],
+    "title": "Incident: Intent-aware product discovery"
+  },
+  {
+    "id": "EVD-0104",
+    "kind": "incident",
+    "occurredAt": "2025-01-23T13:24:00.000Z",
+    "sentiment": "negative",
+    "sourceMode": "synthetic",
+    "summary": "A synthetic production incident affected accessible shopping controls. The postmortem distinguishes the trigger from broader customer claims.",
+    "tags": [
+      "accessible_shopping",
+      "incident",
+      "confirmed_failure"
+    ],
+    "title": "Incident: Accessible shopping controls"
+  }
+]

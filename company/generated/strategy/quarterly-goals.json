@@ -1,0 +1,32 @@
+[
+  {
+    "baseline": 0.63,
+    "id": "EXT-7001",
+    "metric": "completed checkouts divided by checkout starts",
+    "owner": "synthetic-growth-group",
+    "quarter": "2025-Q2",
+    "sourceMode": "synthetic",
+    "target": 0.72,
+    "title": "Improve confident purchase completion"
+  },
+  {
+    "baseline": 0.046,
+    "id": "EXT-7002",
+    "metric": "sessions with an unrecovered error",
+    "owner": "synthetic-reliability-group",
+    "quarter": "2025-Q2",
+    "sourceMode": "synthetic",
+    "target": 0.025,
+    "title": "Reduce blocked customer journeys"
+  },
+  {
+    "baseline": 0.28,
+    "id": "EXT-7003",
+    "metric": "90-day repeat purchase rate",
+    "owner": "synthetic-retention-group",
+    "quarter": "2025-Q2",
+    "sourceMode": "synthetic",
+    "target": 0.34,
+    "title": "Increase trustworthy repeat value"
+  }
+]

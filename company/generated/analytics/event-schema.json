@@ -1,0 +1,69 @@
+{
+  "events": {
+    "cart_added": {
+      "funnelStage": 3,
+      "requiredProperties": [
+        "sessionId",
+        "quantity"
+      ]
+    },
+    "checkout_completed": {
+      "funnelStage": 5,
+      "requiredProperties": [
+        "sessionId",
+        "cartValueUsd"
+      ]
+    },
+    "checkout_started": {
+      "funnelStage": 4,
+      "requiredProperties": [
+        "sessionId",
+        "cartValueUsd"
+      ]
+    },
+    "error_seen": {
+      "requiredProperties": [
+        "sessionId",
+        "code"
+      ]
+    },
+    "feature_exposed": {
+      "requiredProperties": [
+        "sessionId",
+        "featureId"
+      ]
+    },
+    "product_viewed": {
+      "funnelStage": 2,
+      "requiredProperties": [
+        "sessionId",
+        "productId"
+      ]
+    },
+    "search_used": {
+      "requiredProperties": [
+        "sessionId",
+        "resultCount"
+      ]
+    },
+    "session_started": {
+      "funnelStage": 1,
+      "requiredProperties": [
+        "sessionId",
+        "device",
+        "region"
+      ]
+    }
+  },
+  "identity": "customerId is a persistent CUS identifier; sessionId is stored in properties",
+  "requiredFields": [
+    "id",
+    "event",
+    "customerId",
+    "timestamp",
+    "properties",
+    "sourceMode"
+  ],
+  "sourceMode": "synthetic",
+  "version": "1.0.0"
+}

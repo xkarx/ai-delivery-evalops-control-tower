@@ -1,0 +1,1370 @@
+[
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0001",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0003",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0002",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0005",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0003",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0006",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0004",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0008",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0005",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0012",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0006",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0018",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0007",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0021",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0008",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0024",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0009",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0029",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0010",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0032",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0011",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0033",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0012",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0035",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0001",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0013",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0002",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0014",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0019",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0015",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0020",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0016",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0022",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0017",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0034",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0018",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0036",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0019",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0040",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0020",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0044",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0021",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0045",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0022",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0051",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0023",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0059",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0024",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0061",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0002",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0025",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0001",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0026",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0004",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0027",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0007",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0028",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0010",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0029",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0016",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0030",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0026",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0031",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0027",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0032",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0052",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0033",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0060",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0034",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0069",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0035",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0070",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0036",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0073",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0003",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0037",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0011",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0038",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0014",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0039",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0017",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0040",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0023",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0041",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0028",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0042",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0031",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0043",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0041",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0044",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0081",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0045",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0097",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0046",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0101",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0004",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0047",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0009",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0048",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0013",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0049",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0015",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0050",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0025",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0051",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0030",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0052",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0038",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0053",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0058",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0054",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0077",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0055",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0082",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0056",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0088",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0057",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0098",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0058",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0104",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0005",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0059",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0092",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0006",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0060",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0094",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0006",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0061",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0102",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0006",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0062",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0095",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0007",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0063",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0099",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0007",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0064",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0103",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0007",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0065",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0093",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0008",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0066",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0096",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0008",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0067",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0100",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0008",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0068",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0081",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0009",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0069",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0097",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0009",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0070",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0101",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0009",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0071",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0088",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0010",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0072",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0098",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0010",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0073",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "supports",
+    "sourceId": "EVD-0104",
+    "sourceType": "evidence",
+    "targetId": "FEAT-0010",
+    "targetType": "feature"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0074",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0001",
+    "sourceType": "feature",
+    "targetId": "TKT-0001",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0075",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0001",
+    "sourceType": "feature",
+    "targetId": "TKT-0002",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0076",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0001",
+    "sourceType": "feature",
+    "targetId": "TKT-0003",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0077",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0001",
+    "sourceType": "feature",
+    "targetId": "TKT-0004",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0078",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0001",
+    "sourceType": "feature",
+    "targetId": "TKT-0005",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0079",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0002",
+    "sourceType": "feature",
+    "targetId": "TKT-0006",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0080",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0002",
+    "sourceType": "feature",
+    "targetId": "TKT-0007",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0081",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0002",
+    "sourceType": "feature",
+    "targetId": "TKT-0008",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0082",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0002",
+    "sourceType": "feature",
+    "targetId": "TKT-0009",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0083",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0002",
+    "sourceType": "feature",
+    "targetId": "TKT-0010",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0084",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0003",
+    "sourceType": "feature",
+    "targetId": "TKT-0011",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0085",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0003",
+    "sourceType": "feature",
+    "targetId": "TKT-0012",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0086",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0003",
+    "sourceType": "feature",
+    "targetId": "TKT-0013",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0087",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0003",
+    "sourceType": "feature",
+    "targetId": "TKT-0014",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0088",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0003",
+    "sourceType": "feature",
+    "targetId": "TKT-0015",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0089",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0004",
+    "sourceType": "feature",
+    "targetId": "TKT-0016",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0090",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0004",
+    "sourceType": "feature",
+    "targetId": "TKT-0017",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0091",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0004",
+    "sourceType": "feature",
+    "targetId": "TKT-0018",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0092",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0004",
+    "sourceType": "feature",
+    "targetId": "TKT-0019",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0093",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0004",
+    "sourceType": "feature",
+    "targetId": "TKT-0020",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0094",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0005",
+    "sourceType": "feature",
+    "targetId": "TKT-0021",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0095",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0005",
+    "sourceType": "feature",
+    "targetId": "TKT-0022",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0096",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0005",
+    "sourceType": "feature",
+    "targetId": "TKT-0023",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0097",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0005",
+    "sourceType": "feature",
+    "targetId": "TKT-0024",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0098",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "planned_as",
+    "sourceId": "FEAT-0005",
+    "sourceType": "feature",
+    "targetId": "TKT-0025",
+    "targetType": "ticket"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0099",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "reviewed_by",
+    "sourceId": "FEAT-0001",
+    "sourceType": "feature",
+    "targetId": "DEC-0001",
+    "targetType": "decision"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0100",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "reviewed_by",
+    "sourceId": "FEAT-0002",
+    "sourceType": "feature",
+    "targetId": "DEC-0002",
+    "targetType": "decision"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0101",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "reviewed_by",
+    "sourceId": "FEAT-0003",
+    "sourceType": "feature",
+    "targetId": "DEC-0003",
+    "targetType": "decision"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0102",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "reviewed_by",
+    "sourceId": "FEAT-0004",
+    "sourceType": "feature",
+    "targetId": "DEC-0004",
+    "targetType": "decision"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0103",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "reviewed_by",
+    "sourceId": "FEAT-0005",
+    "sourceType": "feature",
+    "targetId": "DEC-0005",
+    "targetType": "decision"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0104",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "released_as",
+    "sourceId": "FEAT-0006",
+    "sourceType": "feature",
+    "targetId": "REL-0001",
+    "targetType": "release"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0105",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "released_as",
+    "sourceId": "FEAT-0007",
+    "sourceType": "feature",
+    "targetId": "REL-0002",
+    "targetType": "release"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0106",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "released_as",
+    "sourceId": "FEAT-0008",
+    "sourceType": "feature",
+    "targetId": "REL-0003",
+    "targetType": "release"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0107",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "released_as",
+    "sourceId": "FEAT-0009",
+    "sourceType": "feature",
+    "targetId": "REL-0004",
+    "targetType": "release"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0108",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "released_as",
+    "sourceId": "FEAT-0010",
+    "sourceType": "feature",
+    "targetId": "REL-0005",
+    "targetType": "release"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0109",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "affected_by",
+    "sourceId": "FEAT-0006",
+    "sourceType": "feature",
+    "targetId": "INC-0001",
+    "targetType": "incident"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0110",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "creates_regression_case",
+    "sourceId": "INC-0001",
+    "sourceType": "incident",
+    "targetId": "EVALCASE-0001",
+    "targetType": "eval_case"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0111",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "affected_by",
+    "sourceId": "FEAT-0007",
+    "sourceType": "feature",
+    "targetId": "INC-0002",
+    "targetType": "incident"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0112",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "creates_regression_case",
+    "sourceId": "INC-0002",
+    "sourceType": "incident",
+    "targetId": "EVALCASE-0002",
+    "targetType": "eval_case"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0113",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "affected_by",
+    "sourceId": "FEAT-0010",
+    "sourceType": "feature",
+    "targetId": "INC-0003",
+    "targetType": "incident"
+  },
+  {
+    "createdAt": "2025-04-01T17:00:00.000Z",
+    "id": "EDGE-0114",
+    "metadata": {
+      "sourceMode": "synthetic"
+    },
+    "relationship": "creates_regression_case",
+    "sourceId": "INC-0003",
+    "sourceType": "incident",
+    "targetId": "EVALCASE-0003",
+    "targetType": "eval_case"
+  }
+]

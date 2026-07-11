@@ -1,0 +1,41 @@
+[
+  {
+    "endedAt": "2025-01-29T16:01:00.000Z",
+    "evidenceId": "EVD-0099",
+    "hypothesis": "Improved query understanding and transparent result controls will raise search-to-cart conversion.",
+    "id": "EXT-6001",
+    "name": "Intent-aware product discovery concept test",
+    "primaryMetric": "search-to-cart conversion",
+    "result": "inconclusive",
+    "sampleSize": 1273,
+    "sourceMode": "synthetic",
+    "startedAt": "2025-01-15T16:01:00.000Z",
+    "status": "completed"
+  },
+  {
+    "endedAt": "2025-02-23T16:02:00.000Z",
+    "evidenceId": "EVD-0100",
+    "hypothesis": "Showing a trustworthy delivery promise earlier will reduce checkout abandonment and avoid expectation gaps.",
+    "id": "EXT-6002",
+    "name": "Delivery promise clarity concept test",
+    "primaryMetric": "shipping-step abandonment",
+    "result": "directional_not_significant",
+    "sampleSize": 318,
+    "sourceMode": "synthetic",
+    "startedAt": "2025-02-09T16:02:00.000Z",
+    "status": "completed"
+  },
+  {
+    "endedAt": null,
+    "evidenceId": "EVD-0101",
+    "hypothesis": "Simple benefits based on repeat behavior will increase retention without training customers to wait for discounts.",
+    "id": "EXT-6003",
+    "name": "Useful loyalty value concept test",
+    "primaryMetric": "90-day repeat purchase rate",
+    "result": "inconclusive",
+    "sampleSize": 1619,
+    "sourceMode": "synthetic",
+    "startedAt": "2025-03-06T16:03:00.000Z",
+    "status": "running"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"],
+      "@dailycart/schemas": ["../../packages/schemas/src/index.ts"],
+      "@dailycart/config": ["../../packages/config/src/index.ts"],
+      "@dailycart/connectors": ["../../packages/connectors/src/index.ts"],
+      "@dailycart/workflow": ["../../packages/workflow/src/index.ts"],
+      "@dailycart/agents": ["../../packages/agents/src/index.ts"],
+      "@dailycart/evals": ["../../packages/evals/src/index.ts"],
+      "@dailycart/lineage": ["../../packages/lineage/src/index.ts"],
+      "@dailycart/sample-product": ["../../packages/sample-product/src/index.ts"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

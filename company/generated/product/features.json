@@ -1,0 +1,235 @@
+[
+  {
+    "confidence": 0.89,
+    "evidenceIds": [
+      "EVD-0003",
+      "EVD-0005",
+      "EVD-0006",
+      "EVD-0008",
+      "EVD-0012",
+      "EVD-0018",
+      "EVD-0021",
+      "EVD-0024",
+      "EVD-0029",
+      "EVD-0032",
+      "EVD-0033",
+      "EVD-0035"
+    ],
+    "hypothesis": "Persisting checkout progress with clear recovery controls will improve completed purchases without increasing payment errors.",
+    "id": "FEAT-0001",
+    "metrics": [
+      "checkout completion rate"
+    ],
+    "problem": "Returning shoppers lose cart or checkout state after an interruption and must repeat work.",
+    "score": 92,
+    "sourceMode": "synthetic",
+    "status": "candidate",
+    "title": "Resilient checkout and cart recovery",
+    "workstream": "reliability"
+  },
+  {
+    "confidence": 0.89,
+    "evidenceIds": [
+      "EVD-0002",
+      "EVD-0019",
+      "EVD-0020",
+      "EVD-0022",
+      "EVD-0034",
+      "EVD-0036",
+      "EVD-0040",
+      "EVD-0044",
+      "EVD-0045",
+      "EVD-0051",
+      "EVD-0059",
+      "EVD-0061"
+    ],
+    "hypothesis": "Improved query understanding and transparent result controls will raise search-to-cart conversion.",
+    "id": "FEAT-0002",
+    "metrics": [
+      "search-to-cart conversion"
+    ],
+    "problem": "Shoppers using descriptive or misspelled queries struggle to find relevant products quickly.",
+    "score": 84,
+    "sourceMode": "synthetic",
+    "status": "candidate",
+    "title": "Intent-aware product discovery",
+    "workstream": "experience"
+  },
+  {
+    "confidence": 0.84,
+    "evidenceIds": [
+      "EVD-0001",
+      "EVD-0004",
+      "EVD-0007",
+      "EVD-0010",
+      "EVD-0016",
+      "EVD-0026",
+      "EVD-0027",
+      "EVD-0052",
+      "EVD-0060",
+      "EVD-0069",
+      "EVD-0070",
+      "EVD-0073"
+    ],
+    "hypothesis": "Showing a trustworthy delivery promise earlier will reduce checkout abandonment and avoid expectation gaps.",
+    "id": "FEAT-0003",
+    "metrics": [
+      "shipping-step abandonment"
+    ],
+    "problem": "Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases.",
+    "score": 76,
+    "sourceMode": "synthetic",
+    "status": "candidate",
+    "title": "Delivery promise clarity",
+    "workstream": "platform"
+  },
+  {
+    "confidence": 0.67,
+    "evidenceIds": [
+      "EVD-0011",
+      "EVD-0014",
+      "EVD-0017",
+      "EVD-0023",
+      "EVD-0028",
+      "EVD-0031",
+      "EVD-0041",
+      "EVD-0081",
+      "EVD-0097",
+      "EVD-0101"
+    ],
+    "hypothesis": "Simple benefits based on repeat behavior will increase retention without training customers to wait for discounts.",
+    "id": "FEAT-0004",
+    "metrics": [
+      "90-day repeat purchase rate"
+    ],
+    "problem": "Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship.",
+    "score": 62,
+    "sourceMode": "synthetic",
+    "status": "candidate",
+    "title": "Useful loyalty value",
+    "workstream": "experience"
+  },
+  {
+    "confidence": 0.72,
+    "evidenceIds": [
+      "EVD-0009",
+      "EVD-0013",
+      "EVD-0015",
+      "EVD-0025",
+      "EVD-0030",
+      "EVD-0038",
+      "EVD-0058",
+      "EVD-0077",
+      "EVD-0082",
+      "EVD-0088",
+      "EVD-0098",
+      "EVD-0104"
+    ],
+    "hypothesis": "Consistent accessible controls and announcements will reduce blocked sessions and broaden successful task completion.",
+    "id": "FEAT-0005",
+    "metrics": [
+      "accessible task completion"
+    ],
+    "problem": "Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows.",
+    "score": 66,
+    "sourceMode": "synthetic",
+    "status": "candidate",
+    "title": "Accessible shopping controls",
+    "workstream": "platform"
+  },
+  {
+    "confidence": 0.72,
+    "evidenceIds": [
+      "EVD-0092",
+      "EVD-0094",
+      "EVD-0102"
+    ],
+    "hypothesis": "The shipped foundation was expected to improve checkout completion rate while creating a baseline for later iteration.",
+    "id": "FEAT-0006",
+    "metrics": [
+      "checkout completion rate"
+    ],
+    "problem": "Earlier DailyCart behavior exposed a narrower version of this problem: Returning shoppers lose cart or checkout state after an interruption and must repeat work.",
+    "score": 64,
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Resilient checkout and cart recovery",
+    "workstream": "reliability"
+  },
+  {
+    "confidence": 0.72,
+    "evidenceIds": [
+      "EVD-0095",
+      "EVD-0099",
+      "EVD-0103"
+    ],
+    "hypothesis": "The shipped foundation was expected to improve search-to-cart conversion while creating a baseline for later iteration.",
+    "id": "FEAT-0007",
+    "metrics": [
+      "search-to-cart conversion"
+    ],
+    "problem": "Earlier DailyCart behavior exposed a narrower version of this problem: Shoppers using descriptive or misspelled queries struggle to find relevant products quickly.",
+    "score": 67,
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Intent-aware product discovery",
+    "workstream": "experience"
+  },
+  {
+    "confidence": 0.72,
+    "evidenceIds": [
+      "EVD-0093",
+      "EVD-0096",
+      "EVD-0100"
+    ],
+    "hypothesis": "The shipped foundation was expected to improve shipping-step abandonment while creating a baseline for later iteration.",
+    "id": "FEAT-0008",
+    "metrics": [
+      "shipping-step abandonment"
+    ],
+    "problem": "Earlier DailyCart behavior exposed a narrower version of this problem: Delivery dates and fees are not sufficiently clear before checkout for time-sensitive purchases.",
+    "score": 70,
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Delivery promise clarity",
+    "workstream": "platform"
+  },
+  {
+    "confidence": 0.72,
+    "evidenceIds": [
+      "EVD-0081",
+      "EVD-0097",
+      "EVD-0101"
+    ],
+    "hypothesis": "The shipped foundation was expected to improve 90-day repeat purchase rate while creating a baseline for later iteration.",
+    "id": "FEAT-0009",
+    "metrics": [
+      "90-day repeat purchase rate"
+    ],
+    "problem": "Earlier DailyCart behavior exposed a narrower version of this problem: Repeat shoppers cannot see a clear, relevant benefit for maintaining a DailyCart relationship.",
+    "score": 73,
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Useful loyalty value",
+    "workstream": "experience"
+  },
+  {
+    "confidence": 0.72,
+    "evidenceIds": [
+      "EVD-0088",
+      "EVD-0098",
+      "EVD-0104"
+    ],
+    "hypothesis": "The shipped foundation was expected to improve accessible task completion while creating a baseline for later iteration.",
+    "id": "FEAT-0010",
+    "metrics": [
+      "accessible task completion"
+    ],
+    "problem": "Earlier DailyCart behavior exposed a narrower version of this problem: Keyboard, screen-reader, and low-vision customers encounter inconsistent controls in key shopping flows.",
+    "score": 76,
+    "sourceMode": "synthetic",
+    "status": "released",
+    "title": "Historical foundation: Accessible shopping controls",
+    "workstream": "platform"
+  }
+]

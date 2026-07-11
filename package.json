@@ -1,0 +1,37 @@
+{
+  "name": "dailycart-evalops-control-tower",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Product Delivery and EvalOps Control Tower reference implementation",
+  "packageManager": "pnpm@11.7.0",
+  "scripts": {
+    "dev": "pnpm --filter @dailycart/control-tower dev",
+    "build": "pnpm --filter @dailycart/control-tower build",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm -r --if-present run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "generate:company": "tsx scripts/generate-company.ts",
+    "validate:data": "tsx scripts/validate-company.ts",
+    "demo:reset": "tsx scripts/demo-reset.ts",
+    "demo:run": "tsx scripts/demo-run.ts",
+    "demo:verify": "tsx scripts/demo-verify.ts",
+    "security:scan": "tsx scripts/secret-scan.ts",
+    "demo": "pnpm demo:reset && pnpm demo:run && pnpm demo:verify",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "engines": {
+    "node": ">=20.11"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.15.0",
+    "eslint": "^9.30.0",
+    "eslint-config-next": "^15.4.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0",
+    "vitest": "^3.2.0"
+  }
+}
