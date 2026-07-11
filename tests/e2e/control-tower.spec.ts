@@ -10,8 +10,20 @@ test("overview exposes the evidence-to-release story", async ({ page }) => {
 });
 
 test("required pages render on a narrow viewport", async ({ page }) => {
-  for (const route of ["/features", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings"]) {
+  for (const route of ["/features", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
   }
+});
+
+test("customer product records a cart interaction", async ({ page }) => {
+  await page.goto("/product");
+  await expect(page.getByRole("heading", { name: "Good things for every day." })).toBeVisible();
+  const addButtons = page.getByRole("button", { name: /Add to cart/ });
+  await expect(addButtons).toHaveCount(8);
+  await addButtons.nth(0).click();
+  await expect(page.locator(".product-cart-button")).toContainText("1");
+  await page.locator(".product-cart-button").click();
+  await expect(page.getByRole("heading", { name: "Ready for checkout" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Checkout securely/ })).toBeVisible();
 });

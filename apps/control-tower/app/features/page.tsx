@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
+import { TicketAction } from "./ticket-action";
 
 const columns = [
   { key: "candidate", title: "Discovery", hint: "Evidence being synthesized" },
@@ -32,7 +33,7 @@ export default async function FeaturesPage() {
               <div className="mini-score"><span>Priority</span><b>{feature.score}</b><div className="progress"><i style={{ width: `${feature.score}%` }} /></div></div>
               <dl><div><dt>Confidence</dt><dd>{Math.round(feature.confidence * 100)}%</dd></div><div><dt>Evidence</dt><dd>{feature.evidenceIds.length} linked</dd></div><div><dt>Stream</dt><dd>{feature.workstream}</dd></div></dl>
               <div className="evidence-chips compact">{feature.evidenceIds.slice(0, 3).map((id) => <Link href={`/lineage?focus=${id}`} key={id}>{id}</Link>)}</div>
-              <Link className="card-link" href={`/lineage?feature=${feature.id}`}>Open lineage <ArrowUpRight size={14} /></Link>
+              <div className="feature-actions"><Link className="card-link" href={`/lineage?feature=${feature.id}`}>Open lineage <ArrowUpRight size={14} /></Link><TicketAction featureId={feature.id} title={feature.title} description={feature.problem} /></div>
             </article>)}</div>
             {features.length === 0 && <div className="empty-column"><p>No features in this state</p></div>}
           </div>;

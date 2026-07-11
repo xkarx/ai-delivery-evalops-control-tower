@@ -15,6 +15,7 @@ import {
   Rocket,
   Settings,
   ShieldCheck,
+  ShoppingBag,
   Sparkles,
   Users,
   X
@@ -25,6 +26,7 @@ import { useState } from "react";
 
 const nav = [
   { href: "/", label: "Overview", icon: CircleGauge },
+  { href: "/product", label: "Customer product", icon: ShoppingBag },
   { href: "/features", label: "Feature portfolio", icon: Layers3 },
   { href: "/lineage", label: "Feature lineage", icon: GitBranch },
   { href: "/runs", label: "Agent runs", icon: Activity },
