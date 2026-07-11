@@ -14,7 +14,7 @@ This is intentional until the provider's read-only health variables are present.
 
 ## The UI says mocked or simulated
 
-That label is the source-of-truth for the current path. In `INTEGRATION_MODE=mock`, `/product`, **Generate traffic**, **Create delivery ticket**, and **Run demo** execute locally and persist evidence, but they do not contact Slack, Linear, GitHub, PostHog, or a deployed product. To enable external writes, add the provider values in the deployment/server secret store, set `INTEGRATION_MODE=live`, restart the server, and rerun `/integrations` health checks. A missing `SAMPLE_PRODUCT_URL` means the local DailyCart surface remains the active product target.
+That label is the source-of-truth for the current path. In `INTEGRATION_MODE=mock`, `/product`, **Generate traffic**, **Create delivery ticket**, and **Run demo** execute locally and persist evidence, but they do not contact Slack, Linear, GitHub, PostHog, or a deployed product. In live mode, the local `/api/dailycart/traffic` sidecar can be used as the product target (`SAMPLE_PRODUCT_URL=http://localhost:3000`) so the traffic controls exercise a real HTTP adapter; an external Google Online Boutique deployment can replace it later.
 
 When live mode is active, the integration cards distinguish read-only health from write configuration. A provider can pass health and still reject a write (for example Slack `missing_scope`); the action result now reports the provider error and preserves any earlier successful ticket creation.
 

@@ -12,12 +12,12 @@ Codex must update the implementation link and evidence columns.
 | R006 | PM evidence analysis | Agent | Complete — `analyzeProductEvidence` citations |
 | R007 | Recommendation not hardcoded | Agent | Complete — scenario-change acceptance test |
 | R008 | Human approval gate | Workflow | Complete — serialized pause/resume test |
-| R009 | Ticket creation | Connector | Complete — `/api/delivery/tickets` creates a normalized Linear/GitHub Issues ticket and posts the linked Slack status message through mock or live adapters |
+| R009 | Ticket creation | Connector | Complete — `/api/delivery/tickets` and `/api/workflow/sync` create normalized live Linear/GitHub Issues tickets and preserve partial success when Slack permissions reject the notification |
 | R010 | Isolated engineering work | GitHub | Complete — isolated branch/PR records in mock executor |
 | R011 | Real code tests | CI | Complete — CI runs lint/type/test/build and browser checks |
-| R012 | Real eval execution | Eval service | Complete — per-case stored measured results |
+| R012 | Real eval execution | Eval service | Complete — per-case stored measured results; live mode uses the configured OpenAI-compatible judge for semantic cases and mock mode uses the explicit deterministic fallback |
 | R013 | Failed eval blocks release | Gate | Complete — EVAL-0001 blocked, EVAL-0002 passes |
-| R014 | Langfuse trace links | Observability | Complete — trace adapter + trace IDs in runs |
+| R014 | Langfuse trace links | Observability | Complete — live workflow sync ingests a trace and boolean score through the public Langfuse write API; trace IDs remain linked in runs |
 | R015 | Product analytics events | PostHog | Complete — `/product` emits real interaction events, `/api/product/events` captures them, `/analytics` exposes bounded user/spawn/duration/scenario/seed/cap controls through `/api/product/traffic`, local JSONL is surfaced in `/analytics`, and PostHog is used in live mode |
 | R016 | Agent cost and latency | Observability | Complete — run telemetry and cost/latency view |
 | R017 | Incident becomes regression | Workflow | Complete — incident conversion + lineage edge |
@@ -26,11 +26,11 @@ Codex must update the implementation link and evidence columns.
 | R020 | Supabase lineage state | Database | Complete — migration + database adapter |
 | R021 | No committed credentials | Security | Complete — `.env.example` + secret scan |
 | R022 | Credential-free demo mode | Adapters | Complete — `pnpm demo` without credentials |
-| R023 | Live mode | Adapters | Complete — `/api/integrations/health` and executable ticket, Slack, analytics, and sample-product paths use live adapters when `INTEGRATION_MODE=live`; provider authorization/deployment remains user-owned |
+| R023 | Live mode | Adapters | Complete — `/api/integrations/health`, workflow sync, ticket, Slack, analytics, and HTTP sample-product sidecar paths use live adapters when `INTEGRATION_MODE=live`; Vercel project configuration and Slack `chat:write` permission remain external prerequisites |
 | R024 | Open-source attribution | References | Complete — `references/OPEN_SOURCE_ATTRIBUTION.md` |
 | R025 | Responsive UI | UI | Complete — route-specific desktop/mobile layouts + Playwright mobile project |
 | R026 | Two independent workstreams | Orchestration | Complete — separate concurrent `RUN-*` records |
-| R027 | GitHub deployment/release links | GitHub | Complete — normalized links in code-host/deployment adapters |
+| R027 | GitHub deployment/release links | GitHub | Complete — authenticated GitHub repository health and normalized links in code-host/deployment adapters; Vercel deployment is gated on project ID |
 | R028 | Reusable skills | Skills | Complete — 15 generic skill contracts |
 | R029 | Manual connection checklist | Docs | Complete — exact user-owned steps |
 | R030 | V2 arbitrary-repo path | Architecture | Complete — adapter boundary + V2 scope/ADR |
