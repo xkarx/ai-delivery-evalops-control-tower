@@ -18,7 +18,7 @@ Codex must update the implementation link and evidence columns.
 | R012 | Real eval execution | Eval service | Complete — per-case stored measured results |
 | R013 | Failed eval blocks release | Gate | Complete — EVAL-0001 blocked, EVAL-0002 passes |
 | R014 | Langfuse trace links | Observability | Complete — trace adapter + trace IDs in runs |
-| R015 | Product analytics events | PostHog | Complete — `/product` emits real interaction events, `/api/product/events` captures them, `/api/product/traffic` generates bounded scenario traffic, local JSONL is surfaced in `/analytics`, and PostHog is used in live mode |
+| R015 | Product analytics events | PostHog | Complete — `/product` emits real interaction events, `/api/product/events` captures them, `/analytics` exposes bounded user/spawn/duration/scenario/seed/cap controls through `/api/product/traffic`, local JSONL is surfaced in `/analytics`, and PostHog is used in live mode |
 | R016 | Agent cost and latency | Observability | Complete — run telemetry and cost/latency view |
 | R017 | Incident becomes regression | Workflow | Complete — incident conversion + lineage edge |
 | R018 | Slack approval/status | Slack | Complete — approval adapter + HMAC verification |

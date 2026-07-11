@@ -46,3 +46,12 @@ test("mobile pages do not create horizontal page overflow", async ({ page }) => 
     expect(overflow, `${route} has horizontal mobile overflow`).toBeLessThanOrEqual(1);
   }
 });
+
+test("analytics traffic controls run a bounded scenario", async ({ page }) => {
+  await page.goto("/analytics");
+  await page.getByLabel("Users").fill("6");
+  await page.getByLabel("Duration seconds").fill("2");
+  await page.getByLabel("Traffic scenario").selectOption("checkout-failure");
+  await page.getByRole("button", { name: "Run traffic" }).click();
+  await expect(page.getByRole("status")).toContainText(/events/);
+});

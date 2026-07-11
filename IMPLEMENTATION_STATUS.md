@@ -3,7 +3,7 @@
 | Phase | Status | Branch/PR | Tests | Notes |
 |---|---|---|---|---|
 | 00 Bootstrap | Complete | local V1 | `tsc`, `vitest`, `eslint`, Next build | pnpm workspace, Zod contracts, Supabase migration, CI, mode config, adapter boundaries, and responsive shell |
-| 01 Sample product | Complete | local mock adapter | `tests/sample-product.test.ts`, `/product` | Interactive DailyCart customer surface with catalogue/search/cart/checkout, persistent customers, deterministic traffic scenarios, funnel, exposure/failure events, caps, cost controls, event JSONL, and teardown contract. Google Online Boutique deployment remains an optional external sidecar. |
+| 01 Sample product | Complete | local mock adapter | `tests/sample-product.test.ts`, `/product`, `/analytics` | Interactive DailyCart customer surface with catalogue/search/cart/checkout, persistent customers, operator-controlled deterministic traffic scenarios (users/spawn/duration/seed/scenario/caps), funnel, exposure/failure events, event JSONL, and teardown contract. Google Online Boutique deployment remains an optional external sidecar. |
 | 02 Company data | Complete | local generator | `tests/company-data.test.ts` | 50 customers, 8 interviews, 30 support tickets, 20 requests, 15 bugs, 30+ eval cases, deterministic reference validator |
 | 03 PM workflow | Complete | RUN-0100 / DEC-0001 | `tests/agents-core.test.ts` | Evidence-derived ranking, scenario-change behavior, citations, PRD, risks, milestones, and approval pause/resume |
 | 04 Delivery | Complete | RUN-0102 / RUN-0103 | `tests/agents-core.test.ts` | Two concurrent independent workstreams, isolated branch names, PR/check records, ticket and lineage links |

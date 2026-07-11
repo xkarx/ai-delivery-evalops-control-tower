@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const eventsDir = path.resolve(root, "artifacts");
     await mkdir(eventsDir, { recursive: true });
     if (result.events.length) await appendFile(path.resolve(eventsDir, "product-events.jsonl"), `${result.events.map((event) => JSON.stringify(event)).join("\n")}\n`);
-    return NextResponse.json({ ok: true, run: { runId: result.runId, eventCount: result.events.length, users: result.effectiveUserCount, funnel: result.funnel, sourceMode: result.sourceMode, capped: result.capped, stopReason: result.stopReason } });
+    return NextResponse.json({ ok: true, run: { runId: result.runId, eventCount: result.events.length, users: result.effectiveUserCount, funnel: result.funnel, sourceMode: result.sourceMode, capped: result.capped, stopReason: result.stopReason, exposureCount: result.exposureCount, failureCount: result.failureCount } });
   } catch {
     return NextResponse.json({ ok: false, message: "Traffic run could not be started." }, { status: 400 });
   }
