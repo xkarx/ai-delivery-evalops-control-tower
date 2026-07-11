@@ -13,6 +13,6 @@ Set:
 
 ## Verification and events
 
-Health calls `GET /v2/apps?limit=1`. Event emission uses the Event API and preserves an optional caller-supplied idempotency ID. Run inspection and cancellation use the REST API. The mock adapter retains deterministic event/run records and supports cancellation without any credentials.
+Health calls `GET https://api.inngest.com/v2/account` with the API key as a bearer token and `Accept: application/json`. HTTP 200 is healthy; 401 is reported as an invalid key; 403 is reported as insufficient permission; other statuses are provider errors. Event emission uses the Event API and preserves an optional caller-supplied idempotency ID. Run inspection and cancellation use the REST API. The mock adapter retains deterministic event/run records and supports cancellation without any credentials.
 
 References: https://www.inngest.com/docs/events and https://www.inngest.com/docs/platform/api-keys

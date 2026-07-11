@@ -95,9 +95,44 @@ export class LiveInngestWorkflowAdapter extends BaseConnector implements Workflo
 
   async healthCheck(): Promise<IntegrationHealth> {
     return this.safeHealth(async () => {
-      await this.apiRequest<unknown>("/v2/apps?limit=1");
-      return "Inngest apps are readable with the API key.";
-    }, this.externalUrl("apps"));
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+      try {
+        const response = await this.fetcher("https://api.inngest.com/v2/account", {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${this.env.INNGEST_API_KEY}`,
+            accept: "application/json"
+          },
+          signal: controller.signal
+        });
+        if (response.status === 200) return "Inngest account is readable with the API key.";
+        if (response.status === 401) {
+          throw new ConnectorError({
+            provider: this.provider,
+            code: "UNAUTHORIZED",
+            status: 401,
+            message: "Inngest API key is invalid."
+          });
+        }
+        if (response.status === 403) {
+          throw new ConnectorError({
+            provider: this.provider,
+            code: "FORBIDDEN",
+            status: 403,
+            message: "Inngest API key lacks permission to read the account."
+          });
+        }
+        throw new ConnectorError({
+          provider: this.provider,
+          code: "PROVIDER_ERROR",
+          status: response.status,
+          message: `Inngest account health check failed with HTTP ${response.status}.`
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+    }, "https://api.inngest.com/v2/account");
   }
 
   async emit(input: WorkflowEventInput): Promise<WorkflowRunRecord> {
