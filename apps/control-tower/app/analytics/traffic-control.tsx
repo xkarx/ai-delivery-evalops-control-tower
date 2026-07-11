@@ -1,6 +1,7 @@
 "use client";
 
 import { Gauge, Play, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 type Scenario = "baseline" | "feature-exposure" | "checkout-failure" | "mixed";
@@ -13,6 +14,7 @@ export function TrafficControl() {
   const [result, setResult] = useState<TrafficResult>();
   const [error, setError] = useState("");
   const [working, setWorking] = useState(false);
+  const router = useRouter();
 
   function update(name: keyof typeof initial, value: string) {
     setValues((current) => ({ ...current, [name]: name === "scenario" ? value as Scenario : Number(value) }));
@@ -27,6 +29,7 @@ export function TrafficControl() {
       const payload = await response.json();
       if (!response.ok || !payload.ok) throw new Error(payload.message ?? "Traffic run failed");
       setResult(payload.run);
+      router.refresh();
     } catch (runError) {
       setError(runError instanceof Error ? runError.message : "Traffic run failed");
     } finally {
