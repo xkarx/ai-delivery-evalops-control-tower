@@ -4,6 +4,7 @@ import { Check, Loader2, Play, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 
 type WorkflowResponse = { reused?: boolean; message?: string; detail?: string; workflow?: { featureTitle: string; passedCampaignId: string; releaseApprovalId: string; phase?: string } };
+type SyncResult = { ticketRecords: Array<{ internalId: string; identifier: string; url: string; sourceMode: string }>; notification?: { provider: string; url: string; sourceMode: string }; trace?: { url: string; sourceMode: string }; workflowEvent?: { url: string; sourceMode: string }; errors: string[] };
 
 export function WorkflowAction() {
   const [state, setState] = useState<"idle" | "running" | "done" | "error">("idle");
@@ -12,6 +13,7 @@ export function WorkflowAction() {
   const [approved, setApproved] = useState(false);
   const [deployed, setDeployed] = useState(false);
   const [synced, setSynced] = useState(false);
+  const [syncDetails, setSyncDetails] = useState<SyncResult>();
   async function runWorkflow() {
     setState("running");
     setMessage("Running PM → TPM → engineering → eval…");
@@ -45,8 +47,9 @@ export function WorkflowAction() {
     setState("running"); setMessage("Syncing tickets, Slack status, trace, and workflow event…");
     try {
       const response = await fetch("/api/workflow/sync", { method: "POST" });
-      const payload = await response.json() as { ok?: boolean; partial?: boolean; sync?: { ticketRecords: Array<{ identifier: string }>; errors: string[] }; message?: string; detail?: string };
+      const payload = await response.json() as { ok?: boolean; partial?: boolean; sync?: SyncResult; message?: string; detail?: string };
       if (!response.ok || (!payload.ok && !payload.partial)) throw new Error(payload.detail ?? payload.message ?? "Workflow sync failed.");
+      setSyncDetails(payload.sync);
       setSynced(true); setState("done"); setMessage(`${payload.sync?.ticketRecords.map((ticket) => ticket.identifier).join(", ") || "No tickets"} synced${payload.sync?.errors.length ? ` · ${payload.sync.errors.join("; ")}` : ""}`);
     } catch (error) { setState("error"); setMessage(error instanceof Error ? error.message : "Workflow sync failed."); }
   }
@@ -60,5 +63,6 @@ export function WorkflowAction() {
     {result && !approved && <button className="button secondary workflow-approve" type="button" onClick={approveRelease} disabled={state === "running"}>Approve release</button>}
     {result && approved && !deployed && <button className="button primary workflow-approve" type="button" onClick={deployRelease} disabled={state === "running"}>Deploy approved release</button>}
     {result && approved && !synced && <button className="button secondary workflow-approve" type="button" onClick={syncDelivery} disabled={state === "running"}>Sync delivery records</button>}
+    {syncDetails && <div className="external-sync-links" role="status"><b>External records</b><div>{syncDetails.ticketRecords.map((ticket) => <a href={ticket.url} target="_blank" rel="noreferrer" key={ticket.internalId}>{ticket.identifier} ↗</a>)}{syncDetails.notification && <a href={syncDetails.notification.url} target="_blank" rel="noreferrer">{syncDetails.notification.provider} message ↗</a>}{syncDetails.trace && <a href={syncDetails.trace.url} target="_blank" rel="noreferrer">Langfuse trace ↗</a>}{syncDetails.workflowEvent && <a href={syncDetails.workflowEvent.url} target="_blank" rel="noreferrer">Inngest event ↗</a>}</div></div>}
   </span>;
 }
