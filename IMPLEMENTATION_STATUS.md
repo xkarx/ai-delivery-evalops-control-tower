@@ -19,7 +19,7 @@
 - The default control tower uses a checked-in fallback fixture when `artifacts/demo-state.json` is absent, while `pnpm demo` regenerates measured state.
 - `INTEGRATION_MODE=mock` is deliberately credential-free: it records realistic adapter results locally and does not create real Slack, GitHub, Linear, PostHog, or deployment records.
 - The local `/product` route is the V1 customer-facing DailyCart surface. The upstream Google Online Boutique repository is referenced and contract-compatible, but is not silently cloned or deployed by this repository.
-- The local server is running with `INTEGRATION_MODE=live`, the authenticated GitHub repository, and the local HTTP product sidecar. Current health is healthy for GitHub, Slack auth, Linear, Supabase, Langfuse, PostHog, Inngest, and sample-product. Vercel remains unconfigured because the account has no project ID and its GitHub integration is not installed; Slack auth is healthy but message writes require `chat:write`. A live workflow created Linear issues DAI-7 through DAI-9, emitted an Inngest event, and ingested a Langfuse trace/score.
+- The local server is running with `INTEGRATION_MODE=live`, the authenticated GitHub repository, the local HTTP product sidecar, and the configured Vercel project. Current health is healthy for GitHub, Slack auth, Linear, Supabase, Langfuse, PostHog, Vercel, Inngest, and sample-product. A production Vercel deployment is ready at `ai-delivery-evalops-control-tower-control-tower-kr2gcmq8s.vercel.app`. Slack auth is healthy but message writes require `chat:write`. A live workflow created Linear issues DAI-7 through DAI-9, emitted an Inngest event, and ingested a Langfuse trace/score.
 
 ## Assumptions
 
