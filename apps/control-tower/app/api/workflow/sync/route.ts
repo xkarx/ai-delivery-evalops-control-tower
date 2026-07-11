@@ -49,6 +49,12 @@ export async function POST() {
         state.workflowEvent = { url: event.url, sourceMode: event.sourceMode };
       } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Workflow event write failed."); }
     }
+    try {
+      await suite.database.upsert("workflow_runs", { id: "RUN-0101", workflow_type: "dailycart_delivery", status: "succeeded", feature_id: workflow.featureId, state: { phase: "ready_to_release", ticketIds: state.ticketRecords.map((record) => record.internalId) }, trace_id: state.trace?.url ?? null, source_mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked" }, "id");
+      for (const ticket of state.ticketRecords) {
+        await suite.database.upsert("external_references", { entity_id: ticket.internalId, provider: "issue-tracker", external_id: ticket.identifier, url: ticket.url, sync_status: "synced", last_synced_at: new Date().toISOString() }, "provider,external_id");
+      }
+    } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Supabase workflow state write failed."); }
     await mkdir(path.dirname(file), { recursive: true });
     await writeFile(file, `${JSON.stringify(state, null, 2)}\n`);
     await appendFile(path.resolve(root, "artifacts/external-actions.jsonl"), `${JSON.stringify({ action: "workflow_sync", state, at: new Date().toISOString() })}\n`);
