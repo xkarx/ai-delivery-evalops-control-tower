@@ -28,7 +28,7 @@ Codex must update the implementation link and evidence columns.
 | R022 | Credential-free demo mode | Adapters | Complete — `pnpm demo` without credentials |
 | R023 | Live mode | Adapters | Complete — `/api/integrations/health` runs live read-only adapter checks; provider-specific setup remains user-owned |
 | R024 | Open-source attribution | References | Complete — `references/OPEN_SOURCE_ATTRIBUTION.md` |
-| R025 | Responsive UI | UI | Complete — mobile CSS + Playwright mobile project |
+| R025 | Responsive UI | UI | Complete — route-specific desktop/mobile layouts + Playwright mobile project |
 | R026 | Two independent workstreams | Orchestration | Complete — separate concurrent `RUN-*` records |
 | R027 | GitHub deployment/release links | GitHub | Complete — normalized links in code-host/deployment adapters |
 | R028 | Reusable skills | Skills | Complete — 15 generic skill contracts |

@@ -8,7 +8,7 @@
 | 03 PM workflow | Complete | RUN-0100 / DEC-0001 | `tests/agents-core.test.ts` | Evidence-derived ranking, scenario-change behavior, citations, PRD, risks, milestones, and approval pause/resume |
 | 04 Delivery | Complete | RUN-0102 / RUN-0103 | `tests/agents-core.test.ts` | Two concurrent independent workstreams, isolated branch names, PR/check records, ticket and lineage links |
 | 05 EvalOps | Complete | EVAL-0001 → EVAL-0002 | `tests/evals-core.test.ts` | Per-case measured results, deterministic graders, mocked semantic judge, human calibration, critical block, corrected pass |
-| 06 Control tower | Complete | local Next app | Playwright spec + Next build | Overview plus all 11 required views, lineage graph/timeline, charts, review queue, health cards, responsive CSS |
+| 06 Control tower | Complete | local Next app | Playwright spec + Next build | Overview plus all 11 required views, route-specific operational layouts (evals/incidents/analytics/company/features/lineage/releases/reviews/runs/settings), charts, review queue, health cards, responsive CSS |
 | 07 Integrations | Complete | mock/live adapters | `tests/connectors*.test.ts`, `/api/integrations/health` | GitHub, Slack, Linear/GitHub Issues, Supabase, Langfuse, PostHog, Inngest, Vercel, and sample-product adapters with live read-only health route |
 | 08 Demo hardening | Complete | `pnpm demo` | `demo-verify`, secret scan, CI config | Reset/run/verify scripts, runbook, troubleshooting, architecture diagram, attribution, release notes, Playwright coverage |
 
