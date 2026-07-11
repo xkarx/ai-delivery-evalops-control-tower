@@ -104,12 +104,12 @@ export class LiveVercelDeploymentAdapter extends BaseConnector implements Deploy
     return this.env.VERCEL_ORG_ID ? `?teamId=${encodeURIComponent(this.env.VERCEL_ORG_ID)}` : "";
   }
 
-  private request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  private request<T>(path: string, init: RequestInit = {}, timeoutMs = this.timeoutMs): Promise<T> {
     this.assertConfigured();
     return requestJson<T>(`${this.apiBase}${path}${path.includes("?") ? "&" : this.query() ? "?" : ""}${this.query().replace(/^\?/, "")}`, {
       provider: this.provider,
       fetcher: this.fetcher,
-      timeoutMs: this.timeoutMs,
+      timeoutMs,
       ...init,
       headers: jsonHeaders({ authorization: `Bearer ${this.env.VERCEL_TOKEN}`, ...(init.headers as Record<string, string> | undefined) })
     });
@@ -158,7 +158,7 @@ export class LiveVercelDeploymentAdapter extends BaseConnector implements Deploy
         } : undefined,
         meta: { featureId: input.featureId, commitSha: input.commitSha, environment: input.environment }
       })
-    });
+    }, Math.max(this.timeoutMs, 30_000));
     this.deploymentInputs.set(response.id, input);
     return this.record(response, input);
   }
