@@ -228,6 +228,74 @@ export class MockedDeterministicSemanticJudge implements SemanticJudge {
   }
 }
 
+/** OpenAI-compatible judge used only when live integration mode has a model key. */
+export class LiveOpenAISemanticJudge implements LiveSemanticJudge {
+  readonly mode = "live" as const;
+  readonly provider = "openai";
+  readonly label = "Live OpenAI-compatible semantic judge";
+  private readonly endpoint: string;
+  private readonly apiKey: string;
+  private readonly model: string;
+
+  constructor(env: NodeJS.ProcessEnv = process.env) {
+    this.apiKey = env.OPENAI_API_KEY?.trim() ?? "";
+    this.model = env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
+    const base = (env.OPENAI_BASE_URL?.trim() || "https://api.openai.com/v1").replace(/\/$/, "");
+    this.endpoint = base.endsWith("/v1") ? `${base}/chat/completions` : `${base}/v1/chat/completions`;
+  }
+
+  async healthCheck(): Promise<{ healthy: boolean; message: string }> {
+    return this.apiKey ? { healthy: true, message: `OpenAI-compatible judge configured for ${this.model}.` } : { healthy: false, message: "OPENAI_API_KEY is missing." };
+  }
+
+  async judge(request: SemanticJudgeRequest): Promise<SemanticJudgeResult> {
+    if (!this.apiKey) throw new Error("OPENAI_API_KEY is required for the live semantic judge.");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15_000);
+    try {
+      const response = await fetch(this.endpoint, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          authorization: `Bearer ${this.apiKey}`,
+          "x-portkey-api-key": this.apiKey
+        },
+        body: JSON.stringify({
+          model: this.model,
+          temperature: 0,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: "You are an evaluation judge. Return only JSON with score (0-100), passed (boolean), rationale (short string), and criterionScores (object of numeric scores)." },
+            { role: "user", content: JSON.stringify({ evalCase: request.evalCase, actual: request.actual }) }
+          ]
+        })
+      });
+      const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }>; error?: { message?: string } };
+      if (!response.ok) throw new Error(payload.error?.message ?? `Model request failed with HTTP ${response.status}.`);
+      const content = payload.choices?.[0]?.message?.content?.trim();
+      if (!content) throw new Error("Model returned an empty evaluation.");
+      const parsed = JSON.parse(content.replace(/^```json\s*|\s*```$/g, "")) as Partial<SemanticJudgeResult>;
+      const score = clampScore(Number(parsed.score));
+      return {
+        score,
+        passed: Boolean(parsed.passed ?? score >= 70),
+        rationale: typeof parsed.rationale === "string" ? parsed.rationale : "Live model evaluation completed.",
+        criterionScores: parsed.criterionScores && typeof parsed.criterionScores === "object" ? parsed.criterionScores as Record<string, number> : { overall: score }
+      };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+
+export function createSemanticJudge(env: NodeJS.ProcessEnv = process.env): SemanticJudge {
+  return env.INTEGRATION_MODE === "live" && env.OPENAI_API_KEY?.trim()
+    ? new LiveOpenAISemanticJudge(env)
+    : new MockedDeterministicSemanticJudge();
+}
+
 export interface StoredEvalCaseResult {
   campaignId: string;
   campaignVersion: number;
@@ -725,7 +793,7 @@ export async function runCriticalFailureRecoveryDemo(
       }
     ]
   });
-  const judge = new MockedDeterministicSemanticJudge();
+  const judge = createSemanticJudge();
   const commonActuals = {
     "EVALCASE-0002": {
       featureId: "FEAT-0001",

@@ -4,10 +4,12 @@ import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { ActionFeedbackButton } from "@/app/ui/action-feedback";
+import { getRuntimeMode } from "@/lib/runtime-mode";
 
 export default async function ReleasesPage() {
   const data = await loadDemoState();
   const deployment = data.deployments[0];
+  const runtimeMode = getRuntimeMode();
   return (
     <div className="page-container">
       <PageHeading eyebrow="Release operations" title="Deployments & releases" description="Commit-aware previews and production releases protected by eval and human approval gates." actions={<ActionFeedbackButton className="button primary"><Rocket size={15} /> Prepare release</ActionFeedbackButton>} />
@@ -17,7 +19,7 @@ export default async function ReleasesPage() {
           ["Build and unit checks", "CI run #1042"], ["Deterministic evals", "31 / 31 passed"], ["Semantic quality", "92 / 100"], ["Critical regression", "Focus case passed"], ["Human release approval", "APR-0002"], ["Lineage completeness", "100%"]
         ].map(([name, evidence]) => <div className="release-check-row" key={name}><CheckCircle2 size={17} /><div><b>{name}</b><span>{evidence}</span></div><StatusPill status="passed" /></div>)}</section>
         <aside className="release-side">
-          <section className="panel deploy-record"><div className="section-title"><div><p className="eyebrow">Deployment record</p><h2>{deployment?.id}</h2></div><StatusPill status={deployment?.status ?? "ready"} /></div><dl><div><dt>Environment</dt><dd>{deployment?.environment}</dd></div><div><dt>Provider</dt><dd>Mock deployment adapter</dd></div><div><dt>Commit</dt><dd>{deployment?.commitSha}</dd></div><div><dt>Deployed</dt><dd>{deployment && new Date(deployment.deployedAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC</dd></div></dl><a href={deployment?.url} className="button secondary">Open provider record <ExternalLink size={13} /></a></section>
+          <section className="panel deploy-record"><div className="section-title"><div><p className="eyebrow">Deployment record</p><h2>{deployment?.id}</h2></div><StatusPill status={deployment?.status ?? "ready"} /></div><dl><div><dt>Environment</dt><dd>{deployment?.environment}</dd></div><div><dt>Provider</dt><dd>{runtimeMode === "live" ? "Live deployment adapter" : "Mock deployment adapter"}</dd></div><div><dt>Commit</dt><dd>{deployment?.commitSha}</dd></div><div><dt>Deployed</dt><dd>{deployment && new Date(deployment.deployedAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC</dd></div></dl><a href={deployment?.url} className="button secondary">Open provider record <ExternalLink size={13} /></a></section>
           <section className="panel protected-action"><LockKeyhole size={21} /><div><h3>Production writes protected</h3><p>Live deploys require a passing gate plus a separate authorized human approval.</p></div></section>
         </aside>
       </div>

@@ -14,8 +14,9 @@ export function DemoControls() {
     setMessage(null);
     try {
       const response = await fetch(`/api/demo/${action}`, { method: "POST" });
-      if (!response.ok) throw new Error("demo action failed");
-      setMessage(action === "run" ? "Demo run recorded" : "Scenario reset");
+      const result = await response.json().catch(() => ({})) as { message?: string; detail?: string; partial?: boolean };
+      if (!response.ok && !result.partial) throw new Error(result.detail ? `${result.message ?? "Demo action failed"} ${result.detail}` : result.message ?? "Demo action failed");
+      setMessage(result.partial ? `${result.message ?? "Demo run completed partially"} ${result.detail ?? ""}` : action === "run" ? "Demo run recorded" : "Scenario reset");
       router.refresh();
     } catch {
       setMessage("Demo action failed");

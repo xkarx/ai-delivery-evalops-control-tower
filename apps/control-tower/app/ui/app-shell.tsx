@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { RuntimeMode } from "@/lib/runtime-mode";
 
 const nav = [
   { href: "/", label: "Overview", icon: CircleGauge },
@@ -40,7 +41,7 @@ const nav = [
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, runtimeMode }: { children: React.ReactNode; runtimeMode: RuntimeMode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -72,15 +73,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="sidebar-footer">
-          <div className="mode-badge"><span /> Synthetic demo</div>
-          <p>No credentials required</p>
+          <div className="mode-badge"><span /> {runtimeMode === "live" ? "Connected mode" : "Synthetic demo"}</div>
+          <p>{runtimeMode === "live" ? "Provider adapters enabled" : "No credentials required"}</p>
         </div>
       </aside>
       {open && <button className="sidebar-backdrop" onClick={() => setOpen(false)} aria-label="Close navigation" />}
       <div className="content-frame">
         <header className="topbar">
           <button className="icon-button mobile-only" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={21} /></button>
-          <div className="environment"><Boxes size={15} /><span>DailyCart / V1 scenario</span><b>DEMO</b></div>
+          <div className="environment"><Boxes size={15} /><span>DailyCart / V1 scenario</span><b>{runtimeMode === "live" ? "LIVE" : "DEMO"}</b></div>
           <div className="top-actions">
             <span className="system-status"><i /> Systems nominal</span>
             <button className="avatar" aria-label="Demo operator">KO</button>

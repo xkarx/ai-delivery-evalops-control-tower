@@ -4,6 +4,7 @@ import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { ActionFeedbackButton } from "@/app/ui/action-feedback";
+import { getRuntimeMode } from "@/lib/runtime-mode";
 
 const stages = [
   { id: "EVD-0003", type: "Evidence", title: "Checkout failures lack recovery guidance", detail: "Interview + support + analytics cluster", status: "passed" },
@@ -18,6 +19,8 @@ const stages = [
 
 export default async function LineagePage() {
   const data = await loadDemoState();
+  const runtimeMode = getRuntimeMode();
+  const stageRows = stages.map((stage) => stage.id === "DEP-0001" ? { ...stage, detail: runtimeMode === "live" ? "Commit 7d91e2b · live deployment adapter" : "Commit 7d91e2b · mocked deployment" } : stage);
   return (
     <div className="page-container">
       <PageHeading eyebrow="Audit trail" title="Feature lineage" description="Every claim, decision, run, gate, release, and outcome linked by stable identifiers." actions={<><ActionFeedbackButton><Link2 size={15} /> Copy lineage link</ActionFeedbackButton><ActionFeedbackButton className="button primary">Export evidence</ActionFeedbackButton></>} />
@@ -25,10 +28,10 @@ export default async function LineagePage() {
       <div className="lineage-layout">
         <section className="panel lineage-timeline">
           <div className="section-title"><div><p className="eyebrow">Lifecycle</p><h2>Evidence to outcome</h2></div><span>{data.lineage.length} stored edges</span></div>
-          {stages.map((stage, index) => <article key={stage.id} className={stage.status === "blocked" ? "lineage-stage blocked-stage" : "lineage-stage"}>
+          {stageRows.map((stage, index) => <article key={stage.id} className={stage.status === "blocked" ? "lineage-stage blocked-stage" : "lineage-stage"}>
             <div className="stage-marker">{stage.status === "blocked" ? <ShieldX size={16} /> : <Check size={15} />}</div>
             <div className="stage-content"><div className="stage-top"><span>{stage.type}</span><StatusPill status={stage.status} /></div><h3>{stage.title}</h3><p>{stage.detail}</p><div><span className="mono-id">{stage.id}</span><Link href="#edges">Open record <ExternalLink size={12} /></Link></div></div>
-            {index < stages.length - 1 && <ArrowDown className="stage-arrow" size={14} />}
+            {index < stageRows.length - 1 && <ArrowDown className="stage-arrow" size={14} />}
           </article>)}
         </section>
         <aside className="lineage-aside">

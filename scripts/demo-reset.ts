@@ -9,6 +9,7 @@ const artifacts = resolve(root, "artifacts");
 async function main(): Promise<void> {
   await rm(runtime, { recursive: true, force: true });
   await rm(resolve(artifacts, "demo-state.json"), { force: true });
+  await rm(resolve(artifacts, "workflow-run.json"), { force: true });
   await mkdir(runtime, { recursive: true });
   await writeFile(resolve(runtime, "reset.json"), JSON.stringify({ resetAt: "2026-07-10T18:30:00.000Z", mode: "synthetic" }, null, 2));
   await generateCompany({ seed: Number(process.env.SYNTHETIC_DATA_SEED ?? 20260710), scenario: process.env.COMPANY_SCENARIO ?? "checkout-friction" });

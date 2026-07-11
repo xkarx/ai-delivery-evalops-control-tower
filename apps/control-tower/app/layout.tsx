@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/app/ui/app-shell";
+import { getRuntimeMode } from "@/lib/runtime-mode";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
-        <AppShell>{children}</AppShell>
+        <AppShell runtimeMode={getRuntimeMode()}>{children}</AppShell>
       </body>
     </html>
   );

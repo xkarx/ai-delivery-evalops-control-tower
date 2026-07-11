@@ -17,7 +17,7 @@ export default async function FeaturesPage() {
   return (
     <div className="page-container">
       <PageHeading eyebrow="Portfolio" title="Feature portfolio" description="Evidence-weighted opportunities moving through approval, delivery, evaluation, and outcomes." actions={<ActionFeedbackButton className="button primary">Start PM analysis</ActionFeedbackButton>} />
-      <div className="toolbar"><label><Search size={15} /><input aria-label="Search features" placeholder="Search features or evidence IDs" /></label><button><SlidersHorizontal size={15} /> Filters</button><span className="source-label">Synthetic scenario</span></div>
+      <div className="toolbar"><label><Search size={15} /><input aria-label="Search features" placeholder="Search features or evidence IDs" /></label><ActionFeedbackButton message="Feature filters are not persisted yet; use search to narrow this portfolio."><SlidersHorizontal size={15} /> Filters</ActionFeedbackButton><span className="source-label">Synthetic scenario</span></div>
       <section className="portfolio-summary">
         <div><span>Portfolio confidence</span><b>81%</b><div className="progress"><i style={{ width: "81%" }} /></div></div>
         <div><span>Evidence records linked</span><b>{new Set(data.features.flatMap((feature) => feature.evidenceIds)).size}</b><small>Across 5 source kinds</small></div>

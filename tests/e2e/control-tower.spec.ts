@@ -55,3 +55,11 @@ test("analytics traffic controls run a bounded scenario", async ({ page }) => {
   await page.getByRole("button", { name: "Run traffic" }).click();
   await expect(page.locator(".traffic-result")).toContainText(/events|could not|missing/i);
 });
+
+test("agent workflow runs through eval and stops at release approval", async ({ page }) => {
+  await page.goto("/runs");
+  await page.getByRole("button", { name: "Start workflow" }).click();
+  await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("status")).toContainText(/release approval is pending/i);
+  await expect(page.locator(".workflow-result")).toContainText(/EVAL-0002 passed/);
+});

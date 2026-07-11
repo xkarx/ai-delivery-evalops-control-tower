@@ -136,13 +136,18 @@ export class LiveLangfuseTraceAdapter extends BaseConnector implements TraceAdap
   }
 
   async addScore(input: TraceScoreInput): Promise<ExternalReference> {
-    const response = await this.request<{ id?: string }>("/api/public/v3/scores", {
+    const value = typeof input.value === "boolean" ? (input.value ? 1 : 0) : input.value;
+    const dataType = typeof input.value === "boolean" ? "BOOLEAN" : typeof input.value === "number" ? "NUMERIC" : "TEXT";
+    // Score creation remains on the public v1 endpoint. Langfuse's v3 scores
+    // route is query-only (GET); using it for writes returns HTTP 405.
+    const response = await this.request<{ id?: string }>("/api/public/scores", {
       method: "POST",
       body: JSON.stringify({
         name: input.name,
-        value: input.value,
+        value,
+        dataType,
         comment: input.comment,
-        subject: { kind: "trace", id: input.traceId }
+        traceId: input.traceId
       })
     });
     return {
