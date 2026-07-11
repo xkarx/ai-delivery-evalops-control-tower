@@ -14,6 +14,8 @@ export async function POST() {
   const workflowPath = path.resolve(root, "artifacts/workflow-run.json");
   try {
     const stored = JSON.parse(await readFile(workflowPath, "utf8")) as { workflow: Parameters<typeof DeliveryWorkflow.hydrate>[0]; featureId: string };
+    const previewEval = await readFile(path.resolve(root, "artifacts/workflow-preview-eval.json"), "utf8").then((value) => JSON.parse(value) as { passed?: boolean }).catch(() => undefined);
+    if (!previewEval?.passed) throw new Error("Production deployment is gated on a passing preview evaluation.");
     const workflow = DeliveryWorkflow.hydrate(stored.workflow);
     if (workflow.snapshot().phase !== "ready_to_release") throw new Error(`Release must be approved first; current phase is ${workflow.snapshot().phase}.`);
     const deployment = await createConnectorSuite({ env: process.env }).deployment.deploy({ id: "DEP-0101", featureId: stored.featureId, environment: "production", commitSha: process.env.GITHUB_COMMIT_SHA ?? "agent/live-cohesion", repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: process.env.GITHUB_DEFAULT_BRANCH ?? "main" });

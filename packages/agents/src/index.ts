@@ -11,6 +11,10 @@ import {
   type Ticket
 } from "@dailycart/schemas";
 import { LineageGraph, stableId } from "@dailycart/lineage";
+export { loadCompanyContextPack } from "./context-pack";
+export type { CompanyContextManifest, CompanyContextPack, ContextPackCategory } from "./context-pack";
+export { runLiveAgentReasoning } from "./live-runtime";
+export type { LiveAgentReasoningInput, LiveAgentReasoningResult } from "./live-runtime";
 
 const STOP_WORDS = new Set([
   "about",
@@ -161,6 +165,8 @@ export interface RankedOpportunity extends Feature {
 export interface PmAnalysis {
   run: AgentRun;
   opportunities: RankedOpportunity[];
+  /** PM-owned brief consumed by TPM; TPM never drafts or reviews this document. */
+  implementationBrief: ProductRequirementDocument;
   evidenceIds: string[];
   themesEvaluated: string[];
   recommendationRationale: string;
@@ -332,9 +338,11 @@ export function analyzeProductEvidence(
 
   const recommended = opportunities[0];
   if (!recommended) throw new Error("PM analysis did not produce a recommendation");
+  const implementationBrief = createImplementationBrief(recommended, { now: timestamp });
   return {
     run,
     opportunities,
+    implementationBrief,
     evidenceIds: evidence.map((item) => item.id).sort(),
     themesEvaluated: [...clusters.keys()].sort(),
     recommendationRationale:
@@ -357,6 +365,45 @@ export interface ProductRequirementDocument {
   acceptanceCriteria: string[];
   createdAt: string;
   sourceMode: SourceMode;
+}
+
+/** Creates the PM-owned implementation brief from the selected opportunity. */
+export function createImplementationBrief(
+  featureInput: Feature,
+  options: { briefOrdinal?: number; now?: string } = {}
+): ProductRequirementDocument {
+  const feature = featureSchema.parse(featureInput);
+  const timestamp = isoNow(options.now);
+  const featureOrdinal = extractOrdinal(feature.id);
+  return {
+    id: stableId("PRD", options.briefOrdinal ?? featureOrdinal),
+    featureId: feature.id,
+    title: `${feature.title} — implementation brief`,
+    problem: feature.problem,
+    objective: feature.hypothesis,
+    evidenceIds: [...feature.evidenceIds],
+    inScope: [
+      `Deliver the core ${feature.title.toLowerCase()} user journey`,
+      "Instrument success, failure, and exposure events",
+      "Protect the journey with deterministic regression coverage"
+    ],
+    nonGoals: [
+      "Unrelated product-area redesigns",
+      "Multi-tenant policy customization reserved for V2"
+    ],
+    userStories: [
+      `As an affected shopper, I can use ${feature.title.toLowerCase()} without avoidable friction.`,
+      "As a product operator, I can measure adoption and failures by persistent customer ID."
+    ],
+    metrics: [...feature.metrics],
+    acceptanceCriteria: [
+      `The primary ${feature.title.toLowerCase()} journey completes in supported demo scenarios.`,
+      `Every outcome emits ${feature.metrics[0] ?? "a success"} telemetry with a feature ID.`,
+      "Critical deterministic and regression eval cases pass before release."
+    ],
+    createdAt: timestamp,
+    sourceMode: feature.sourceMode
+  };
 }
 
 export interface DeliveryRisk {
@@ -384,7 +431,7 @@ export interface DeliveryMilestone {
 
 export interface TpmPlan {
   run: AgentRun;
-  prd: ProductRequirementDocument;
+  implementationBrief: ProductRequirementDocument;
   tickets: Ticket[];
   dependencies: DeliveryDependency[];
   risks: DeliveryRisk[];
@@ -392,18 +439,25 @@ export interface TpmPlan {
 }
 
 export interface TpmPlanOptions {
-  prdOrdinal?: number;
+  implementationBrief: ProductRequirementDocument;
   ticketStartOrdinal?: number;
   runId?: string;
   now?: string;
 }
 
-export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {}): TpmPlan {
+export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions): TpmPlan {
   const feature = featureSchema.parse(featureInput);
   if (feature.status !== "approved") {
     throw new Error(`TPM planning requires an approved feature; received ${feature.status}`);
   }
   const timestamp = isoNow(options.now);
+  const implementationBrief = options.implementationBrief;
+  if (!implementationBrief || implementationBrief.featureId !== feature.id) {
+    throw new Error("TPM planning requires a PM-owned implementation brief for the approved feature");
+  }
+  if (implementationBrief.sourceMode !== feature.sourceMode) {
+    throw new Error("PM implementation brief and approved feature must use the same source mode");
+  }
   const featureOrdinal = extractOrdinal(feature.id);
   const ticketStart = options.ticketStartOrdinal ?? (featureOrdinal - 1) * 3 + 1;
   const ticketIds = [0, 1, 2].map((offset) => stableId("TKT", ticketStart + offset));
@@ -412,57 +466,27 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
     throw new Error("Unable to allocate TPM ticket IDs");
   }
 
-  const prd: ProductRequirementDocument = {
-    id: stableId("PRD", options.prdOrdinal ?? featureOrdinal),
-    featureId: feature.id,
-    title: `${feature.title} — V1 PRD`,
-    problem: feature.problem,
-    objective: feature.hypothesis,
-    evidenceIds: [...feature.evidenceIds],
-    inScope: [
-      `Deliver the core ${feature.title.toLowerCase()} user journey`,
-      "Instrument success, failure, and exposure events",
-      "Protect the journey with deterministic regression coverage"
-    ],
-    nonGoals: [
-      "Unrelated product-area redesigns",
-      "Multi-tenant policy customization reserved for V2"
-    ],
-    userStories: [
-      `As an affected shopper, I can use ${feature.title.toLowerCase()} without avoidable friction.`,
-      "As a product operator, I can measure adoption and failures by persistent customer ID."
-    ],
-    metrics: [...feature.metrics],
-    acceptanceCriteria: [
-      `The primary ${feature.title.toLowerCase()} journey completes in supported demo scenarios.`,
-      `Every outcome emits ${feature.metrics[0] ?? "a success"} telemetry with a feature ID.`,
-      "Critical deterministic and regression eval cases pass before release."
-    ],
-    createdAt: timestamp,
-    sourceMode: feature.sourceMode
-  };
-
   const tickets = [
     ticketSchema.parse({
       id: experienceTicketId,
       featureId: feature.id,
       title: `Implement ${feature.title} core journey`,
-      description: `Build the approved behavior described by ${prd.id} and preserve evidence-linked scope.`,
+      description: `Build the approved behavior described by ${implementationBrief.id} and preserve evidence-linked scope.`,
       status: "todo",
       workstream: "experience",
       dependsOn: [],
-      acceptanceCriteria: [prd.acceptanceCriteria[0]],
+      acceptanceCriteria: [implementationBrief.acceptanceCriteria[0]],
       sourceMode: feature.sourceMode
     }),
     ticketSchema.parse({
       id: reliabilityTicketId,
       featureId: feature.id,
       title: `Instrument and harden ${feature.title}`,
-      description: `Add telemetry, error handling, and deterministic regression coverage for ${prd.id}.`,
+      description: `Add telemetry, error handling, and deterministic regression coverage for ${implementationBrief.id}.`,
       status: "todo",
       workstream: "reliability",
       dependsOn: [],
-      acceptanceCriteria: prd.acceptanceCriteria.slice(1),
+      acceptanceCriteria: implementationBrief.acceptanceCriteria.slice(1),
       sourceMode: feature.sourceMode
     }),
     ticketSchema.parse({
@@ -492,10 +516,10 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
     retries: 0,
     steps: [
       {
-        name: "review-prd-and-scope",
+        name: "consume-pm-brief",
         status: "succeeded",
         durationMs: 8,
-        detail: `Reviewed ${prd.id}; PM-owned scope preserves ${prd.evidenceIds.length} evidence links`
+        detail: `Consumed PM-owned ${implementationBrief.id}; preserved ${implementationBrief.evidenceIds.length} evidence links`
       },
       {
         name: "decompose-work",
@@ -521,7 +545,7 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
 
   return {
     run,
-    prd,
+    implementationBrief,
     tickets,
     dependencies: [
       {
@@ -553,7 +577,7 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
         description: "Implementation may expand beyond the evidence-supported problem.",
         probability: "low",
         impact: "medium",
-        mitigation: `Keep all changed work linked to ${prd.id} acceptance criteria.`,
+        mitigation: `Keep all changed work linked to ${implementationBrief.id} acceptance criteria.`,
         owner: "tpm"
       }
     ],
@@ -572,6 +596,93 @@ export function createTpmPlan(featureInput: Feature, options: TpmPlanOptions = {
       }
     ]
   };
+}
+
+export type ReviewSeverity = "info" | "warning" | "critical";
+export type AgentReviewType = "ux" | "engineering-feasibility";
+
+export interface AgentReviewFinding {
+  id: string;
+  severity: ReviewSeverity;
+  title: string;
+  detail: string;
+  recommendation: string;
+}
+
+/** A review is an inspectable AgentRun, not an implicit TPM approval. */
+export interface AgentReviewSummary {
+  id: string;
+  featureId: string;
+  reviewType: AgentReviewType;
+  status: "passed" | "needs_changes";
+  findings: AgentReviewFinding[];
+  run: AgentRun;
+  sourceMode: SourceMode;
+}
+
+export interface AgentReviewOptions {
+  runId?: string;
+  reviewId?: string;
+  now?: string;
+  sourceMode?: SourceMode;
+}
+
+function createReviewSummary(
+  featureInput: Feature,
+  briefInput: ProductRequirementDocument,
+  reviewType: AgentReviewType,
+  findings: AgentReviewFinding[],
+  options: AgentReviewOptions,
+  agent: "ux" | "engineering_feasibility",
+  defaultRunId: string,
+  defaultReviewId: string
+): AgentReviewSummary {
+  const feature = featureSchema.parse(featureInput);
+  const brief = briefInput;
+  if (brief.featureId !== feature.id) throw new Error("Review brief must belong to the reviewed feature");
+  const sourceMode = options.sourceMode ?? feature.sourceMode;
+  const timestamp = isoNow(options.now);
+  const status = findings.some((finding) => finding.severity === "critical") ? "needs_changes" : "passed";
+  const runId = options.runId ?? defaultRunId;
+  const run = agentRunSchema.parse({
+    id: runId,
+    agent,
+    status: status === "passed" ? "succeeded" : "failed",
+    startedAt: timestamp,
+    finishedAt: timestamp,
+    featureId: feature.id,
+    ticketIds: [],
+    traceId: `trace-${runId.toLowerCase()}`,
+    costUsd: 0,
+    latencyMs: Math.max(1, findings.length * 4),
+    retries: 0,
+    steps: [
+      { name: `review-${reviewType}`, status: status === "passed" ? "succeeded" : "failed", durationMs: Math.max(1, findings.length * 4), detail: `${findings.length} deterministic finding(s) recorded` },
+      { name: "record-findings", status: "succeeded", durationMs: 1, detail: "Findings are linked to the PM-owned implementation brief" }
+    ],
+    sourceMode
+  });
+  return { id: options.reviewId ?? defaultReviewId, featureId: feature.id, reviewType, status, findings, run, sourceMode };
+}
+
+export function runUxReview(featureInput: Feature, briefInput: ProductRequirementDocument, options: AgentReviewOptions = {}): AgentReviewSummary {
+  const brief = briefInput;
+  const findings: AgentReviewFinding[] = [];
+  if (brief.userStories.length === 0) findings.push({ id: "EXT-0201", severity: "critical", title: "No user story", detail: "The brief has no user-centered outcome to validate.", recommendation: "Add a user story before delivery planning." });
+  if (brief.acceptanceCriteria.length < 3) findings.push({ id: "EXT-0202", severity: "critical", title: "Acceptance coverage is incomplete", detail: "Fewer than three observable acceptance criteria are defined.", recommendation: "Add success, telemetry, and regression criteria." });
+  if (brief.metrics.length === 0) findings.push({ id: "EXT-0203", severity: "warning", title: "Outcome metric is missing", detail: "The experience cannot be evaluated against a measurable outcome.", recommendation: "Define at least one customer-facing metric." });
+  if (findings.length === 0) findings.push({ id: "EXT-0204", severity: "info", title: "Journey is reviewable", detail: "User stories and observable acceptance criteria are present.", recommendation: "Validate the journey with human review at preview." });
+  return createReviewSummary(featureInput, brief, "ux", findings, options, "ux", "RUN-0110", "EXT-0200");
+}
+
+export function runEngineeringFeasibilityReview(featureInput: Feature, briefInput: ProductRequirementDocument, options: AgentReviewOptions = {}): AgentReviewSummary {
+  const brief = briefInput;
+  const findings: AgentReviewFinding[] = [];
+  if (brief.inScope.length > 5) findings.push({ id: "EXT-0211", severity: "critical", title: "Scope is too broad", detail: `${brief.inScope.length} in-scope items exceed the bounded V1 review budget.`, recommendation: "Split the change into independent workstreams." });
+  if (brief.nonGoals.length === 0) findings.push({ id: "EXT-0212", severity: "warning", title: "Non-goals are undefined", detail: "Without non-goals, delivery scope can expand during implementation.", recommendation: "Record explicit exclusions before ticket decomposition." });
+  if (brief.evidenceIds.length === 0) findings.push({ id: "EXT-0213", severity: "critical", title: "Evidence linkage is missing", detail: "The implementation brief cannot be traced to source evidence.", recommendation: "Link the brief to at least one validated evidence ID." });
+  if (findings.length === 0) findings.push({ id: "EXT-0214", severity: "info", title: "Implementation is bounded", detail: "Scope, exclusions, metrics, and evidence links are present.", recommendation: "Proceed to TPM dependency mapping and readiness checks." });
+  return createReviewSummary(featureInput, brief, "engineering-feasibility", findings, options, "engineering_feasibility", "RUN-0111", "EXT-0210");
 }
 
 export interface EngineeringExecutionStep {
