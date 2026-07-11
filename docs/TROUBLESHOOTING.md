@@ -23,3 +23,7 @@ Run `corepack pnpm exec playwright install chromium`, or let the CI workflow ins
 ## Supabase writes fail
 
 Apply `supabase/migrations/0001_control_tower.sql` first, verify RLS, then rerun the integration health page. The service-role key belongs only in the server/worker secret store.
+
+## Slack health is green but messages fail with `missing_scope`
+
+Slack `auth.test` proves the bot token is valid, but posting requires the bot OAuth scope `chat:write`. Add that scope in the Slack app, reinstall/re-authorize the app, invite the bot to `SLACK_DEFAULT_CHANNEL`, update `SLACK_BOT_TOKEN`, and restart the server. The delivery ticket endpoint preserves a successfully created Linear ticket and reports the Slack failure instead of hiding the partial result.

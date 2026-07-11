@@ -10,12 +10,12 @@ export function TicketAction({ featureId, title, description }: { featureId: str
     setState("working");
     try {
       const response = await fetch("/api/delivery/tickets", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ featureId, title, description }) });
-      const result = await response.json() as { ticket?: { identifier?: string; sourceMode?: string }; message?: string };
-      if (!response.ok || !result.ticket) throw new Error(result.message);
+      const result = await response.json() as { ticket?: { identifier?: string; sourceMode?: string }; message?: string; detail?: string };
+      if (!response.ok || !result.ticket) throw new Error(result.detail ? `${result.message ?? "Ticket creation failed."} ${result.detail}` : result.message ?? "Ticket creation failed.");
       setLabel(`${result.ticket.identifier} created · ${result.ticket.sourceMode}`);
       setState("done");
-    } catch {
-      setLabel("Could not create ticket");
+    } catch (error) {
+      setLabel(error instanceof Error ? error.message : "Could not create ticket");
       setState("error");
     }
   }

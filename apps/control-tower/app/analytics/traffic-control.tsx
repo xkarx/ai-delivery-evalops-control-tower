@@ -27,7 +27,7 @@ export function TrafficControl() {
     try {
       const response = await fetch("/api/product/traffic", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...values, costControls: { maxEstimatedUsd: 1, maxRuntimeSeconds: values.maxRuntimeSeconds, costPerThousandEventsUsd: 0, maxEvents: values.maxEvents } }) });
       const payload = await response.json();
-      if (!response.ok || !payload.ok) throw new Error(payload.message ?? "Traffic run failed");
+      if (!response.ok || !payload.ok) throw new Error(payload.detail ? `${payload.message ?? "Traffic run failed"} ${payload.detail}` : payload.message ?? "Traffic run failed");
       setResult(payload.run);
       router.refresh();
     } catch (runError) {

@@ -1,5 +1,6 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { ConnectorError } from "@dailycart/connectors";
 import { createSampleProductAdapter } from "@dailycart/sample-product";
 import { NextResponse } from "next/server";
 
@@ -31,7 +32,8 @@ export async function POST(request: Request) {
     await mkdir(eventsDir, { recursive: true });
     if (result.events.length) await appendFile(path.resolve(eventsDir, "product-events.jsonl"), `${result.events.map((event) => JSON.stringify(event)).join("\n")}\n`);
     return NextResponse.json({ ok: true, run: { runId: result.runId, eventCount: result.events.length, users: result.effectiveUserCount, funnel: result.funnel, sourceMode: result.sourceMode, capped: result.capped, stopReason: result.stopReason, exposureCount: result.exposureCount, failureCount: result.failureCount } });
-  } catch {
-    return NextResponse.json({ ok: false, message: "Traffic run could not be started." }, { status: 400 });
+  } catch (error) {
+    const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "The traffic provider returned an unexpected error.";
+    return NextResponse.json({ ok: false, message: "Traffic run could not be started.", detail }, { status: 400 });
   }
 }

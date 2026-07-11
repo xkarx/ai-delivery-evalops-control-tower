@@ -52,7 +52,7 @@ export function HealthClient({ initial }: { initial: HealthProviderView[] }) {
       {providers.map((integration) => <article className="integration-card" key={integration.key}>
         <div className="integration-top"><span className="provider-logo">{integration.key.slice(0, 2).toUpperCase()}</span><StatusPill status={integration.health.status} /></div>
         <h2>{integration.key.replace("-", " ")}</h2><p>{descriptions[integration.key] ?? integration.health.message}</p>
-        <dl><div><dt>Mode</dt><dd className="source-label">{integration.health.mode}</dd></div><div><dt>Configuration</dt><dd>{integration.configuration.configured ? "Ready" : "Missing"}</dd></div></dl>
+        <dl><div><dt>Mode</dt><dd className="source-label">{integration.health.mode}</dd></div><div><dt>Configuration</dt><dd>{integration.configuration.configured ? "Ready" : "Missing"}</dd></div><div><dt>Write path</dt><dd>{integration.configuration.writeEnabled ? "Configured" : "Blocked"}</dd></div></dl>
         <div className="capability-row">{integration.health.capabilities.map((capability) => <span key={capability}>{capability}</span>)}</div>
         <div className="integration-message">{integration.health.message}{integration.configuration.missingEnvironment.length > 0 && <small>Missing: {integration.configuration.missingEnvironment.join(", ")}</small>}</div>
       </article>)}

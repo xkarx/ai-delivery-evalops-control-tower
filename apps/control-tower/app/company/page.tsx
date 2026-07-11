@@ -1,6 +1,7 @@
 import { BookOpenText, Database, FileJson2, FolderSearch, MessageSquareText, TicketCheck, Users } from "lucide-react";
 import { PageHeading } from "@/app/ui/page-heading";
 import { loadDemoState } from "@/lib/load-demo-state";
+import { ActionFeedbackButton } from "@/app/ui/action-feedback";
 
 const collections = [
   ["Customers", "50", "Persistent accounts and persona links", Users],
@@ -15,7 +16,7 @@ export default async function CompanyPage() {
   const data = await loadDemoState();
   return (
     <div className="page-container">
-      <PageHeading eyebrow="Synthetic evidence" title="Company data" description="A deterministic, internally linked DailyCart workspace with realistic noise and conflict." actions={<><button className="button secondary">Validate references</button><button className="button primary">Regenerate seed</button></>} />
+      <PageHeading eyebrow="Synthetic evidence" title="Company data" description="A deterministic, internally linked DailyCart workspace with realistic noise and conflict." actions={<><ActionFeedbackButton>Validate references</ActionFeedbackButton><ActionFeedbackButton className="button primary">Regenerate seed</ActionFeedbackButton></>} />
       <section className="company-hero panel"><div><span className="company-big-avatar">DC</span><div><span className="source-label">100% synthetic</span><h2>DailyCart Commerce</h2><p>Make everyday shopping predictable, fast, and trustworthy across devices.</p></div></div><dl><div><dt>Scenario</dt><dd>{data.scenario}</dd></div><div><dt>Seed</dt><dd>{data.seed}</dd></div><div><dt>Generated</dt><dd>{new Date(data.generatedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}</dd></div></dl></section>
       <div className="company-layout"><section className="collection-grid">{collections.map(([name, count, detail, Icon]) => <article className="panel collection-card" key={name}><span><Icon size={19} /></span><div><small>Collection</small><h2>{name}</h2><p>{detail}</p></div><strong>{count}</strong></article>)}</section><aside className="panel strategy-card"><div className="section-title"><div><p className="eyebrow">Q3 strategy</p><h2>Trust every checkout</h2></div></div><p>Reduce preventable abandonment without masking reliability problems.</p><h3>Quarterly goals</h3><ol><li><span>01</span><div><b>Improve checkout completion</b><small>Baseline 18.3% → target 21%</small></div></li><li><span>02</span><div><b>Protect peak reliability</b><small>Error-free sessions ≥ 98%</small></div></li><li><span>03</span><div><b>Reduce contact burden</b><small>Checkout support −15%</small></div></li></ol></aside></div>
       <section className="panel data-browser"><div className="section-title"><div><p className="eyebrow">Evidence browser</p><h2>Representative linked records</h2></div><button className="button secondary"><FolderSearch size={14}/> Browse all files</button></div><div className="data-table"><div><span>ID</span><span>Source</span><span>Signal</span><span>Sentiment</span><span>Linked feature</span></div>{[

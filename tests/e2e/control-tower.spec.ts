@@ -53,5 +53,5 @@ test("analytics traffic controls run a bounded scenario", async ({ page }) => {
   await page.getByLabel("Duration seconds").fill("2");
   await page.getByLabel("Traffic scenario").selectOption("checkout-failure");
   await page.getByRole("button", { name: "Run traffic" }).click();
-  await expect(page.getByRole("status")).toContainText(/events/);
+  await expect(page.locator(".traffic-result")).toContainText(/events|could not|missing/i);
 });

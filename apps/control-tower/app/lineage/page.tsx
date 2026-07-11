@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
+import { ActionFeedbackButton } from "@/app/ui/action-feedback";
 
 const stages = [
   { id: "EVD-0003", type: "Evidence", title: "Checkout failures lack recovery guidance", detail: "Interview + support + analytics cluster", status: "passed" },
@@ -19,7 +20,7 @@ export default async function LineagePage() {
   const data = await loadDemoState();
   return (
     <div className="page-container">
-      <PageHeading eyebrow="Audit trail" title="Feature lineage" description="Every claim, decision, run, gate, release, and outcome linked by stable identifiers." actions={<><button className="button secondary"><Link2 size={15} /> Copy lineage link</button><button className="button primary">Export evidence</button></>} />
+      <PageHeading eyebrow="Audit trail" title="Feature lineage" description="Every claim, decision, run, gate, release, and outcome linked by stable identifiers." actions={<><ActionFeedbackButton><Link2 size={15} /> Copy lineage link</ActionFeedbackButton><ActionFeedbackButton className="button primary">Export evidence</ActionFeedbackButton></>} />
       <div className="lineage-header panel"><div><span className="mono-id">FEAT-0001</span><h2>Checkout recovery guidance</h2><p>Selected from three ranked opportunities using 47 evidence records.</p></div><div><StatusPill status="released" /><span className="source-label">Complete · 8 stages</span></div></div>
       <div className="lineage-layout">
         <section className="panel lineage-timeline">

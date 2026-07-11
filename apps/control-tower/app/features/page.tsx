@@ -4,6 +4,7 @@ import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { TicketAction } from "./ticket-action";
+import { ActionFeedbackButton } from "@/app/ui/action-feedback";
 
 const columns = [
   { key: "candidate", title: "Discovery", hint: "Evidence being synthesized" },
@@ -15,7 +16,7 @@ export default async function FeaturesPage() {
   const data = await loadDemoState();
   return (
     <div className="page-container">
-      <PageHeading eyebrow="Portfolio" title="Feature portfolio" description="Evidence-weighted opportunities moving through approval, delivery, evaluation, and outcomes." actions={<button className="button primary">Start PM analysis</button>} />
+      <PageHeading eyebrow="Portfolio" title="Feature portfolio" description="Evidence-weighted opportunities moving through approval, delivery, evaluation, and outcomes." actions={<ActionFeedbackButton className="button primary">Start PM analysis</ActionFeedbackButton>} />
       <div className="toolbar"><label><Search size={15} /><input aria-label="Search features" placeholder="Search features or evidence IDs" /></label><button><SlidersHorizontal size={15} /> Filters</button><span className="source-label">Synthetic scenario</span></div>
       <section className="portfolio-summary">
         <div><span>Portfolio confidence</span><b>81%</b><div className="progress"><i style={{ width: "81%" }} /></div></div>
