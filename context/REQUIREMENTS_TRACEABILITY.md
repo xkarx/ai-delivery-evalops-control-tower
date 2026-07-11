@@ -5,7 +5,7 @@ Codex must update the implementation link and evidence columns.
 | ID | Requirement | Target | Verification |
 |---|---|---|---|
 | R001 | Fresh-clone V1 | Whole repo | Complete — `pnpm demo`, `pnpm build`, `pnpm test` |
-| R002 | Visual control tower | UI | Complete — Next routes + `tests/e2e/control-tower.spec.ts` |
+| R002 | Visual control tower | UI | Complete — Next routes, route-specific layouts, executable demo controls + `tests/e2e/control-tower.spec.ts` |
 | R003 | Feature lineage timeline | UI + DB | Complete — `/lineage`, lineage package, Supabase migration |
 | R004 | Deterministic synthetic data | Generator | Complete — same-seed test |
 | R005 | Structured company files | `company/` | Complete — validator + minimum dataset |
