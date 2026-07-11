@@ -27,3 +27,13 @@ test("customer product records a cart interaction", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Ready for checkout" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Checkout securely/ })).toBeVisible();
 });
+
+test("dense screens stay inside the viewport at tablet width", async ({ page }) => {
+  await page.setViewportSize({ width: 820, height: 900 });
+  for (const route of ["/incidents", "/company", "/runs", "/reviews", "/integrations"]) {
+    await page.goto(route);
+    await expect(page.locator("main")).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `${route} has horizontal page overflow`).toBeLessThanOrEqual(1);
+  }
+});
