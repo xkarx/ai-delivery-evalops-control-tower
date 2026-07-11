@@ -16,7 +16,7 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
+  ShoppingCart,
   Users,
   X
 } from "lucide-react";
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
         <div className="brand-row">
           <Link href="/" className="brand" onClick={() => setOpen(false)}>
-            <span className="brand-mark"><Sparkles size={18} /></span>
+            <span className="brand-mark"><ShoppingCart size={18} /></span>
             <span><b>DailyCart</b><small>Delivery OS</small></span>
           </Link>
           <button className="icon-button mobile-only" onClick={() => setOpen(false)} aria-label="Close navigation"><X size={20} /></button>

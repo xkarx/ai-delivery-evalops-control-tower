@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, Search, ShoppingBag, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Search, ShoppingBag, ShoppingCart, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { catalog, type Product } from "./catalog";
 
@@ -46,7 +46,7 @@ export function ProductClient() {
   }
 
   return <div className="product-page">
-    <header className="product-header"><div className="product-brand"><span className="product-brand-mark"><Sparkles size={17} /></span><div><b>DailyCart</b><small>Everyday shopping, made predictable</small></div></div><div className="product-header-note">Synthetic product environment <span>LIVE EVENTS ON</span></div><button className="product-cart-button" onClick={() => { if (cart.length) beginCheckout(); else setCheckout(true); }}><ShoppingBag size={18} /><span>{itemCount}</span> Cart</button></header>
+    <header className="product-header"><div className="product-brand"><span className="product-brand-mark"><ShoppingCart size={17} /></span><div><b>DailyCart</b><small>Everyday shopping, made predictable</small></div></div><div className="product-header-note">Synthetic product environment <span>LIVE EVENTS ON</span></div><button className="product-cart-button" onClick={() => { if (cart.length) beginCheckout(); else setCheckout(true); }}><ShoppingBag size={18} /><span>{itemCount}</span> Cart</button></header>
     <section className="product-hero"><div><p className="eyebrow">The DailyCart market</p><h1>Good things for every day.</h1><p>Fresh essentials, simple prices, and a checkout that helps you recover when something changes.</p></div><div className="product-hero-card"><span>Built for delivery experiments</span><b>Track every customer signal</b><small>Events flow to the control tower as you browse.</small></div></section>
     <section className="product-toolbar"><label><Search size={17} /><input value={query} onChange={(event) => { setQuery(event.target.value); if (event.target.value) sendEvent("search_used", { query: event.target.value }); }} placeholder="Search products" /></label><div className="product-categories">{["All", "Pantry", "Fresh", "Home", "Wellness"].map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}</div></section>
     <section className="product-grid">{visible.map((product) => <article className="product-card" key={product.id}><div className="product-art" style={{ background: product.accent }}><span>{product.category}</span>{product.badge && <b>{product.badge}</b>}<strong>{product.name.split(" ").map((word) => word[0]).join("")}</strong></div><div className="product-card-body"><div><span className="product-category">{product.category}</span><h2>{product.name}</h2></div><strong>${product.price.toFixed(2)}</strong></div><p>{product.description}</p><button className="product-add" onClick={() => add(product)}>Add to cart <ArrowRight size={15} /></button></article>)}</section>
