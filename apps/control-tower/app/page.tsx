@@ -1,8 +1,9 @@
-import { ArrowRight, CheckCircle2, Clock3, ShieldAlert, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, ShieldAlert, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
+import { DemoControls } from "@/app/ui/demo-controls";
 
 export default async function OverviewPage() {
   const data = await loadDemoState();
@@ -13,7 +14,7 @@ export default async function OverviewPage() {
 
   return (
     <div className="page-container">
-      <PageHeading eyebrow="Command center" title="Good afternoon, operator" description="One evidence-linked view from customer signal to production outcome." actions={<><button className="button secondary">Reset scenario</button><button className="button primary"><Sparkles size={16} /> Run demo</button></>} />
+      <PageHeading eyebrow="Command center" title="Good afternoon, operator" description="One evidence-linked view from customer signal to production outcome." actions={<DemoControls />} />
       <section className="notice-bar"><span className="notice-icon"><ShieldAlert size={18} /></span><div><b>Release gate recovery demonstrated</b><p>EVAL-0001 blocked a critical accessibility regression. The corrected EVAL-0002 passed at 94.</p></div><Link href="/evals">Inspect evidence <ArrowRight size={15} /></Link></section>
       <section className="metric-grid">
         <article className="metric-card"><span className="metric-icon violet"><LayersIcon /></span><div><p>Active features</p><strong>{data.features.length}</strong><small><TrendingUp size={13} /> 1 released this cycle</small></div></article>
