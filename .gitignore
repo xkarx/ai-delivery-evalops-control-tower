@@ -12,4 +12,5 @@ artifacts/runtime/
 artifacts/*.jsonl
 artifacts/workflow-run.json
 artifacts/workflow-external-sync.json
+artifacts/workflow-external-sync.json
 company/.generation-tmp/

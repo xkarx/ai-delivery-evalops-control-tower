@@ -84,7 +84,7 @@ interface VercelDeploymentResponse {
 export class LiveVercelDeploymentAdapter extends BaseConnector implements DeploymentAdapter {
   readonly kind = "deployment" as const;
   readonly provider = "deployment" as const;
-  protected readonly requiredEnvironment = ["VERCEL_TOKEN", "VERCEL_PROJECT_ID"];
+  protected readonly requiredEnvironment = ["VERCEL_TOKEN", "VERCEL_PROJECT_ID", "VERCEL_REPOSITORY_ID"];
   protected readonly capabilities = ["preview", "production", "status", "teardown", "deep-links"];
   private readonly apiBase: string;
   private readonly deploymentInputs = new Map<string, DeploymentInput>();
@@ -152,9 +152,9 @@ export class LiveVercelDeploymentAdapter extends BaseConnector implements Deploy
         target: input.environment === "production" ? "production" : undefined,
         gitSource: input.repository ? {
           type: "github",
-          repoId: this.env.VERCEL_REPOSITORY_ID ? Number(this.env.VERCEL_REPOSITORY_ID) : undefined,
+          repoId: Number(this.env.VERCEL_REPOSITORY_ID),
           ref: input.ref ?? input.commitSha,
-          sha: input.commitSha
+          ...(/^[0-9a-f]{40}$/i.test(input.commitSha) ? { sha: input.commitSha } : {})
         } : undefined,
         meta: { featureId: input.featureId, commitSha: input.commitSha, environment: input.environment }
       })
