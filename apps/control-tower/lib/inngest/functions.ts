@@ -105,6 +105,7 @@ export const executeWorkflowAction = inngest.createFunction(
     const identity = { sessionId: data.sessionId, workflowId: data.workflowId, actionId: data.actionId };
     const original = await getAction(data.actionId);
     if (!original) throw new Error(`Action ${data.actionId} is missing.`);
+    if (original.status !== "queued") return original;
     await updateAction(data.actionId, { status: "running", attempts: original.attempts + 1, phase: "starting", progress: 2, message: "Durable workflow execution started.", nextAction: "Watch the execution timeline." });
     try {
       if (data.command === "analyze") {
