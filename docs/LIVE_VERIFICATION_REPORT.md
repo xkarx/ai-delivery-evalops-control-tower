@@ -6,6 +6,21 @@ Verified on 2026-07-12 against the canonical hosted application:
 
 This report records observed production evidence. It does not treat configured credentials, static fixtures, or local checks as proof of a live provider action.
 
+## Guided workflow recovery deployment — 2026-07-12
+
+| Record | Observed value |
+|---|---|
+| Baseline tag | `v1-pre-guided-recovery-20260712` at `2e45e3c` |
+| Recovery commit | `2d5c0f5371528369bb68da916246321fea7c028a` |
+| Vercel deployment | `dpl_6X5niTRYrKQiGXyCCjAyH5P46ktY` · READY |
+| Deployment URL | `https://ai-delivery-evalops-control-tower-control-tower-eszh9czw5.vercel.app` |
+| Canonical route check | 14/14 application routes returned HTTP 200 |
+| Existing preview bypass | HTTP 200 DailyCart product shell; Vercel login HTML was not returned |
+| Current durable phase | `awaiting_feature_approval` |
+| Available action | `approve_feature` |
+
+The recovery build is deployed, but the current workflow has not crossed its human feature gate. Therefore this report does not claim a new post-recovery Linear write, Slack message, Langfuse trace, second branch, preview evaluation, correction, or release approval. Those records must use the new session/workflow/action IDs and will be appended only after the operator explicitly approves the current feature tracks.
+
 ## Production workflow
 
 | Record | Verified value |
@@ -46,7 +61,7 @@ An independent remote Playwright run against the deployed product passed three b
 | GitHub | Two branches, functional commits, pull requests, checks, and merge commits were verified |
 | Vercel | Two passing preview deployments and two READY production deployment records were verified |
 | Supabase | Durable session, workflow, run, approval, preview, deployment, incident, and replay records were verified |
-| Langfuse | [Workflow trace](https://us.cloud.langfuse.com/traces/dailycart-workflow-v1) with linked observations and scores |
+| Langfuse | [Workflow trace](https://us.cloud.langfuse.com/project/cmrg2filf07tzad0dz3hwdbbi/traces/dailycart-workflow-v1) with linked observations and scores |
 | PostHog | Live traffic path recorded 49 events for 12 users, including seven feature exposures and four completed checkouts, in the configured project |
 | Inngest | [Event `01KXBX209NPKG5KYGKKXZTWTZH`](https://app.inngest.com/env/production/events/01KXBX209NPKG5KYGKKXZTWTZH) produced completed run `01KXBX20PX2RT49S792KEPTS6Q` |
 | DailyCart product | Service-authorized traffic completed successfully and durable event counts were returned before success |
