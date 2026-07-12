@@ -22,8 +22,12 @@ export async function POST() {
   }
   try {
     const notification = await createConnectorSuite({ env: process.env }).chat.postMessage({ text: "DailyCart demo run completed: traffic, delivery workstreams, blocked eval, correction, and release evidence were recorded.", metadata: { source: "control-tower-demo" } });
-    await mkdir(path.resolve(root, "artifacts"), { recursive: true });
-    await appendFile(path.resolve(root, "artifacts/external-actions.jsonl"), `${JSON.stringify({ action: "demo_run_notification", notification, at: new Date().toISOString() })}\n`);
+    try {
+      await mkdir(path.resolve(root, "artifacts"), { recursive: true });
+      await appendFile(path.resolve(root, "artifacts/external-actions.jsonl"), `${JSON.stringify({ action: "demo_run_notification", notification, at: new Date().toISOString() })}\n`);
+    } catch (error) {
+      console.warn("Demo notification audit file could not be persisted.", error instanceof Error ? error.message : String(error));
+    }
     return NextResponse.json({ ok: true, action: "run", notification, result });
   } catch (error) {
     const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "The notification provider returned an unexpected error.";
