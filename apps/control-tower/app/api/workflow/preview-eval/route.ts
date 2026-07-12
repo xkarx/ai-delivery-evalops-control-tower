@@ -8,6 +8,13 @@ export const dynamic = "force-dynamic";
 type PreviewBuild = { featureId: string; deploymentUrl: string; sourceMode: string; commitSha?: string };
 type PreviewEval = { featureId: string; targetUrl: string; passed: boolean; score: number; checks: Array<{ name: string; passed: boolean; detail: string }>; sourceMode: string; evaluatedAt: string };
 
+function previewRequestHeaders(): HeadersInit {
+  const automationBypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  if (automationBypass) return { "x-vercel-protection-bypass": automationBypass };
+  const oidcToken = process.env.VERCEL_OIDC_TOKEN;
+  return oidcToken ? { "x-vercel-trusted-oidc-idp-token": oidcToken } : {};
+}
+
 export async function POST(request: Request) {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
@@ -27,7 +34,7 @@ export async function POST(request: Request) {
       if (build.sourceMode !== "mocked") {
         const response = await fetch(build.deploymentUrl, {
           signal: AbortSignal.timeout(10_000),
-          headers: process.env.VERCEL_OIDC_TOKEN ? { "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_OIDC_TOKEN } : {}
+          headers: previewRequestHeaders()
         });
         const html = await response.text();
         checks.push({ name: "preview reachable", passed: response.ok, detail: `HTTP ${response.status}` });
