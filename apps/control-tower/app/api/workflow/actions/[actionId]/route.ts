@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAction } from "@/lib/workflow-actions";
-import { requireOperatorAccess } from "@/lib/operator-auth";
+import { requireOperatorOrWorkflowService } from "@/lib/operator-auth";
 import { executeWorkflowActionDirect } from "@/lib/workflow-action-executor";
 
 export const runtime = "nodejs";
@@ -14,7 +14,7 @@ export async function GET(_request: Request, context: { params: Promise<{ action
 }
 
 export async function POST(request: Request, context: { params: Promise<{ actionId: string }> }): Promise<Response> {
-  const denied = await requireOperatorAccess();
+  const denied = await requireOperatorOrWorkflowService(request);
   if (denied) return denied;
   const { actionId } = await context.params;
   const action = await getAction(actionId);

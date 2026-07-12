@@ -10,6 +10,7 @@ async function callRoute(request: Request, path: string, init: RequestInit, iden
     headers: {
       "content-type": "application/json",
       cookie: request.headers.get("cookie") ?? "",
+      authorization: `Bearer ${process.env.DAILYCART_OPERATOR_PASSCODE ?? ""}`,
       "x-dailycart-session-id": identity.sessionId,
       "x-dailycart-workflow-id": identity.workflowId,
       "x-dailycart-action-id": identity.actionId,

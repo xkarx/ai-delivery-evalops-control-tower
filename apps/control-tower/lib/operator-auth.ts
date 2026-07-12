@@ -38,6 +38,14 @@ export async function requireOperatorOrService(request: Request): Promise<NextRe
   if (secret && supplied === secret) return undefined;
   return requireOperatorAccess();
 }
+export async function requireOperatorOrWorkflowService(request: Request): Promise<NextResponse | undefined> {
+  const supplied = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  const serviceSecret = process.env.WORKFLOW_SERVICE_TOKEN?.trim() || process.env.INNGEST_SIGNING_KEY?.trim();
+  if (serviceSecret && supplied) {
+    try { if (timingSafeEqual(Buffer.from(supplied), Buffer.from(serviceSecret))) return undefined; } catch { /* Invalid service token length. */ }
+  }
+  return requireOperatorAccess();
+}
 export function operatorSessionResponse(payload: Record<string, unknown>): NextResponse {
   const secret = process.env.DAILYCART_OPERATOR_PASSCODE?.trim();
   if (!secret) return NextResponse.json({ ok: false, message: "Operator access is not configured." }, { status: 503 });
