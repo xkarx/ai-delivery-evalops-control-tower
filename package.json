@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:preview": "playwright test --config=playwright.preview.config.ts",
     "generate:company": "tsx scripts/generate-company.ts",
     "validate:data": "tsx scripts/validate-company.ts",
     "demo:reset": "tsx scripts/demo-reset.ts",
