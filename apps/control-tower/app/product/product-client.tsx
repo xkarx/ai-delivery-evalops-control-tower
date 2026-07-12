@@ -16,6 +16,8 @@ function sendEvent(event: "session_started" | "product_viewed" | "search_used" |
   void fetch("/api/product/events", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: eventId(event), event, customerId, timestamp: new Date().toISOString(), properties, sourceMode: runtimeMode === "live" ? "live" : "simulated" }) }).catch(() => undefined);
 }
 
+const cartPersistenceEnabled = true; // FEAT-0002: approved persistent cart
+
 export function ProductClient({ runtimeMode }: { runtimeMode: RuntimeMode }) {
   const checkoutRecoveryEnabled = true; // FEAT-0001: approved recovery guidance
   const [query, setQuery] = useState("");
@@ -33,11 +35,11 @@ export function ProductClient({ runtimeMode }: { runtimeMode: RuntimeMode }) {
 
   useEffect(() => { sendEvent("session_started", { surface: "dailycart-product" }, runtimeMode); }, [runtimeMode]);
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_FEATURE_CART_PERSISTENCE === "off") return;
+    if (!cartPersistenceEnabled) return;
     try { const stored = window.localStorage.getItem("dailycart.saved-cart"); if (stored) { const parsed = JSON.parse(stored) as CartLine[]; if (parsed.length) setSavedCart(parsed); } } catch { /* Ignore malformed local demo state. */ }
   }, []);
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_FEATURE_CART_PERSISTENCE === "off" || !cart.length) return;
+    if (!cartPersistenceEnabled || !cart.length) return;
     window.localStorage.setItem("dailycart.saved-cart", JSON.stringify(cart));
     sendEvent("cart_persisted", { itemCount: cart.reduce((sum, line) => sum + line.quantity, 0) }, runtimeMode);
   }, [cart, runtimeMode]);
@@ -79,7 +81,7 @@ export function ProductClient({ runtimeMode }: { runtimeMode: RuntimeMode }) {
     <section className="product-toolbar"><label><Search size={17} /><input value={query} onChange={(event) => { setQuery(event.target.value); if (event.target.value) sendEvent("search_used", { query: event.target.value }, runtimeMode); }} placeholder="Search products" /></label><div className="product-categories">{["All", "Pantry", "Fresh", "Home", "Wellness"].map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}</div></section>
     <section className="product-grid">{visible.map((product) => <article className="product-card" key={product.id}><div className="product-art" style={{ background: product.accent }}><span>{product.category}</span>{product.badge && <b>{product.badge}</b>}<ProductIllustration productId={product.id} /></div><div className="product-card-body"><div><span className="product-category">{product.category}</span><h2>{product.name}</h2></div><strong>${product.price.toFixed(2)}</strong></div><p>{product.description}</p><button className="product-add" onClick={() => add(product)}>Add to cart <ArrowRight size={15} /></button></article>)}</section>
     {!visible.length && <div className="product-empty">No products match that search. Try “oats” or “strawberries”.</div>}
-    <footer className="product-footer"><span>DailyCart product surface</span><span>{checkoutRecoveryEnabled ? "Recovery guidance" : "Baseline checkout"} · {process.env.NEXT_PUBLIC_FEATURE_CART_PERSISTENCE === "off" ? "session cart" : "persistent cart"} · Customer <code>{customerId}</code> · events are linked to the delivery control tower</span></footer>
+    <footer className="product-footer"><span>DailyCart product surface</span><span>{checkoutRecoveryEnabled ? "Recovery guidance" : "Baseline checkout"} · {!cartPersistenceEnabled ? "session cart" : "persistent cart"} · Customer <code>{customerId}</code> · events are linked to the delivery control tower</span></footer>
     {checkout && <div className="cart-overlay" role="dialog" aria-label="Cart"><aside className="cart-drawer"><header><div><p className="eyebrow">Your cart</p><h2>{complete ? "Order confirmed" : interrupted ? "Checkout recovered" : "Ready for checkout"}</h2></div><button className="icon-button" onClick={() => setCheckout(false)} aria-label="Close cart"><X size={19} /></button></header>{complete ? <div className="order-complete"><span><Check size={22} /></span><h3>Thanks for shopping DailyCart.</h3><p>Your order was recorded and the completion event was sent to the control tower.</p><button className="button primary" onClick={() => { setCart([]); setCheckout(false); setComplete(false); }}>Continue shopping</button></div> : interrupted && checkoutRecoveryEnabled ? <div className="recovery-panel" role="alert"><span className="recovery-panel-icon"><ArrowRight size={20} /></span><h3 tabIndex={-1} ref={recoveryHeadingRef}>Your checkout was interrupted</h3><p>Your cart is safe. Restore your checkout and continue without rebuilding your order.</p><button className="button primary" onClick={recoverCheckout}>Restore checkout <ArrowRight size={15} /></button></div> : <><div className="cart-lines">{cart.length ? cart.map((line) => <div className="cart-line" key={line.product.id}><div><b>{line.product.name}</b><small>{line.quantity} × ${line.product.price.toFixed(2)}</small></div><strong>${(line.product.price * line.quantity).toFixed(2)}</strong></div>) : <p className="cart-empty">Your cart is empty. Add an everyday essential to begin.</p>}</div>{cart.length > 0 && <><div className="cart-total"><span>Total</span><strong>${total.toFixed(2)}</strong></div>{checkoutRecoveryEnabled && <button className="button secondary checkout-button" onClick={interruptCheckout}>Simulate interruption</button>}<button className="button primary checkout-button" onClick={completeCheckout}>Checkout securely <ArrowRight size={15} /></button></>}</>}</aside></div>}
   </div>;
 }
