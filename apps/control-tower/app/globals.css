@@ -46,6 +46,7 @@ button { color: inherit; }
 .sidebar-footer p { color: #747b90; font-size: 10px; margin: 6px 0 0 14px; }
 
 .content-frame { flex: 1; margin-left: 248px; min-width: 0; }
+.content-frame > main { padding-right: 340px; }
 .topbar { position: sticky; top: 0; z-index: 40; height: 60px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; background: rgb(255 255 255 / 88%); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
 .environment { display: flex; align-items: center; gap: 8px; color: #52596d; font-size: 12px; font-weight: 600; }
 .environment b { padding: 3px 6px; border-radius: 5px; color: #6a4de3; background: #eeeaff; font-size: 9px; letter-spacing: .06em; }
@@ -176,7 +177,7 @@ main, .page-container, .panel, .page-heading, .page-heading > div, .section-titl
 @media (max-width: 760px) {
   .mobile-only { display: grid; }
   .sidebar { width: min(290px, 88vw); transform: translateX(-103%); transition: transform .2s ease; box-shadow: 10px 0 40px #080b12aa; }.sidebar-open { transform: translateX(0); }.sidebar-backdrop { position: fixed; inset: 0; z-index: 45; border: 0; background: #0c101c80; backdrop-filter: blur(2px); }
-  .content-frame { margin-left: 0; }.topbar { height: 56px; padding: 0 16px; justify-content: flex-start; gap: 12px; }.environment span { display: none; }.top-actions { margin-left: auto; }.system-status { display: none; }
+  .content-frame { margin-left: 0; }.content-frame > main { padding-right: 0; }.topbar { height: 56px; padding: 0 16px; justify-content: flex-start; gap: 12px; }.environment span { display: none; }.top-actions { margin-left: auto; }.system-status { display: none; }
   .page-container { padding: 23px 16px 48px; }.page-heading { align-items: flex-start; flex-direction: column; margin-bottom: 20px; }.heading-actions { width: 100%; }.heading-actions .button { flex: 1; }
   .notice-bar { grid-template-columns: auto 1fr; }.notice-bar > a { grid-column: 2; }
   .metric-grid, .integration-grid { grid-template-columns: 1fr; }.metric-card { min-height: 94px; }.record-preview-grid { grid-template-columns: 1fr; }

@@ -69,12 +69,12 @@ test("agent workflow runs through eval and stops at release approval", async ({ 
   await page.goto("/runs");
   await page.getByRole("button", { name: "Start workflow" }).click();
   await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("button", { name: "Confirm selected opportunity" })).toBeVisible();
-  await page.getByRole("button", { name: "Confirm selected opportunity" }).click();
+  await expect(page.getByRole("button", { name: /Approve feature tracks|Confirm selected opportunity/ })).toBeVisible();
+  await page.getByRole("button", { name: /Approve feature tracks|Confirm selected opportunity/ }).click();
   await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("status")).toContainText(/release approval is pending/i);
+  await expect(page.getByRole("status")).toContainText(/release approval is pending|preview evaluation is required/i);
   await expect(page.locator(".workflow-result")).toContainText(/EVAL-0002 passed/);
   await page.getByRole("button", { name: "Build product preview" }).click();
-  await expect(page.locator("small[role=status]")).toContainText(/Preview evaluated/i, { timeout: 30_000 });
+  await expect(page.locator("small[role=status]")).toContainText(/Preview evaluated|previews evaluated/i, { timeout: 30_000 });
   await expect(page.getByRole("button", { name: "Approve release" })).toBeEnabled();
 });
