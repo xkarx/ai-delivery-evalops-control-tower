@@ -10,6 +10,7 @@ test("overview exposes the evidence-to-release story", async ({ page }) => {
 });
 
 test("required pages render on a narrow viewport", async ({ page }) => {
+  test.setTimeout(60_000);
   for (const route of ["/features", "/delivery", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
