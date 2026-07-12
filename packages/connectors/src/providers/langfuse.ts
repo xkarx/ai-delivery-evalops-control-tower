@@ -70,7 +70,7 @@ export class LiveLangfuseTraceAdapter extends BaseConnector implements TraceAdap
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.host = (this.env.LANGFUSE_HOST ?? "https://cloud.langfuse.com").replace(/\/$/, "");
+    this.host = (this.env.LANGFUSE_HOST || "https://cloud.langfuse.com").replace(/\/$/, "");
   }
 
   externalUrl(resource = ""): string {

@@ -112,7 +112,7 @@ export class LivePostHogAnalyticsAdapter extends BaseConnector implements Produc
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.host = (this.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com").replace(/\/$/, "");
+    this.host = (this.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com").replace(/\/$/, "");
   }
 
   externalUrl(resource = ""): string {

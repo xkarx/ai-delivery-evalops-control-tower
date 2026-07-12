@@ -145,7 +145,7 @@ export class LiveSampleProductAdapter extends BaseConnector implements SamplePro
   constructor(options: SampleProductAdapterOptions = {}) {
     super("live", options);
     this.analytics = options.analytics ?? createProductAnalyticsAdapter(options);
-    this.productUrl = (this.env.SAMPLE_PRODUCT_URL ?? "").replace(/\/$/, "");
+    this.productUrl = (this.env.SAMPLE_PRODUCT_URL || "").replace(/\/$/, "");
     this.trafficEndpoint = (this.env.SAMPLE_PRODUCT_TRAFFIC_ENDPOINT ?? `${this.productUrl}/api/dailycart/traffic`).replace(/\/$/, "");
   }
 

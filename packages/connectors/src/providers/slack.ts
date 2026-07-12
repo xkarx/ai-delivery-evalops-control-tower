@@ -101,7 +101,7 @@ export class LiveSlackChatAdapter extends BaseConnector implements ChatAdapter {
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.apiBase = (this.env.SLACK_API_URL ?? "https://slack.com/api").replace(/\/$/, "");
+    this.apiBase = (this.env.SLACK_API_URL || "https://slack.com/api").replace(/\/$/, "");
   }
 
   externalUrl(resource = ""): string {

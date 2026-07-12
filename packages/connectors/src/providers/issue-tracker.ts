@@ -116,7 +116,7 @@ export class LiveLinearIssueTrackerAdapter extends BaseConnector implements Issu
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.endpoint = this.env.LINEAR_API_URL ?? "https://api.linear.app/graphql";
+    this.endpoint = this.env.LINEAR_API_URL || "https://api.linear.app/graphql";
   }
 
   externalUrl(resource = ""): string {

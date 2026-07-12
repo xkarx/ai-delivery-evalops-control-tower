@@ -91,7 +91,7 @@ export class LiveVercelDeploymentAdapter extends BaseConnector implements Deploy
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.apiBase = (this.env.VERCEL_API_URL ?? "https://api.vercel.com").replace(/\/$/, "");
+    this.apiBase = (this.env.VERCEL_API_URL || "https://api.vercel.com").replace(/\/$/, "");
   }
 
   externalUrl(resource = ""): string {

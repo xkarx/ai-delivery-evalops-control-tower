@@ -73,8 +73,8 @@ export class LiveInngestWorkflowAdapter extends BaseConnector implements Workflo
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.apiBase = (this.env.INNGEST_API_BASE_URL ?? "https://api.inngest.com").replace(/\/$/, "");
-    this.eventBase = (this.env.INNGEST_EVENT_API_BASE_URL ?? "https://inn.gs").replace(/\/$/, "");
+    this.apiBase = (this.env.INNGEST_API_BASE_URL || "https://api.inngest.com").replace(/\/$/, "");
+    this.eventBase = (this.env.INNGEST_EVENT_API_BASE_URL || "https://inn.gs").replace(/\/$/, "");
   }
 
   externalUrl(resource = ""): string {

@@ -164,7 +164,7 @@ export class LiveGitHubCodeHostAdapter extends BaseConnector implements CodeHost
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.apiBase = (this.env.GITHUB_API_URL ?? "https://api.github.com").replace(/\/$/, "");
+    this.apiBase = (this.env.GITHUB_API_URL || "https://api.github.com").replace(/\/$/, "");
   }
 
   override configurationStatus(): ConfigurationStatus {

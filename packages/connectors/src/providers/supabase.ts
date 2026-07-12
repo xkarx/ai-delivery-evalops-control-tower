@@ -61,7 +61,7 @@ export class LiveSupabaseDatabaseAdapter extends BaseConnector implements Databa
 
   constructor(runtime: AdapterRuntime = {}) {
     super("live", runtime);
-    this.url = (this.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
+    this.url = (this.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/$/, "");
   }
 
   externalUrl(resource = ""): string {
