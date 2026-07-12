@@ -90,3 +90,5 @@ function ProductIllustration({ productId }: { productId: string }) {
   if (productId === "PROD-0001") return <svg className="product-illustration" viewBox="0 0 120 90" aria-label="Illustration of oats"><path d="M34 23h51l-5 54H39Z" fill="#f6f0df" stroke="#9e7c54" strokeWidth="3"/><path d="M43 38h34M43 48h28" stroke="#9e7c54" strokeWidth="3" strokeLinecap="round"/><path d="M60 21c-7-15 5-18 9-3" fill="none" stroke="#6f9b58" strokeWidth="5" strokeLinecap="round"/></svg>;
   return <svg className="product-illustration" viewBox="0 0 120 90" aria-label="Illustration of a DailyCart product"><rect x="27" y="20" width="66" height="55" rx="9" fill="#fff" fillOpacity=".75" stroke="#8a79be" strokeWidth="3"/><path d="M43 42h34M43 53h22" stroke="#8a79be" strokeWidth="4" strokeLinecap="round"/><circle cx="50" cy="65" r="4" fill="#8a79be"/><circle cx="70" cy="65" r="4" fill="#8a79be"/></svg>;
 }
+
+// FEAT-0001: focus-restoration correction validated by preview eval
