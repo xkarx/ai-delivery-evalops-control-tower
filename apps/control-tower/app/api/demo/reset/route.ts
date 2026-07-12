@@ -1,10 +1,8 @@
-import { execFile } from "node:child_process";
 import path from "node:path";
-import { promisify } from "node:util";
 import { NextResponse } from "next/server";
+import { resetDeterministicDemo } from "@/lib/demo-runtime";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 
-const execFileAsync = promisify(execFile);
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -13,7 +11,7 @@ export async function POST() {
   if (denied) return denied;
   const root = path.resolve(process.cwd(), "../..");
   try {
-    await execFileAsync(path.resolve(root, "node_modules/.bin/tsx"), ["scripts/demo-reset.ts"], { cwd: root, env: process.env, timeout: 120_000, maxBuffer: 2_000_000 });
+    await resetDeterministicDemo({ root, seed: Number(process.env.SYNTHETIC_DATA_SEED ?? 20260710), scenario: process.env.COMPANY_SCENARIO ?? "checkout-friction" });
     return NextResponse.json({ ok: true, action: "reset" });
   } catch {
     return NextResponse.json({ ok: false, action: "reset", message: "The deterministic demo reset could not be completed." }, { status: 500 });
