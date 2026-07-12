@@ -16,22 +16,28 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({})) as { reviewer?: string; rationale?: string };
     const previewEval = await readArtifact<{ passed?: boolean; allPassed?: boolean }>("workflowPreviewEval");
     if (!previewEval?.allPassed && !previewEval?.passed) throw new Error("Run the preview evaluation successfully for every feature before approving the release.");
-    const preview = await readArtifact<{ builds?: Array<{ featureId: string; commitSha: string; deploymentUrl: string }> }>("workflowPreview");
+    const preview = await readArtifact<{ builds?: Array<{ featureId: string; commitSha: string; deploymentUrl: string; deploymentId: string; externalDeploymentId?: string }> }>("workflowPreview");
     if (!preview?.builds?.length) throw new Error("Two current preview builds are required before release approval.");
+    const suite = createConnectorSuite({ env: process.env });
     for (const build of preview.builds) {
-      const checks = await createConnectorSuite({ env: process.env }).codeHost.listChecks(build.commitSha);
+      if (process.env.INTEGRATION_MODE === "live") {
+        if (!build.externalDeploymentId) throw new Error(`${build.featureId} is missing its Vercel deployment identifier.`);
+        const deployment = await suite.deployment.getDeployment(build.externalDeploymentId, { id: build.deploymentId, featureId: build.featureId, environment: "preview", commitSha: build.commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY });
+        if (!deployment || deployment.deployment.status !== "ready") throw new Error(`${build.featureId} preview is not READY in Vercel.`);
+      }
+      const checks = await suite.codeHost.listChecks(build.commitSha);
       if (!checks.length || checks.some((check) => check.status !== "completed" || check.conclusion !== "success")) throw new Error(`${build.featureId} is waiting for successful GitHub checks on ${build.commitSha.slice(0, 7)}.`);
     }
     const providerSync = await readArtifact<{ ticketRecords?: unknown[]; notification?: unknown; trace?: unknown; workflowEvent?: unknown; errors?: string[] }>("workflowSync");
     if (process.env.INTEGRATION_MODE === "live" && (!providerSync?.ticketRecords?.length || !providerSync.notification || !providerSync.trace || !providerSync.workflowEvent || providerSync.errors?.length)) throw new Error("Verified Linear, Slack, Langfuse, Supabase, and Inngest references are required before release approval.");
     const reviewer = body.reviewer?.trim() || "operator";
     const rationale = body.rationale?.trim() || "Human release approval granted after the corrected evaluation passed.";
-    const stored = await readArtifact<{ workflow: Parameters<typeof DeliveryWorkflow.hydrate>[0]; releaseApprovalId: string; featureId: string; featureTracks?: Array<{ releaseApprovalId: string }> }>("workflow");
+    const stored = await readArtifact<{ sessionId?: string; workflowInstanceId?: string; workflow: Parameters<typeof DeliveryWorkflow.hydrate>[0]; releaseApprovalId: string; featureId: string; featureTracks?: Array<{ releaseApprovalId: string }> }>("workflow");
     if (!stored) throw new Error("No active workflow was found.");
     const workflow = DeliveryWorkflow.hydrate(stored.workflow);
     const snapshot = workflow.resumeWithHumanDecision({ approvalId: stored.releaseApprovalId, status: "approved", reviewer, rationale, resolvedAt: new Date().toISOString() });
     const resolvedAt = new Date().toISOString();
-    await persistStructuredRecord("approvals", stored.releaseApprovalId, { runId: "RUN-0101", stage: "release", status: "approved", reviewer, rationale, requestedAt: resolvedAt, resolvedAt });
+    await persistStructuredRecord("approvals", stored.releaseApprovalId, { sessionId: stored.sessionId, workflowId: stored.workflowInstanceId, runId: stored.workflowInstanceId ?? stored.featureId, stage: "release", status: "approved", reviewer, rationale, requestedAt: resolvedAt, resolvedAt });
     const data = await loadDemoState();
     const next: DemoState = {
       ...data,

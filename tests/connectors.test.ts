@@ -3,6 +3,7 @@ import { productEventSchema, type ProductEvent } from "../packages/schemas/src/i
 import {
   ConnectorError,
   LiveGitHubCodeHostAdapter,
+  LiveLangfuseTraceAdapter,
   LiveLinearIssueTrackerAdapter,
   MockPostHogAnalyticsAdapter,
   createConnectorSuite,
@@ -110,6 +111,25 @@ describe("connector suite", () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(String(fetcher.mock.calls[0][0])).toBe("https://api.github.com/repos/dailycart/store");
     expect(fetcher.mock.calls[0][1]?.method ?? "GET").toBe("GET");
+  });
+
+  it("constructs Langfuse trace links with the configured project ID", async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({}), { status: 200, headers: { "content-type": "application/json" } }));
+    const trace = new LiveLangfuseTraceAdapter({
+      env: {
+        INTEGRATION_MODE: "live",
+        LANGFUSE_PUBLIC_KEY: "pk-test",
+        LANGFUSE_SECRET_KEY: "sk-test",
+        LANGFUSE_HOST: "https://us.cloud.langfuse.com",
+        LANGFUSE_PROJECT_ID: "project-123"
+      },
+      fetch: fetcher,
+      now
+    });
+
+    const created = await trace.startTrace({ id: "trace-session-123", name: "workflow" });
+
+    expect(created.url).toBe("https://us.cloud.langfuse.com/project/project-123/traces/trace-session-123");
   });
 
   it("selects GitHub Issues as the live fallback when Linear is absent", () => {

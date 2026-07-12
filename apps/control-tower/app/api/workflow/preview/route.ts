@@ -8,7 +8,7 @@ import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export type PreviewBuild = { featureId: string; featureTitle?: string; branch: string; commitSha: string; commitUrl: string; pullRequestId: string; pullRequestUrl: string; deploymentUrl: string; deploymentId: string; sourceMode: string; createdAt: string };
+export type PreviewBuild = { featureId: string; featureTitle?: string; branch: string; commitSha: string; commitUrl: string; pullRequestId: string; pullRequestUrl: string; deploymentUrl: string; deploymentId: string; externalDeploymentId?: string; sourceMode: string; createdAt: string };
 
 async function productSource(root: string, productPath: string, ref = process.env.GITHUB_DEFAULT_BRANCH ?? "main"): Promise<string> {
   if (process.env.INTEGRATION_MODE !== "live") return readFile(path.resolve(root, productPath), "utf8");
@@ -37,10 +37,13 @@ async function branchHeadSha(branch: string): Promise<string> {
 function implementTrack(source: string, featureId: string, index: number): string {
   if (index === 0) {
     return source
-      .replace('const checkoutRecoveryEnabled = process.env.NEXT_PUBLIC_FEATURE_CHECKOUT_RECOVERY !== "off";', `const checkoutRecoveryEnabled = true; // ${featureId}: approved recovery guidance`)
+      .replace(/const checkoutRecoveryEnabled = [^;]+;[^\n]*/, `const checkoutRecoveryEnabled = true; // ${featureId}: approved recovery guidance`)
+      .replace("const focusRestorationEnabled = true;", `const focusRestorationEnabled = false; // ${featureId}: first preview intentionally exposes the measured focus regression`)
       .replace("Built for delivery experiments", `Recovery guidance preview · ${featureId}`);
   }
-  const withFlag = source.replace("export function ProductClient", `const cartPersistenceEnabled = true; // ${featureId}: approved persistent cart\n\nexport function ProductClient`);
+  const withFlag = /const cartPersistenceEnabled = /.test(source)
+    ? source.replace(/const cartPersistenceEnabled = [^;]+;[^\n]*/, `const cartPersistenceEnabled = true; // ${featureId}: approved persistent cart`)
+    : source.replace("export function ProductClient", `const cartPersistenceEnabled = true; // ${featureId}: approved persistent cart\n\nexport function ProductClient`);
   return withFlag.replaceAll('process.env.NEXT_PUBLIC_FEATURE_CART_PERSISTENCE === "off"', "!cartPersistenceEnabled").replace("Built for delivery experiments", `Persistent cart preview · ${featureId}`);
 }
 
@@ -49,12 +52,14 @@ export async function POST(request: Request): Promise<Response> {
   if (denied) return denied;
   const root = path.resolve(process.cwd(), "../..");
   try {
-    const body = await request.json().catch(() => ({})) as { correctBlocked?: boolean; refreshBranches?: boolean };
-    const existing = await readArtifact<{ builds?: PreviewBuild[]; featureId?: string }>("workflowPreview");
-    if (existing?.builds?.length && !body.correctBlocked && !body.refreshBranches) return NextResponse.json({ ok: true, reused: true, build: existing.builds[0], builds: existing.builds });
-    const workflow = await readArtifact<{ featureId: string; featureTitle?: string; featureTracks?: Array<{ featureId: string; featureTitle: string }> }>("workflow");
+    const body = await request.json().catch(() => ({})) as { correctBlocked?: boolean; refreshBranches?: boolean; reconcile?: boolean };
+    const persisted = await readArtifact<{ sessionId?: string; workflowId?: string; builds?: PreviewBuild[]; featureId?: string }>("workflowPreview");
+    const workflow = await readArtifact<{ sessionId?: string; workflowInstanceId?: string; featureId: string; featureTitle?: string; featureTracks?: Array<{ featureId: string; featureTitle: string }>; workflow?: { phase?: string } }>("workflow");
     if (!workflow) throw new Error("Run and approve the feature workflow before building previews.");
+    const existing = persisted && (!persisted.sessionId || persisted.sessionId === workflow.sessionId) ? persisted : undefined;
+    if (workflow.workflow?.phase === "awaiting_feature_approval") throw new Error("Human feature approval is required before GitHub or Vercel preview writes.");
     const tracks = workflow.featureTracks?.length ? workflow.featureTracks : [{ featureId: workflow.featureId, featureTitle: workflow.featureTitle ?? workflow.featureId }];
+    if (existing?.builds?.length && !body.correctBlocked && !body.refreshBranches && !body.reconcile) return NextResponse.json({ ok: true, reused: true, build: existing.builds[0], builds: existing.builds });
     const suite = createConnectorSuite({ env: process.env });
     const productPath = "apps/control-tower/app/product/product-client.tsx";
     if (body.refreshBranches && existing?.builds?.length) {
@@ -62,37 +67,41 @@ export async function POST(request: Request): Promise<Response> {
       for (const build of existing.builds) {
         const commitSha = await branchHeadSha(build.branch);
         const deployment = await suite.deployment.deploy({ id: build.deploymentId, featureId: build.featureId, environment: "preview", commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: build.branch });
-        builds.push({ ...build, commitSha, commitUrl: process.env.GITHUB_DEFAULT_REPOSITORY ? `https://github.com/${process.env.GITHUB_DEFAULT_REPOSITORY}/commit/${commitSha}` : build.commitUrl, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
+        builds.push({ ...build, commitSha, commitUrl: process.env.GITHUB_DEFAULT_REPOSITORY ? `https://github.com/${process.env.GITHUB_DEFAULT_REPOSITORY}/commit/${commitSha}` : build.commitUrl, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, externalDeploymentId: deployment.externalId, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
       }
-      await writeArtifact("workflowPreview", { builds, refreshedAt: new Date().toISOString() });
+      await writeArtifact("workflowPreview", { sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId, builds, refreshedAt: new Date().toISOString() });
       await writeArtifact("workflowPreviewEval", { evaluations: [], correctionPending: true });
       return NextResponse.json({ ok: true, refreshed: true, builds, build: builds[0] });
     }
     if (body.correctBlocked && existing?.builds?.length) {
       const blocked = existing.builds[0]!;
       const source = await productSource(root, productPath, blocked.branch);
-      const corrected = source.includes("focus-restoration correction") ? source : `${source}\n// ${blocked.featureId}: focus-restoration correction validated by preview eval\n`;
+      const corrected = source
+        .replace(/const focusRestorationEnabled = false;[^\n]*/, `const focusRestorationEnabled = true; // ${blocked.featureId}: focus-restoration correction validated by preview eval`);
+      if (corrected === source) throw new Error("The measured focus-restoration failure is not present on the blocked preview branch; no correction commit was created.");
       const commit = await suite.codeHost.commitFile({ path: productPath, content: corrected, message: `fix(${blocked.featureId.toLowerCase()}): restore checkout focus`, branch: blocked.branch });
       const correctionNumber = 9500 + Number(blocked.featureId.replace(/\D/g, "") || "1");
       const deployment = await suite.deployment.deploy({ id: `DEP-${String(correctionNumber).padStart(4, "0")}`, featureId: blocked.featureId, environment: "preview", commitSha: commit.commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: blocked.branch });
-      const correctedBuild: PreviewBuild = { ...blocked, commitSha: commit.commitSha, commitUrl: commit.url, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() };
+      const correctedBuild: PreviewBuild = { ...blocked, commitSha: commit.commitSha, commitUrl: commit.url, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, externalDeploymentId: deployment.externalId, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() };
       const builds = [correctedBuild, ...existing.builds.slice(1)];
-      await writeArtifact("workflowPreview", { builds, correctedFrom: blocked.commitSha });
+      await writeArtifact("workflowPreview", { sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId, builds, correctedFrom: blocked.commitSha });
       await writeArtifact("workflowPreviewEval", { evaluations: [], correctionPending: true });
       return NextResponse.json({ ok: true, corrected: true, builds, build: correctedBuild });
     }
     const source = await productSource(root, productPath);
-    const builds: PreviewBuild[] = [];
+    const builds: PreviewBuild[] = [...(body.reconcile ? existing?.builds ?? [] : [])];
+    const knownFeatures = new Set(builds.map((build) => build.featureId));
     for (const [index, track] of tracks.entries()) {
+      if (knownFeatures.has(track.featureId)) continue;
       const branch = `agent/${track.featureId.toLowerCase()}-${Date.now().toString(36)}`;
       await suite.codeHost.createBranch({ name: branch });
       const updated = implementTrack(source, track.featureId, index);
       const commit = await suite.codeHost.commitFile({ path: productPath, content: updated, message: `feat(${track.featureId.toLowerCase()}): build product preview`, branch });
       const pullRequest = await suite.codeHost.openPullRequest({ title: `${track.featureId}: product preview`, body: `Preview build for ${track.featureTitle}.\n\nFeature: ${track.featureId}\nBranch: ${branch}`, head: branch, base: process.env.GITHUB_DEFAULT_BRANCH ?? "main", draft: false, featureId: track.featureId });
       const deployment = await suite.deployment.deploy({ id: `DEP-${String(9000 + Number(track.featureId.replace(/\D/g, "") || "1")).padStart(4, "0")}`, featureId: track.featureId, environment: "preview", commitSha: commit.commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: branch });
-      builds.push({ featureId: track.featureId, featureTitle: track.featureTitle, branch, commitSha: commit.commitSha, commitUrl: commit.url, pullRequestId: pullRequest.externalId, pullRequestUrl: pullRequest.url, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
+      builds.push({ featureId: track.featureId, featureTitle: track.featureTitle, branch, commitSha: commit.commitSha, commitUrl: commit.url, pullRequestId: pullRequest.externalId, pullRequestUrl: pullRequest.url, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, externalDeploymentId: deployment.externalId, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
     }
-    await writeArtifact("workflowPreview", { builds });
+    await writeArtifact("workflowPreview", { sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId, builds });
     return NextResponse.json({ ok: true, builds, build: builds[0] });
   } catch (error) {
     const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : error instanceof Error ? error.message : "Preview build failed.";

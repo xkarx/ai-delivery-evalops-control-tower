@@ -11,11 +11,11 @@ export function CompanyActions() {
   async function action(kind: "validate" | "regenerate" | "analyze") {
     setWorking(kind); setMessage("");
     try {
-      const endpoint = kind === "validate" ? "/api/company/validate" : kind === "regenerate" ? "/api/demo/reset" : "/api/workflow/run";
-      const response = await fetch(endpoint, { method: kind === "validate" ? "GET" : "POST" });
-      const payload = await response.json() as { ok?: boolean; message?: string; detail?: string; workflow?: { featureTitle?: string } };
+      const endpoint = kind === "validate" ? "/api/company/validate" : kind === "regenerate" ? "/api/demo/reset" : "/api/workflow/actions";
+      const response = await fetch(endpoint, { method: kind === "validate" ? "GET" : "POST", headers: kind === "analyze" ? { "content-type": "application/json" } : undefined, body: kind === "analyze" ? JSON.stringify({ command: "analyze" }) : undefined });
+      const payload = await response.json() as { ok?: boolean; message?: string; detail?: string; actionId?: string };
       if (!response.ok || !payload.ok) throw new Error(payload.detail ?? payload.message ?? `${kind} failed.`);
-      setMessage(kind === "validate" ? payload.message ?? "References validated." : kind === "regenerate" ? "A fresh deterministic context version is ready." : `Opportunity analysis created${payload.workflow?.featureTitle ? ` for ${payload.workflow.featureTitle}` : ""}.`);
+      setMessage(kind === "validate" ? payload.message ?? "References validated." : kind === "regenerate" ? "A fresh deterministic context version is ready." : `${payload.actionId ?? "Analysis"} queued. Open Agent runs to follow every step.`);
       if (kind === "analyze") router.push("/runs"); else router.refresh();
     } catch (error) { setMessage(error instanceof Error ? error.message : `${kind} failed.`); }
     finally { setWorking(null); }

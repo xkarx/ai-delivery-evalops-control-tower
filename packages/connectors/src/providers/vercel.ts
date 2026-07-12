@@ -59,7 +59,7 @@ export class MockVercelDeploymentAdapter extends BaseConnector implements Deploy
     return record;
   }
 
-  async getDeployment(externalId: string): Promise<DeploymentRecord | undefined> {
+  async getDeployment(externalId: string, _input?: DeploymentInput): Promise<DeploymentRecord | undefined> {
     return this.deployments.get(externalId);
   }
 
@@ -163,8 +163,8 @@ export class LiveVercelDeploymentAdapter extends BaseConnector implements Deploy
     return this.record(response, input);
   }
 
-  async getDeployment(externalId: string): Promise<DeploymentRecord | undefined> {
-    const input = this.deploymentInputs.get(externalId);
+  async getDeployment(externalId: string, persistedInput?: DeploymentInput): Promise<DeploymentRecord | undefined> {
+    const input = persistedInput ?? this.deploymentInputs.get(externalId);
     if (!input) return undefined;
     try {
       const response = await this.request<VercelDeploymentResponse>(`/v13/deployments/${encodeURIComponent(externalId)}`);

@@ -298,7 +298,7 @@ export interface TeardownRequest {
 export interface DeploymentAdapter extends BaseAdapter {
   readonly kind: "deployment";
   deploy(input: DeploymentInput): Promise<DeploymentRecord>;
-  getDeployment(externalId: string): Promise<DeploymentRecord | undefined>;
+  getDeployment(externalId: string, input?: DeploymentInput): Promise<DeploymentRecord | undefined>;
   teardown(externalId: string, request: TeardownRequest): Promise<void>;
 }
 

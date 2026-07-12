@@ -1,0 +1,49 @@
+name: Preview target evaluation
+run-name: Preview eval ${{ inputs.feature_id }} · ${{ inputs.commit_sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: Exact Vercel preview URL to evaluate
+        required: true
+        type: string
+      feature_id:
+        description: Feature track identifier
+        required: true
+        type: string
+      commit_sha:
+        description: Exact preview commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  preview-browser-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PREVIEW_BASE_URL: ${{ inputs.preview_url }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:preview
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preview-eval-${{ inputs.feature_id }}-${{ inputs.commit_sha }}
+          path: playwright-preview-report/
+          retention-days: 7

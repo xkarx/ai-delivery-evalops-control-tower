@@ -4,7 +4,9 @@ node_modules/
 dist/
 coverage/
 playwright-report/
+playwright-preview-report/
 test-results/
+*.tsbuildinfo
 .env
 .env.local
 *.log
@@ -12,6 +14,12 @@ artifacts/runtime/
 artifacts/*.jsonl
 artifacts/workflow-run.json
 artifacts/workflow-external-sync.json
+artifacts/workflow-actions.json
+artifacts/workflow-preview.json
+artifacts/workflow-preview-eval.json
+artifacts/agent-handoffs.json
+artifacts/eval-authored-cases.json
+artifacts/structured-records.json
 artifacts/workflow-external-sync.json
 company/.generation-tmp/
 .vercel

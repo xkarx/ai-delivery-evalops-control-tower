@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+async function collapseGuideIfOpen(page: import("@playwright/test").Page) {
+  const collapse = page.getByRole("button", { name: "Collapse demo guide" });
+  if (await collapse.isVisible()) await collapse.click();
+}
+
 test("overview exposes the evidence-to-release story", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Good afternoon, operator/i })).toBeVisible();
@@ -19,6 +24,7 @@ test("required pages render on a narrow viewport", async ({ page }) => {
 
 test("customer product records a cart interaction", async ({ page }) => {
   await page.goto("/product");
+  await collapseGuideIfOpen(page);
   await expect(page.getByRole("heading", { name: "Good things for every day." })).toBeVisible();
   const addButtons = page.getByRole("button", { name: /Add to cart/ });
   await expect(addButtons).toHaveCount(8);
@@ -58,6 +64,7 @@ test("delivery roadmap exposes status columns and sync feedback", async ({ page 
 
 test("analytics traffic controls run a bounded scenario", async ({ page }) => {
   await page.goto("/analytics");
+  await collapseGuideIfOpen(page);
   await page.getByLabel("Users").fill("6");
   await page.getByLabel("Duration seconds").fill("2");
   await page.getByLabel("Traffic scenario").selectOption("checkout-failure");
@@ -69,29 +76,30 @@ test("agent workflow runs through eval and stops at release approval", async ({ 
   test.skip(testInfo.project.name === "mobile", "The mutating workflow is executed once; mobile interaction is covered by the responsive route and control tests.");
   await page.request.post("/api/demo/reset");
   await page.goto("/runs");
-  await page.getByRole("button", { name: "Start workflow" }).click();
-  await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("button", { name: /Approve feature tracks|Confirm selected opportunity/ })).toBeVisible();
-  await page.getByRole("button", { name: /Approve feature tracks|Confirm selected opportunity/ }).click();
-  await expect(page.getByRole("button", { name: "Workflow complete" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("status")).toContainText(/release approval is pending|preview evaluation is required/i);
-  await expect(page.locator(".workflow-result")).toContainText(/EVAL-0002 passed/);
-  await page.getByRole("button", { name: "Build product preview" }).click();
-  await expect(page.locator("small[role=status]")).toContainText(/Preview evaluated|previews evaluated/i, { timeout: 30_000 });
-  await expect(page.getByRole("button", { name: "Approve release" })).toBeEnabled();
+  await page.getByRole("button", { name: "Analyze opportunities" }).click();
+  await expect(page.getByRole("button", { name: "Approve feature tracks" })).toBeVisible({ timeout: 30_000 });
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Approve feature tracks" })).toBeVisible();
+  await collapseGuideIfOpen(page);
+  await page.getByRole("button", { name: "Approve feature tracks" }).click();
+  await expect(page.getByRole("button", { name: "Approve release" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator(".preview-eval-detail")).toContainText(/100\/100|passed/i);
 });
 
 test("guide reopens without reserving or blocking page width", async ({ page }) => {
   await page.goto("/runs");
-  await page.getByRole("button", { name: "Expand demo guide" }).click();
+  const alreadyOpen = page.getByRole("button", { name: "Collapse demo guide" });
+  if (await alreadyOpen.isVisible()) await alreadyOpen.click();
+  await page.getByRole("button", { name: "Demo guide", exact: true }).click();
   await expect(page.getByRole("complementary", { name: "Demo guide" })).toContainText("What happens next");
   await page.getByRole("button", { name: "Collapse demo guide" }).click();
-  await expect(page.getByRole("button", { name: "Start workflow" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Analyze opportunities|Approve feature tracks|Approve release/ })).toBeVisible();
 });
 
 test("company context, eval authoring, incident creation, and export are interactive", async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto("/company");
+  await collapseGuideIfOpen(page);
   await expect(page.getByRole("heading", { name: "Company data" })).toBeVisible();
   await page.getByRole("button", { name: "Validate references" }).click();
   await expect(page.getByRole("status")).toContainText(/validated|references/i);
@@ -99,13 +107,17 @@ test("company context, eval authoring, incident creation, and export are interac
   await expect(page.locator(".record-preview").first()).toHaveAttribute("open", "");
 
   await page.goto("/evals#eval-workbench");
+  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Save case" }).click();
   await expect(page.getByRole("status")).toContainText(/saved/i);
+  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Run selected evals" }).click();
   await expect(page.getByRole("status")).toContainText(/passed|blocked|100/i);
 
   await page.goto("/incidents");
+  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Declare incident" }).click();
+  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Create incident and regression" }).click();
   await expect(page.getByRole("status")).toContainText(/created/i);
 

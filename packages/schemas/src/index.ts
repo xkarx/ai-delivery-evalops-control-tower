@@ -225,3 +225,59 @@ export type DemoState = z.infer<typeof demoStateSchema>;
 export function assertDemoState(value: unknown): DemoState {
   return demoStateSchema.parse(value);
 }
+
+export const workflowCommandSchema = z.enum(["analyze", "approve_feature", "approve_release", "retry", "declare_incident"]);
+export type WorkflowCommand = z.infer<typeof workflowCommandSchema>;
+
+export const workflowProgressStepSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  status: z.enum(["pending", "running", "succeeded", "failed", "waiting"]),
+  detail: z.string(),
+  agent: z.string().optional(),
+  skillId: z.string().optional(),
+  provider: z.string().optional(),
+  startedAt: timestampSchema.optional(),
+  completedAt: timestampSchema.optional()
+});
+export type WorkflowProgressStep = z.infer<typeof workflowProgressStepSchema>;
+
+export const workflowActionSchema = z.object({
+  actionId: z.string().regex(/^ACTION-[A-Z0-9]+$/),
+  sessionId: z.string().regex(/^SESSION-[A-Z0-9]+$/),
+  workflowId: z.string().regex(/^WORKFLOW-[A-Z0-9]+$/),
+  command: workflowCommandSchema,
+  idempotencyKey: z.string(),
+  status: z.enum(["queued", "running", "waiting_human", "succeeded", "failed"]),
+  phase: z.string(),
+  progress: z.number().min(0).max(100),
+  message: z.string(),
+  nextAction: z.string(),
+  attempts: z.number().int().nonnegative(),
+  steps: z.array(workflowProgressStepSchema),
+  externalRefs: z.array(z.object({ provider: z.string(), id: z.string(), url: z.string().url().optional() })),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema,
+  heartbeatAt: timestampSchema,
+  error: z.object({ code: z.string(), detail: z.string(), retryable: z.boolean() }).optional()
+});
+export type WorkflowAction = z.infer<typeof workflowActionSchema>;
+
+export const previewDeploymentStatusSchema = z.object({
+  featureId: z.string().regex(/^FEAT-\d{4,}$/),
+  deploymentId: z.string(),
+  externalDeploymentId: z.string().optional(),
+  state: z.enum(["QUEUED", "BUILDING", "READY", "ERROR", "CANCELED", "TIMEOUT"]),
+  url: z.string().url(),
+  commitSha: z.string(),
+  checkedAt: timestampSchema
+});
+export type PreviewDeploymentStatus = z.infer<typeof previewDeploymentStatusSchema>;
+
+export const availableWorkflowActionSchema = z.object({
+  command: workflowCommandSchema,
+  label: z.string(),
+  enabled: z.boolean(),
+  reason: z.string().optional()
+});
+export type AvailableWorkflowAction = z.infer<typeof availableWorkflowActionSchema>;

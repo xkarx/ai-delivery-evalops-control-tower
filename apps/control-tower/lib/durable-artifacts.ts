@@ -14,6 +14,7 @@ export type ArtifactKey =
   | "evalLastRun"
   | "productEvents"
   | "actionReceipts"
+  | "workflowActions"
   | "structuredRecords";
 
 const definitions: Record<ArtifactKey, { id: string; file: string; title: string }> = {
@@ -29,6 +30,7 @@ const definitions: Record<ArtifactKey, { id: string; file: string; title: string
   evalLastRun: { id: "EVALRUN-9001", file: "eval-authored-last-run.json", title: "Latest eval execution" },
   productEvents: { id: "EVENTS-9001", file: "product-events.json", title: "Product events" },
   actionReceipts: { id: "ACTIONS-9001", file: "action-receipts.json", title: "Operator action receipts" },
+  workflowActions: { id: "WORKFLOWACTIONS-9001", file: "workflow-actions.json", title: "Durable workflow actions" },
   structuredRecords: { id: "RECORDS-9001", file: "structured-records.json", title: "Durable workflow records" }
 };
 
@@ -116,7 +118,7 @@ export async function clearArtifact(key: ArtifactKey): Promise<void> {
 export async function clearWorkflowArtifacts(): Promise<void> {
   await Promise.all([
     "workflow", "workflowReviews", "workflowPreview", "workflowPreviewEval",
-    "workflowSync", "linearSync", "agentHandoffs", "evalLastRun", "productEvents"
+    "workflowSync", "linearSync", "agentHandoffs", "evalLastRun", "productEvents", "workflowActions"
   ].map((key) => clearArtifact(key as ArtifactKey)));
 }
 

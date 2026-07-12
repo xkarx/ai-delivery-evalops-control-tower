@@ -18,7 +18,8 @@ export default async function RunsPage() {
   const agentEvals = reviewArtifact?.agentEvals ?? [];
   return (
     <div className="page-container">
-      <PageHeading eyebrow="Agent operations" title="Agent runs" description="Inspectable retrieval, reasoning, tools, retries, cost, latency, and outcomes." actions={<WorkflowAction />} />
+      <PageHeading eyebrow="Agent operations" title="Agent runs" description="Inspectable retrieval, reasoning, tools, retries, cost, latency, and outcomes." />
+      <WorkflowAction />
       <VoiceCommand />
       <WorkflowConsole />
       <section className="run-metrics metric-grid"><article className="metric-card"><span className="metric-icon violet"><Bot size={19} /></span><div><p>Total runs</p><strong>{data.runs.length}</strong><small>6 role contracts available</small></div></article><article className="metric-card"><span className="metric-icon blue"><Clock3 size={19} /></span><div><p>Median latency</p><strong>4.2s</strong><small>End-to-end measured</small></div></article><article className="metric-card"><span className="metric-icon green"><DollarSign size={19} /></span><div><p>Scenario cost</p><strong>${data.runs.reduce((sum, run) => sum + run.costUsd, 0).toFixed(2)}</strong><small>{runtimeMode === "live" ? "Live judge + provider calls" : "Mocked model pricing"}</small></div></article><article className="metric-card"><span className="metric-icon amber"><RotateCcw size={19} /></span><div><p>Retries</p><strong>{data.runs.reduce((sum, run) => sum + run.retries, 0)}</strong><small>Policy-compliant retry</small></div></article></section>
