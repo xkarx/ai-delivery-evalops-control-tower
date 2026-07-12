@@ -25,6 +25,11 @@ export interface AgentHandoffThreadResult {
   threadId?: string;
 }
 
+export interface AgentHandoffFanoutResult {
+  channels: Record<string, AgentHandoffThreadResult>;
+  sourceMode: "mocked" | "live";
+}
+
 function formatHandoff(message: AgentHandoffMessage): string {
   const evidence = message.evidenceIds.length > 0 ? message.evidenceIds.join(", ") : "none";
   return [
@@ -73,4 +78,19 @@ export async function postAgentHandoffThread(
     sourceMode: records[0]!.sourceMode,
     threadId
   };
+}
+
+/** Mirror one workflow into configured channels with one shared bot identity. */
+export async function postAgentHandoffFanout(
+  chat: ChatAdapter,
+  handoffs: readonly AgentHandoffMessage[],
+  channels: Record<string, string | undefined>,
+  title: string
+): Promise<AgentHandoffFanoutResult> {
+  const results: Record<string, AgentHandoffThreadResult> = {};
+  for (const [purpose, channel] of Object.entries(channels)) {
+    if (!channel || Object.values(results).some((result) => result.messages[0]?.channel === channel)) continue;
+    results[purpose] = await postAgentHandoffThread(chat, handoffs, { channel, title: `${title} · ${purpose}` });
+  }
+  return { channels: results, sourceMode: Object.values(results)[0]?.sourceMode ?? "mocked" };
 }

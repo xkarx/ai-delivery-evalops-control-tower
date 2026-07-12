@@ -24,6 +24,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { RuntimeMode } from "@/lib/runtime-mode";
+import { DemoGuide } from "./demo-guide";
 
 const nav = [
   { href: "/", label: "Overview", icon: CircleGauge },
@@ -89,6 +90,7 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
           </div>
         </header>
         <main>{children}</main>
+        <DemoGuide runtimeMode={runtimeMode} />
       </div>
     </div>
   );

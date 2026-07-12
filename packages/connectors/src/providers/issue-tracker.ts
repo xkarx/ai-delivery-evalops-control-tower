@@ -32,7 +32,10 @@ function metadataFor(input: TicketInput) {
     prdId: input.prdId,
     evidenceIds: input.evidenceIds,
     owner: input.owner,
-    dependsOn: input.dependsOn
+    dependsOn: input.dependsOn,
+    skillId: input.skillId,
+    contextPackId: input.contextPackId,
+    featureBatchId: input.featureBatchId
   };
 }
 
@@ -195,6 +198,9 @@ export class LiveLinearIssueTrackerAdapter extends BaseConnector implements Issu
       input.evidenceIds?.length ? `Evidence: ${input.evidenceIds.join(", ")}` : undefined,
       input.owner ? `Owner: ${input.owner}` : undefined,
       input.dependsOn?.length ? `Depends on: ${input.dependsOn.join(", ")}` : undefined,
+      input.skillId ? `Skill: ${input.skillId}` : undefined,
+      input.contextPackId ? `Context pack: ${input.contextPackId}` : undefined,
+      input.featureBatchId ? `Feature batch: ${input.featureBatchId}` : undefined,
       input.workflowStatus ? `Delivery status: ${input.workflowStatus}` : undefined
     ].filter(Boolean).join("\n\n");
     const stateId = input.workflowStatus ? await this.workflowStateId(input.workflowStatus) : undefined;

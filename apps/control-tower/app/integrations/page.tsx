@@ -35,12 +35,14 @@ export default async function IntegrationsPage() {
     return adapter.provider;
   };
   const liveHealth = await Promise.all(adapters.map(async (adapter) => ({ adapter, health: await adapter.healthCheck() })));
+  const lastActions = new Map(data.activity.map((item) => [item.type, { label: item.title, at: item.at, sourceMode: data.sourceMode, url: undefined }]));
   const healthByKey = new Map(liveHealth.map(({ adapter, health }) => [viewKey(adapter), health]));
   const initial: HealthProviderView[] = data.integrations.map((integration) => ({
     key: integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider,
     provider: integration.provider,
     configuration: configured.get(integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider) ?? { configured: true, writeEnabled: false, missingEnvironment: [], message: integration.message },
-    health: healthByKey.get(integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider) ?? { ...integration, mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mock" }
+    health: healthByKey.get(integration.provider === "workflow" ? "inngest" : integration.provider === "deployment" ? "vercel" : integration.provider) ?? { ...integration, mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mock" },
+    lastAction: lastActions.get(integration.provider === "deployment" ? "deployment" : integration.provider)
   }));
   return (
     <div className="page-container">

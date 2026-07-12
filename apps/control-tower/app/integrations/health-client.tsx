@@ -10,6 +10,7 @@ export interface HealthProviderView {
   provider: IntegrationHealth["provider"];
   configuration: { configured: boolean; writeEnabled: boolean; missingEnvironment: string[]; message: string };
   health: IntegrationHealth;
+  lastAction?: { label: string; at: string; sourceMode: string; url?: string };
 }
 
 const descriptions: Record<string, string> = {
@@ -54,7 +55,7 @@ export function HealthClient({ initial }: { initial: HealthProviderView[] }) {
         <h2>{integration.key.replace("-", " ")}</h2><p>{descriptions[integration.key] ?? integration.health.message}</p>
         <dl><div><dt>Mode</dt><dd className="source-label">{integration.health.mode}</dd></div><div><dt>Configuration</dt><dd>{integration.configuration.configured ? "Ready" : "Missing"}</dd></div><div><dt>Write path</dt><dd>{integration.configuration.writeEnabled ? "Configured" : "Blocked"}</dd></div></dl>
         <div className="capability-row">{integration.health.capabilities.map((capability) => <span key={capability}>{capability}</span>)}</div>
-        <div className="integration-message">{integration.health.message}{integration.configuration.missingEnvironment.length > 0 && <small>Missing: {integration.configuration.missingEnvironment.join(", ")}</small>}</div>
+        <div className="integration-message">{integration.health.message}{integration.configuration.missingEnvironment.length > 0 && <small>Missing: {integration.configuration.missingEnvironment.join(", ")}</small>}</div><div className="integration-last-action"><b>Last action</b><span>{integration.lastAction?.label ?? "Read-only health check"} · {integration.lastAction?.sourceMode ?? integration.health.mode} · {new Date(integration.lastAction?.at ?? integration.health.checkedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "UTC" })} UTC</span>{(integration.lastAction?.url ?? integration.health.externalUrl) && <a href={integration.lastAction?.url ?? integration.health.externalUrl} target="_blank" rel="noreferrer">Open provider ↗</a>}</div>
       </article>)}
     </section>
   </>;

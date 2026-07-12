@@ -2,6 +2,7 @@ import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { ConnectorError, createConnectorSuite, type DeliveryTicketStatus, type TicketMetadata } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
+import { requireOperatorAccess } from "@/lib/operator-auth";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { loadDeliveryBacklog, loadDeliveryFeatures } from "@/lib/load-delivery-backlog";
 import type { Ticket } from "@dailycart/schemas";
@@ -41,6 +42,8 @@ function metadataFor(ticket: { featureId: string; id: string; dependsOn: string[
 }
 
 export async function POST() {
+  const denied = await requireOperatorAccess();
+  if (denied) return denied;
   const root = path.resolve(process.cwd(), "../..");
   const file = path.resolve(root, "artifacts/linear-delivery-sync.json");
   const data = await loadDemoState();

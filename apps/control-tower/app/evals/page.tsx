@@ -5,6 +5,7 @@ import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { ActionFeedbackButton } from "@/app/ui/action-feedback";
 import { getRuntimeMode } from "@/lib/runtime-mode";
+import { EvalWorkbench } from "./eval-workbench";
 
 const matrix = [
   { criterion: "Build + types", v1: 100, v2: 100, deterministic: true },
@@ -32,6 +33,7 @@ export default async function EvalsPage() {
       <div className="eval-bottom">
         <section className="panel calibration-card"><Scale size={22} /><div><p className="eyebrow">Judge calibration</p><h2>Human versus AI agreement</h2><p>{runtimeMode === "live" ? "Live OpenAI-compatible judge is labeled and calibrated against stored synthetic human labels." : "Mocked semantic judge is clearly labeled and calibrated against stored synthetic human labels."}</p></div><div className="agreement-ring"><span>92<small>%</small></span><b>Agreement</b></div><dl><div><dt>False pass</dt><dd>2.1%</dd></div><div><dt>False block</dt><dd>3.4%</dd></div><div><dt>Review time</dt><dd>1m 18s</dd></div></dl><Link href="/reviews">Open reviews <ArrowRight size={14} /></Link></section>
       </div>
+      <EvalWorkbench />
     </div>
   );
 }

@@ -73,6 +73,13 @@ export const agentRunSchema = z.object({
   ticketIds: z.array(z.string().regex(/^TKT-\d{4,}$/)).default([]),
   traceId: z.string(),
   traceUrl: z.string().url().optional(),
+  skillId: z.string().optional(),
+  skillVersion: z.string().optional(),
+  contextPackId: z.string().optional(),
+  featureBatchId: z.string().optional(),
+  toolCalls: z.array(z.object({ name: z.string(), provider: z.string(), status: z.enum(["succeeded", "failed"]), detail: z.string(), externalId: z.string().optional(), url: z.string().url().optional() })).optional(),
+  reasoningSummary: z.string().optional(),
+  citedEvidenceIds: z.array(z.string().regex(/^EVD-\d{4,}$/)).optional(),
   costUsd: z.number().nonnegative(),
   latencyMs: z.number().int().nonnegative(),
   retries: z.number().int().nonnegative(),
@@ -187,7 +194,7 @@ export type IntegrationHealth = z.infer<typeof integrationHealthSchema>;
 
 export const productEventSchema = z.object({
   id: z.string(),
-  event: z.enum(["session_started", "product_viewed", "search_used", "cart_added", "checkout_started", "checkout_interrupted", "checkout_recovery_used", "checkout_completed", "feature_exposed", "error_seen"]),
+  event: z.enum(["session_started", "product_viewed", "search_used", "cart_added", "checkout_started", "checkout_interrupted", "checkout_recovery_used", "checkout_completed", "cart_persisted", "cart_recovered", "feature_exposed", "error_seen"]),
   customerId: z.string().regex(/^CUS-\d{4,}$/),
   timestamp: timestampSchema,
   properties: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),

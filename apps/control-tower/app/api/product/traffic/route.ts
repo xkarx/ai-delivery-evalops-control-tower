@@ -3,6 +3,7 @@ import path from "node:path";
 import { ConnectorError } from "@dailycart/connectors";
 import { createSampleProductAdapter } from "@dailycart/sample-product";
 import { NextResponse } from "next/server";
+import { requireOperatorAccess } from "@/lib/operator-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,8 @@ const defaultConfig = {
 };
 
 export async function POST(request: Request) {
+  const denied = await requireOperatorAccess();
+  if (denied) return denied;
   try {
     const payload = await request.json().catch(() => ({}));
     const config = { ...defaultConfig, ...(payload ?? {}), costControls: { ...defaultConfig.costControls, ...(payload?.costControls ?? {}) } };
