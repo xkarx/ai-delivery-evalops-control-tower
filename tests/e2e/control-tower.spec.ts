@@ -64,7 +64,8 @@ test("analytics traffic controls run a bounded scenario", async ({ page }) => {
   await expect(page.locator(".traffic-result")).toContainText(/events|could not|missing/i);
 });
 
-test("agent workflow runs through eval and stops at release approval", async ({ page }) => {
+test("agent workflow runs through eval and stops at release approval", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "mobile", "The mutating workflow is executed once; mobile interaction is covered by the responsive route and control tests.");
   await page.request.post("/api/demo/reset");
   await page.goto("/runs");
   await page.getByRole("button", { name: "Start workflow" }).click();

@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
 import { requireOperatorAccess } from "@/lib/operator-auth";
-import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,10 +70,9 @@ function appendUnique<T extends { id: string }>(items: T[], additions: T[]): T[]
 }
 
 async function persistAgentRecords(feature: { id: string; title: string }, runs: AgentRun[], evaluations: AgentOutputEval[]): Promise<void> {
-  const database = createConnectorSuite({ env: process.env }).database; const at = new Date().toISOString();
-  await database.upsert("entities", { id: feature.id, entity_type: "feature", title: feature.title, source_mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked", payload: { agentRunIds: runs.map((run) => run.id) }, updated_at: at }, "id");
-  for (const run of runs) await database.upsert("workflow_runs", { id: run.id, workflow_type: `agent:${run.agent}`, status: run.status === "failed" ? "failed" : run.status === "running" ? "running" : "succeeded", feature_id: feature.id, state: { skillId: run.skillId, skillVersion: run.skillVersion, contextPackId: run.contextPackId, evidenceIds: run.citedEvidenceIds, toolCalls: run.toolCalls, steps: run.steps, reasoningSummary: run.reasoningSummary, latencyMs: run.latencyMs, costUsd: run.costUsd }, trace_id: run.traceId, source_mode: run.sourceMode, updated_at: at }, "id");
-  for (const [index, evaluation] of evaluations.entries()) await database.upsert("eval_results", { campaign_id: `AGENT-${evaluation.runId}`, case_id: `EVALCASE-${String(9400 + index).padStart(4, "0")}`, grader: evaluation.grader.slice(0, 120), score: evaluation.score, passed: evaluation.passed, critical: true, rationale: evaluation.rationale, measured_at: evaluation.evaluatedAt, duration_ms: 0, payload: evaluation }, "campaign_id,case_id,grader");
+  await persistStructuredRecord("features", feature.id, { title: feature.title, agentRunIds: runs.map((run) => run.id), sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked" });
+  for (const run of runs) await persistStructuredRecord("workflow_runs", run.id, { workflowType: `agent:${run.agent}`, status: run.status, featureId: feature.id, skillId: run.skillId, skillVersion: run.skillVersion, contextPackId: run.contextPackId, evidenceIds: run.citedEvidenceIds, toolCalls: run.toolCalls, steps: run.steps, reasoningSummary: run.reasoningSummary, traceId: run.traceId, latencyMs: run.latencyMs, costUsd: run.costUsd, sourceMode: run.sourceMode });
+  for (const evaluation of evaluations) await persistStructuredRecord("eval_results", evaluation.id, evaluation);
 }
 
 /**

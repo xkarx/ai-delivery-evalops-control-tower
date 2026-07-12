@@ -3,7 +3,7 @@ import { assertDemoState, type DemoState } from "@dailycart/schemas";
 import { NextResponse } from "next/server";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { requireOperatorAccess } from "@/lib/operator-auth";
-import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { createConnectorSuite } from "@dailycart/connectors";
 
 export const runtime = "nodejs";
@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     if (!stored) throw new Error("No active workflow was found.");
     const workflow = DeliveryWorkflow.hydrate(stored.workflow);
     const snapshot = workflow.resumeWithHumanDecision({ approvalId: stored.releaseApprovalId, status: "approved", reviewer, rationale, resolvedAt: new Date().toISOString() });
-    const database = createConnectorSuite({ env: process.env }).database; const resolvedAt = new Date().toISOString();
-    await database.upsert("approvals", { id: stored.releaseApprovalId, run_id: "RUN-0101", stage: "release", status: "approved", reviewer, rationale, requested_at: resolvedAt, resolved_at: resolvedAt }, "id");
+    const resolvedAt = new Date().toISOString();
+    await persistStructuredRecord("approvals", stored.releaseApprovalId, { runId: "RUN-0101", stage: "release", status: "approved", reviewer, rationale, requestedAt: resolvedAt, resolvedAt });
     const data = await loadDemoState();
     const next: DemoState = {
       ...data,

@@ -1,6 +1,5 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createDatabaseAdapter } from "@dailycart/connectors";
 
 export type ArtifactKey =
   | "demoState"
@@ -14,7 +13,8 @@ export type ArtifactKey =
   | "evalAuthoredCases"
   | "evalLastRun"
   | "productEvents"
-  | "actionReceipts";
+  | "actionReceipts"
+  | "structuredRecords";
 
 const definitions: Record<ArtifactKey, { id: string; file: string; title: string }> = {
   demoState: { id: "STATE-9001", file: "demo-state.json", title: "Current demo state" },
@@ -28,11 +28,42 @@ const definitions: Record<ArtifactKey, { id: string; file: string; title: string
   evalAuthoredCases: { id: "EVALCASES-9001", file: "eval-authored-cases.json", title: "Authored eval cases" },
   evalLastRun: { id: "EVALRUN-9001", file: "eval-authored-last-run.json", title: "Latest eval execution" },
   productEvents: { id: "EVENTS-9001", file: "product-events.json", title: "Product events" },
-  actionReceipts: { id: "ACTIONS-9001", file: "action-receipts.json", title: "Operator action receipts" }
+  actionReceipts: { id: "ACTIONS-9001", file: "action-receipts.json", title: "Operator action receipts" },
+  structuredRecords: { id: "RECORDS-9001", file: "structured-records.json", title: "Durable workflow records" }
 };
+
+const storageBucket = "dailycart-control-tower";
 
 function livePersistence(): boolean {
   return process.env.INTEGRATION_MODE === "live" && Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
+function storageHeaders(contentType?: string): Record<string, string> {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return { apikey: key, authorization: `Bearer ${key}`, ...(contentType ? { "content-type": contentType } : {}) };
+}
+
+async function ensureStorageBucket(): Promise<void> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/bucket`, {
+    method: "POST", headers: storageHeaders("application/json"),
+    body: JSON.stringify({ id: storageBucket, name: storageBucket, public: false, file_size_limit: 2_000_000 })
+  });
+  if (!response.ok && response.status !== 409) throw new Error(`Supabase durable storage setup failed with HTTP ${response.status}.`);
+}
+
+async function readStorageObject<T>(file: string): Promise<T | undefined> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/authenticated/${storageBucket}/${file}`, { headers: storageHeaders() });
+  if (response.status === 400 || response.status === 404) return undefined;
+  if (!response.ok) throw new Error(`Supabase durable read failed with HTTP ${response.status}.`);
+  return response.json() as Promise<T>;
+}
+
+async function writeStorageObject<T>(file: string, value: T): Promise<void> {
+  await ensureStorageBucket();
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/${storageBucket}/${file}`, {
+    method: "POST", headers: { ...storageHeaders("application/json"), "x-upsert": "true" }, body: JSON.stringify(value)
+  });
+  if (!response.ok) throw new Error(`Supabase durable write failed with HTTP ${response.status}: ${(await response.text()).slice(0, 180)}`);
 }
 
 function localFile(key: ArtifactKey): string {
@@ -42,8 +73,7 @@ function localFile(key: ArtifactKey): string {
 export async function readArtifact<T>(key: ArtifactKey): Promise<T | undefined> {
   const definition = definitions[key];
   if (livePersistence()) {
-    const rows = await createDatabaseAdapter({ env: process.env }).select<{ id: string; payload: { value?: T; cleared?: boolean } }>("entities", { id: definition.id });
-    const payload = rows[0]?.payload;
+    const payload = await readStorageObject<{ value?: T; cleared?: boolean }>(definition.file);
     return payload?.cleared ? undefined : payload?.value;
   }
   try {
@@ -56,14 +86,7 @@ export async function readArtifact<T>(key: ArtifactKey): Promise<T | undefined> 
 export async function writeArtifact<T>(key: ArtifactKey, value: T): Promise<void> {
   const definition = definitions[key];
   if (livePersistence()) {
-    await createDatabaseAdapter({ env: process.env }).upsert("entities", {
-      id: definition.id,
-      entity_type: "demo_artifact",
-      title: definition.title,
-      source_mode: "live",
-      payload: { value, updatedAt: new Date().toISOString() },
-      updated_at: new Date().toISOString()
-    }, "id");
+    await writeStorageObject(definition.file, { id: definition.id, title: definition.title, value, updatedAt: new Date().toISOString() });
     return;
   }
   const file = localFile(key);
@@ -74,14 +97,7 @@ export async function writeArtifact<T>(key: ArtifactKey, value: T): Promise<void
 export async function clearArtifact(key: ArtifactKey): Promise<void> {
   const definition = definitions[key];
   if (livePersistence()) {
-    await createDatabaseAdapter({ env: process.env }).upsert("entities", {
-      id: definition.id,
-      entity_type: "demo_artifact",
-      title: definition.title,
-      source_mode: "live",
-      payload: { cleared: true, clearedAt: new Date().toISOString() },
-      updated_at: new Date().toISOString()
-    }, "id");
+    await writeStorageObject(definition.file, { id: definition.id, title: definition.title, cleared: true, clearedAt: new Date().toISOString() });
     return;
   }
   await rm(localFile(key), { force: true });
@@ -119,4 +135,10 @@ export interface ActionReceipt {
 export async function recordActionReceipt(receipt: ActionReceipt): Promise<ActionReceipt> {
   await appendArtifact("actionReceipts", receipt, 100);
   return receipt;
+}
+
+export async function persistStructuredRecord(collection: string, id: string, value: unknown): Promise<void> {
+  const current = await readArtifact<Record<string, { collection: string; id: string; value: unknown; updatedAt: string }>>("structuredRecords") ?? {};
+  current[`${collection}:${id}`] = { collection, id, value, updatedAt: new Date().toISOString() };
+  await writeArtifact("structuredRecords", current);
 }

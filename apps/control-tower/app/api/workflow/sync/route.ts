@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
 import { requireOperatorAccess } from "@/lib/operator-auth";
-import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,12 +81,10 @@ export async function POST() {
     }
     try {
       const selectedFeature = data.features.find((feature) => feature.id === workflow.featureId);
-      await suite.database.upsert("entities", { id: workflow.featureId, entity_type: "feature", title: selectedFeature?.title ?? workflow.featureTitle ?? workflow.featureId, source_mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked", payload: selectedFeature ?? { featureBatchId: workflow.featureBatchId }, updated_at: new Date().toISOString() }, "id");
-      await suite.database.upsert("workflow_runs", { id: "RUN-0101", workflow_type: "dailycart_delivery", status: "succeeded", feature_id: workflow.featureId, state: { phase: "ready_to_release", ticketIds: state.ticketRecords.map((record) => record.internalId) }, trace_id: state.trace?.url ?? null, source_mode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked" }, "id");
-      for (const ticket of state.ticketRecords) {
-        await suite.database.upsert("external_references", { entity_id: ticket.internalId, provider: "issue-tracker", external_id: ticket.identifier, url: ticket.url, sync_status: "synced", last_synced_at: new Date().toISOString() }, "provider,external_id");
-      }
-    } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Supabase workflow state write failed."); }
+      await persistStructuredRecord("features", workflow.featureId, selectedFeature ?? { title: workflow.featureTitle, featureBatchId: workflow.featureBatchId });
+      await persistStructuredRecord("workflow_runs", "RUN-0101", { workflowType: "dailycart_delivery", status: "succeeded", featureId: workflow.featureId, phase: "ready_to_release", ticketIds: state.ticketRecords.map((record) => record.internalId), traceUrl: state.trace?.url });
+      for (const ticket of state.ticketRecords) await persistStructuredRecord("external_references", `${ticket.internalId}:${ticket.identifier}`, ticket);
+    } catch (error) { state.errors.push(error instanceof Error ? `supabase-storage: ${error.message}` : "Supabase workflow state write failed."); }
     await writeArtifact("workflowSync", state);
     return NextResponse.json({ ok: state.errors.length === 0, partial: state.errors.length > 0 && state.ticketRecords.length > 0, sync: state });
   } catch (error) {

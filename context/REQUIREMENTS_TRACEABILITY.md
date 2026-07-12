@@ -28,7 +28,7 @@ Codex must update the implementation link and evidence columns. “Implemented�
 | R022 | Credential-free demo mode | Adapters | Complete — `pnpm demo` without credentials |
 | R023 | Live mode | Adapters | Complete — `/api/integrations/health`, workflow sync, ticket, Slack, analytics, sample-product sidecar, and Vercel deployment paths use live adapters when `INTEGRATION_MODE=live`; the Integrations page now probes adapters on initial load as well as on demand |
 | R024 | Open-source attribution | References | Complete — `references/OPEN_SOURCE_ATTRIBUTION.md` |
-| R025 | Responsive UI | UI | Implemented and locally verified — 22 Playwright checks cover mobile/desktop behavior and presentation widths 390, 768, 1024, 1280, 1440, and 1920px without document overflow or crushed headings |
+| R025 | Responsive UI | UI | Implemented and locally verified — 21 Playwright checks pass and one mutating workflow check runs once instead of concurrently; mobile/desktop behavior and presentation widths 390, 768, 1024, 1280, 1440, and 1920px have no document overflow or crushed headings |
 | R026 | Two independent workstreams | Orchestration | Complete — separate concurrent `RUN-*` records |
 | R027 | GitHub deployment/release links | GitHub | Complete — authenticated GitHub repository health and normalized links in code-host/deployment adapters; Vercel deployment is gated on project ID |
 | R028 | Reusable skills | Skills | Complete — 15 generic skill contracts |
