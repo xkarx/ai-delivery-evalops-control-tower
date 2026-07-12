@@ -33,6 +33,7 @@ const definitions: Record<ArtifactKey, { id: string; file: string; title: string
 };
 
 const storageBucket = "dailycart-control-tower";
+let storageBucketReady: Promise<void> | undefined;
 
 function livePersistence(): boolean {
   return process.env.INTEGRATION_MODE === "live" && Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -44,11 +45,20 @@ function storageHeaders(contentType?: string): Record<string, string> {
 }
 
 async function ensureStorageBucket(): Promise<void> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/bucket`, {
-    method: "POST", headers: storageHeaders("application/json"),
-    body: JSON.stringify({ id: storageBucket, name: storageBucket, public: false, file_size_limit: 2_000_000 })
-  });
-  if (!response.ok && response.status !== 409) throw new Error(`Supabase durable storage setup failed with HTTP ${response.status}.`);
+  storageBucketReady ??= (async () => {
+    const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/bucket`;
+    const existing = await fetch(`${base}/${storageBucket}`, { headers: storageHeaders() });
+    if (existing.ok) return;
+    const response = await fetch(base, {
+      method: "POST", headers: storageHeaders("application/json"),
+      body: JSON.stringify({ id: storageBucket, name: storageBucket, public: false, file_size_limit: 2_000_000 })
+    });
+    if (response.ok || response.status === 409) return;
+    const confirmed = await fetch(`${base}/${storageBucket}`, { headers: storageHeaders() });
+    if (confirmed.ok) return;
+    throw new Error(`Supabase durable storage setup failed with HTTP ${response.status}: ${(await response.text()).slice(0, 160)}`);
+  })().catch((error) => { storageBucketReady = undefined; throw error; });
+  return storageBucketReady;
 }
 
 async function readStorageObject<T>(file: string): Promise<T | undefined> {
