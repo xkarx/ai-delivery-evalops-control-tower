@@ -74,8 +74,8 @@
       "Every outcome emits checkout_recovery_success_rate telemetry with a feature ID.",
       "Critical deterministic and regression eval cases pass before release."
     ],
-    "createdAt": "2026-07-10T19:00:00.000Z",
-    "sourceMode": "simulated"
+    "createdAt": "2026-07-10T16:00:00.000Z",
+    "sourceMode": "synthetic"
   },
   "uxReview": {
     "id": "EXT-0200",
@@ -95,8 +95,8 @@
       "id": "RUN-0110",
       "agent": "ux",
       "status": "succeeded",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T16:05:00.000Z",
+      "finishedAt": "2026-07-10T16:05:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [],
       "traceId": "trace-run-0110",
@@ -117,9 +117,9 @@
           "detail": "Findings are linked to the PM-owned implementation brief"
         }
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
-    "sourceMode": "simulated"
+    "sourceMode": "synthetic"
   },
   "feasibilityReview": {
     "id": "EXT-0210",
@@ -139,8 +139,8 @@
       "id": "RUN-0111",
       "agent": "engineering_feasibility",
       "status": "succeeded",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T16:07:00.000Z",
+      "finishedAt": "2026-07-10T16:07:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [],
       "traceId": "trace-run-0111",
@@ -161,8 +161,8 @@
           "detail": "Findings are linked to the PM-owned implementation brief"
         }
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
-    "sourceMode": "simulated"
+    "sourceMode": "synthetic"
   }
 }

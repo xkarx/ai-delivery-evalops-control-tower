@@ -4,12 +4,15 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
+import { requireOperatorAccess } from "@/lib/operator-auth";
 
 const execFileAsync = promisify(execFile);
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  const denied = await requireOperatorAccess();
+  if (denied) return denied;
   const root = path.resolve(process.cwd(), "../..");
   try {
     await execFileAsync(path.resolve(root, "node_modules/.bin/tsx"), ["scripts/demo-run.ts"], { cwd: root, env: process.env, timeout: 120_000, maxBuffer: 2_000_000 });

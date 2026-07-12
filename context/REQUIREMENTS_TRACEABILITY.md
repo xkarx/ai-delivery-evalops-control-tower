@@ -42,3 +42,9 @@ Codex must update the implementation link and evidence columns.
 | R036 | Visible product feature behavior | Customer product | Complete — checkout interruption/recovery interaction, accessible focus restoration, recovery telemetry, and workflow-created preview build action |
 | R037 | Follow-along workflow console | Control plane | Complete — collapsible `/runs` console with current phase, actor, history, next action, source mode, polling, and contextual questions |
 | R038 | Preview-target evaluation gate | Preview + release | Complete — preview build records a target URL, `/api/workflow/preview-eval` probes/evaluates that target, persists checks and source mode, and release approval/deployment reject missing or failing preview results |
+| R039 | Guided operator flow | Control plane | Complete — persistent Demo Guide explains current phase, previous events, next action, why it matters, mode boundary, AI summary, linked records, and contextual questions |
+| R040 | Executable skill provenance | Agents + traceability | Complete — versioned skill registry, role-boundary metadata, context-pack/evidence/tool provenance, and agent-run inspection |
+| R041 | Two parallel feature tracks | Workflow + product | Complete — two PM-ranked features receive approval, TPM plans, engineering runs, previews, preview evals, and production deployment records in one batch |
+| R042 | Multi-channel Slack operations | Slack | Complete — one bot fans the workflow into delivery, approvals, alerts, and analytics channels when channel IDs are configured, with shared workflow/thread metadata |
+| R043 | Editable eval workbench | EvalOps | Complete — operator can author versioned cases, select cases, execute deterministic/model graders, and inspect measured gate results |
+| R044 | Operator-only live actions | Deployment security | Complete — live writes/model calls/replay/reset require an HttpOnly operator session; read-only browsing remains available |

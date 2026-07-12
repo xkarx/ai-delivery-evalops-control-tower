@@ -3,10 +3,11 @@
 import { Check, Loader2, Play, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 
-type WorkflowResponse = { reused?: boolean; message?: string; detail?: string; workflow?: { featureTitle: string; passedCampaignId: string; releaseApprovalId: string; phase?: string } };
+type WorkflowResponse = { reused?: boolean; message?: string; detail?: string; workflow?: { featureTitle: string; passedCampaignId: string; releaseApprovalId: string; phase?: string; featureBatchId?: string; recommendations?: Array<{ id: string; title: string; score: number; confidence: number; evidenceIds: string[]; problem: string }> ; featureTracks?: Array<{ featureId: string; featureTitle: string; status: string; passedCampaignId: string; releaseApprovalId: string }> } };
 type SyncResult = { ticketRecords: Array<{ internalId: string; identifier: string; url: string; sourceMode: string }>; notification?: { provider: string; url: string; sourceMode: string }; trace?: { url: string; sourceMode: string }; workflowEvent?: { url: string; sourceMode: string }; errors: string[] };
-type PreviewBuild = { branch: string; commitSha: string; commitUrl: string; pullRequestUrl: string; deploymentUrl: string; deploymentId: string; sourceMode: string };
-type PreviewEvaluation = { passed: boolean; score: number; targetUrl: string; sourceMode: string };
+type PreviewBuild = { featureId: string; branch: string; commitSha: string; commitUrl: string; pullRequestUrl: string; deploymentUrl: string; deploymentId: string; sourceMode: string };
+type PreviewEvaluation = { featureId?: string; passed: boolean; score: number; targetUrl: string; sourceMode: string };
+type FeatureRecommendation = { id: string; title: string; score: number; confidence: number; evidenceIds: string[]; problem: string };
 
 export function WorkflowAction() {
   const [state, setState] = useState<"idle" | "running" | "done" | "error">("idle");
@@ -17,8 +18,10 @@ export function WorkflowAction() {
   const [synced, setSynced] = useState(false);
   const [syncDetails, setSyncDetails] = useState<SyncResult>();
   const [preview, setPreview] = useState<PreviewBuild>();
-  const [previewEval, setPreviewEval] = useState<PreviewEvaluation>();
+  const [previews, setPreviews] = useState<PreviewBuild[]>([]);
+  const [previewEvals, setPreviewEvals] = useState<PreviewEvaluation[]>([]);
   const [featurePending, setFeaturePending] = useState(false);
+  const [recommendations, setRecommendations] = useState<FeatureRecommendation[]>([]);
   async function runWorkflow() {
     setState("running");
     setMessage("Running context → PM → UX → feasibility → TPM → engineering → eval…");
@@ -26,7 +29,7 @@ export function WorkflowAction() {
       const response = await fetch("/api/workflow/run", { method: "POST" });
       const payload = await response.json() as WorkflowResponse & { featureApprovalRequired?: boolean };
       if (!response.ok || !payload.workflow) throw new Error(payload.detail ?? payload.message ?? "Workflow could not be started.");
-      setResult(payload.workflow); setFeaturePending(Boolean(payload.featureApprovalRequired)); setApproved(payload.workflow.phase === "ready_to_release" || payload.workflow.phase === "released"); setDeployed(payload.workflow.phase === "released"); setState("done");
+      setResult(payload.workflow); setRecommendations(payload.workflow.recommendations ?? []); setFeaturePending(Boolean(payload.featureApprovalRequired)); setApproved(payload.workflow.phase === "ready_to_release" || payload.workflow.phase === "released"); setDeployed(payload.workflow.phase === "released"); setState("done");
       setMessage(payload.featureApprovalRequired ? "PM recommendation ready: confirm the selected opportunity before delivery planning." : `${payload.reused ? "Existing run loaded" : "Workflow completed"}: release approval is pending.`);
     } catch (error) { setState("error"); setMessage(error instanceof Error ? error.message : "Workflow could not be started."); }
   }
@@ -36,7 +39,7 @@ export function WorkflowAction() {
       const response = await fetch("/api/workflow/approve-feature", { method: "POST" });
       const payload = await response.json() as WorkflowResponse & { featureApprovalRequired?: boolean };
       if (!response.ok || !payload.workflow) throw new Error(payload.detail ?? payload.message ?? "Feature approval failed.");
-      setResult(payload.workflow); setFeaturePending(false); setApproved(false); setState("done"); setMessage("Feature approved. TPM planning, engineering, and evaluation are complete; release approval is pending.");
+      setResult(payload.workflow); setRecommendations(payload.workflow.recommendations ?? recommendations); setFeaturePending(false); setApproved(false); setState("done"); setMessage("Feature tracks approved. TPM planning, engineering, and evaluation are complete; preview evaluation is required before release approval.");
     } catch (error) { setState("error"); setMessage(error instanceof Error ? error.message : "Feature approval failed."); }
   }
   async function approveRelease() {
@@ -71,13 +74,14 @@ export function WorkflowAction() {
     setState("running"); setMessage("Creating an isolated product branch and preview…");
     try {
       const response = await fetch("/api/workflow/preview", { method: "POST" });
-      const payload = await response.json() as { ok?: boolean; build?: PreviewBuild; detail?: string; message?: string };
+      const payload = await response.json() as { ok?: boolean; build?: PreviewBuild; builds?: PreviewBuild[]; detail?: string; message?: string };
       if (!response.ok || !payload.ok || !payload.build) throw new Error(payload.detail ?? payload.message ?? "Preview build failed.");
-      setPreview(payload.build); setMessage(`Preview ${payload.build.deploymentId} ready · running preview evals…`);
+      const builds = payload.builds ?? (payload.build ? [payload.build] : []);
+      setPreview(payload.build); setPreviews(builds); setMessage(`${builds.length} preview${builds.length === 1 ? "" : "s"} ready · running preview evals…`);
       const evalResponse = await fetch("/api/workflow/preview-eval", { method: "POST" });
-      const evalPayload = await evalResponse.json() as { ok?: boolean; evaluation?: PreviewEvaluation; detail?: string; message?: string };
-      if (!evalResponse.ok || !evalPayload.ok || !evalPayload.evaluation) throw new Error(evalPayload.detail ?? evalPayload.message ?? "Preview evaluation failed.");
-      setPreviewEval(evalPayload.evaluation); setState("done"); setMessage(`Preview evaluated · ${evalPayload.evaluation.score}/100 · ${evalPayload.evaluation.sourceMode}`);
+      const evalPayload = await evalResponse.json() as { ok?: boolean; evaluations?: PreviewEvaluation[]; detail?: string; message?: string };
+      if (!evalResponse.ok || !evalPayload.ok || !evalPayload.evaluations?.length) throw new Error(evalPayload.detail ?? evalPayload.message ?? "Preview evaluation failed.");
+      setPreviewEvals(evalPayload.evaluations); setState("done"); setMessage(`All previews evaluated · ${Math.min(...evalPayload.evaluations.map((evaluation) => evaluation.score))}/100 minimum · ${evalPayload.evaluations[0]!.sourceMode}`);
     } catch (error) { setState("error"); setMessage(error instanceof Error ? error.message : "Preview build failed."); }
   }
   return <span className={`workflow-action ${state}`}>
@@ -87,13 +91,14 @@ export function WorkflowAction() {
     </button>
     {message && <small role="status">{message}</small>}
     {result && <small className="workflow-result">{result.featureTitle} · {featurePending ? "awaiting feature selection" : `${result.passedCampaignId} passed · ${approved ? `${result.releaseApprovalId} approved` : `${result.releaseApprovalId} pending`}`}</small>}
-    {result && featurePending && <button className="button primary workflow-approve" type="button" onClick={approveFeature} disabled={state === "running"}>Confirm selected opportunity</button>}
-    {result && !featurePending && !approved && <button className="button secondary workflow-approve" type="button" onClick={approveRelease} disabled={state === "running" || !previewEval}>Approve release</button>}
+    {recommendations.length > 0 && <div className="workflow-recommendations"><b>PM-ranked feature tracks</b>{recommendations.map((item, index) => <article key={item.id}><span>{index + 1}</span><div><strong>{item.title}</strong><small>{item.id} · {item.score}/100 · {Math.round(item.confidence * 100)}% confidence</small><p>{item.problem}</p></div></article>)}</div>}
+    {result && featurePending && <button className="button primary workflow-approve" type="button" onClick={approveFeature} disabled={state === "running"}>Approve feature tracks</button>}
+    {result && !featurePending && !approved && <button className="button secondary workflow-approve" type="button" onClick={approveRelease} disabled={state === "running" || !previewEvals.length || !previewEvals.every((evaluation) => evaluation.passed)}>Approve release</button>}
     {result && !preview && <button className="button secondary workflow-approve" type="button" onClick={buildPreview} disabled={state === "running"}>Build product preview</button>}
     {result && approved && !deployed && <button className="button primary workflow-approve" type="button" onClick={deployRelease} disabled={state === "running"}>Deploy approved release</button>}
     {result && approved && !synced && <button className="button secondary workflow-approve" type="button" onClick={syncDelivery} disabled={state === "running"}>Sync delivery records</button>}
     {syncDetails && <div className="external-sync-links" role="status"><b>External records</b><div>{syncDetails.ticketRecords.map((ticket) => <a href={ticket.url} target="_blank" rel="noreferrer" key={ticket.internalId}>{ticket.identifier} ↗</a>)}{syncDetails.notification && <a href={syncDetails.notification.url} target="_blank" rel="noreferrer">{syncDetails.notification.provider} message ↗</a>}{syncDetails.trace && <a href={syncDetails.trace.url} target="_blank" rel="noreferrer">Langfuse trace ↗</a>}{syncDetails.workflowEvent && <a href={syncDetails.workflowEvent.url} target="_blank" rel="noreferrer">Inngest event ↗</a>}</div></div>}
-    {preview && <div className="external-sync-links" role="status"><b>Product build</b><div><a href={preview.deploymentUrl} target="_blank" rel="noreferrer">Open preview ↗</a><a href={preview.pullRequestUrl} target="_blank" rel="noreferrer">GitHub PR ↗</a><a href={preview.commitUrl} target="_blank" rel="noreferrer">Commit {preview.commitSha.slice(0, 7)} ↗</a></div></div>}
-    {previewEval && <div className="external-sync-links" role="status"><b>Preview eval</b><div><span>{previewEval.score}/100 · {previewEval.sourceMode}</span><a href={previewEval.targetUrl} target="_blank" rel="noreferrer">Evaluated target ↗</a></div></div>}
+    {preview && <div className="external-sync-links" role="status"><b>Product builds</b>{previews.map((build) => <div key={build.featureId}><span>{build.featureId}</span><a href={build.deploymentUrl} target="_blank" rel="noreferrer">Open preview ↗</a><a href={build.pullRequestUrl} target="_blank" rel="noreferrer">GitHub PR ↗</a><a href={build.commitUrl} target="_blank" rel="noreferrer">Commit {build.commitSha.slice(0, 7)} ↗</a></div>)}</div>}
+    {previewEvals.length > 0 && <div className="external-sync-links" role="status"><b>Preview evals</b>{previewEvals.map((evaluation) => <div key={evaluation.targetUrl}><span>{evaluation.featureId ?? "feature"} · {evaluation.score}/100 · {evaluation.sourceMode}</span><a href={evaluation.targetUrl} target="_blank" rel="noreferrer">Evaluated target ↗</a></div>)}</div>}
   </span>;
 }

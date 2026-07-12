@@ -15,6 +15,8 @@ export { loadCompanyContextPack } from "./context-pack";
 export type { CompanyContextManifest, CompanyContextPack, ContextPackCategory } from "./context-pack";
 export { runLiveAgentReasoning } from "./live-runtime";
 export type { LiveAgentReasoningInput, LiveAgentReasoningResult } from "./live-runtime";
+export { annotateAgentRun, getSkillDefinition, skillRegistry } from "./skills";
+export type { SkillDefinition, SkillId } from "./skills";
 
 const STOP_WORDS = new Set([
   "about",

@@ -1,48 +1,9 @@
 {
-  "generatedAt": "2026-07-10T19:00:00.000Z",
+  "generatedAt": "2026-07-10T18:30:00.000Z",
   "seed": 20260710,
-  "scenario": "checkout-confidence",
-  "sourceMode": "simulated",
+  "scenario": "checkout-friction",
+  "sourceMode": "synthetic",
   "features": [
-    {
-      "id": "FEAT-0002",
-      "title": "Cart price-change transparency",
-      "problem": "Customers lose confidence when cart totals change after returning to a saved session.",
-      "hypothesis": "Showing an itemized price-change receipt will preserve trust and conversion.",
-      "evidenceIds": [
-        "EVD-0008",
-        "EVD-0019",
-        "EVD-0042"
-      ],
-      "score": 78,
-      "confidence": 0.73,
-      "status": "candidate",
-      "workstream": "experience",
-      "metrics": [
-        "Cart return rate",
-        "Checkout start"
-      ],
-      "sourceMode": "synthetic"
-    },
-    {
-      "id": "FEAT-0003",
-      "title": "Recommendation timeout isolation",
-      "problem": "Recommendation latency can cascade into product-detail failures during peak traffic.",
-      "hypothesis": "A strict timeout and fallback will protect core browsing reliability.",
-      "evidenceIds": [
-        "EVD-0028",
-        "EVD-0032"
-      ],
-      "score": 84,
-      "confidence": 0.81,
-      "status": "in_delivery",
-      "workstream": "reliability",
-      "metrics": [
-        "P95 product latency",
-        "Error-free sessions"
-      ],
-      "sourceMode": "synthetic"
-    },
     {
       "id": "FEAT-0001",
       "title": "Improve Checkout Recovery",
@@ -102,7 +63,320 @@
         "checkout_recovery_success_rate",
         "checkout_recovery_related_support_rate"
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic",
+      "rank": 1,
+      "theme": "checkout-recovery",
+      "citations": [
+        {
+          "evidenceId": "EVD-0003",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0005",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs."
+        },
+        {
+          "evidenceId": "EVD-0006",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain."
+        },
+        {
+          "evidenceId": "EVD-0008",
+          "title": "Interview: Resilient checkout and cart recovery",
+          "kind": "interview",
+          "supportingExcerpt": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals a"
+        },
+        {
+          "evidenceId": "EVD-0012",
+          "title": "Pulse survey: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The respondent reported friction related to resilient checkout and cart recovery; the prompted question may have increased salience."
+        },
+        {
+          "evidenceId": "EVD-0018",
+          "title": "Pulse survey: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The respondent rated resilient checkout and cart recovery as important but reported no recent task failure, creating a stated-versus-observed conflict."
+        },
+        {
+          "evidenceId": "EVD-0021",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain."
+        },
+        {
+          "evidenceId": "EVD-0024",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0029",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0032",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0033",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0035",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The report is specific but does not establish how often the problem occurs."
+        },
+        {
+          "evidenceId": "EVD-0037",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0039",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0042",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0043",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0046",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. A retry resolved the immediate issue, leaving root cause uncertain."
+        },
+        {
+          "evidenceId": "EVD-0047",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The customer described material task friction and supplied reproducible context."
+        },
+        {
+          "evidenceId": "EVD-0048",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The account is high value, but its workflow is not representative of every shopper."
+        },
+        {
+          "evidenceId": "EVD-0049",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. The signal agrees with behavioral data directionally, not causally."
+        },
+        {
+          "evidenceId": "EVD-0050",
+          "title": "Support: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "The participant said “I usually finish in one sitting, so recovery controls would add little value for me.” This conflicts with other resilient checkout and cart recovery signals a"
+        },
+        {
+          "evidenceId": "EVD-0053",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0054",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0055",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0056",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0057",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0063",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer asked DailyCart to let me resume a checkout after a timeout without rebuilding my cart. Stated demand is not proof of adoption."
+        },
+        {
+          "evidenceId": "EVD-0068",
+          "title": "Feature request: Resilient checkout and cart recovery",
+          "kind": "survey",
+          "supportingExcerpt": "The customer requested the capability but rated the underlying problem low severity. I usually finish in one sitting, so recovery controls would add little value for me."
+        },
+        {
+          "evidenceId": "EVD-0071",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0072",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0074",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0075",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0076",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0078",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "The symptom could not be reproduced after cache clearing, so attribution to resilient checkout and cart recovery remains uncertain."
+        },
+        {
+          "evidenceId": "EVD-0079",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0085",
+          "title": "Bug report: Resilient checkout and cart recovery",
+          "kind": "support",
+          "supportingExcerpt": "Returning shoppers lose cart or checkout state after an interruption and must repeat work. Two synthetic accounts reported matching symptoms."
+        },
+        {
+          "evidenceId": "EVD-0086",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0087",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0089",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0090",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0091",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "Support and analytics disagree about resilient checkout and cart recovery; the thread ends without a decision."
+        },
+        {
+          "evidenceId": "EVD-0092",
+          "title": "Slack discussion: Resilient checkout and cart recovery",
+          "kind": "discussion",
+          "supportingExcerpt": "A cross-functional discussion links customer reports to checkout completion rate, while calling out sampling limitations."
+        },
+        {
+          "evidenceId": "EVD-0094",
+          "title": "Baseline signal: checkout completion rate",
+          "kind": "analytics",
+          "supportingExcerpt": "checkout completion rate changed by a material amount in the scenario window. Observational data cannot isolate product friction from traffic mix."
+        },
+        {
+          "evidenceId": "EVD-0102",
+          "title": "Incident: Resilient checkout and cart recovery",
+          "kind": "incident",
+          "supportingExcerpt": "A synthetic production incident affected resilient checkout and cart recovery. The postmortem distinguishes the trigger from broader customer claims."
+        }
+      ],
+      "scoreBreakdown": {
+        "evidenceStrength": 210.03,
+        "sourceDiversity": 6,
+        "recurrence": 44,
+        "confidence": 0.74
+      }
+    },
+    {
+      "id": "FEAT-0002",
+      "title": "Cart price-change transparency",
+      "problem": "Customers lose confidence when cart totals change after returning to a saved session.",
+      "hypothesis": "Showing an itemized price-change receipt will preserve trust and conversion.",
+      "evidenceIds": [
+        "EVD-0008",
+        "EVD-0019",
+        "EVD-0042"
+      ],
+      "score": 78,
+      "confidence": 0.73,
+      "status": "candidate",
+      "workstream": "experience",
+      "metrics": [
+        "Cart return rate",
+        "Checkout start"
+      ],
+      "sourceMode": "synthetic"
+    },
+    {
+      "id": "FEAT-0003",
+      "title": "Recommendation timeout isolation",
+      "problem": "Recommendation latency can cascade into product-detail failures during peak traffic.",
+      "hypothesis": "A strict timeout and fallback will protect core browsing reliability.",
+      "evidenceIds": [
+        "EVD-0028",
+        "EVD-0032"
+      ],
+      "score": 84,
+      "confidence": 0.81,
+      "status": "in_delivery",
+      "workstream": "reliability",
+      "metrics": [
+        "P95 product latency",
+        "Error-free sessions"
+      ],
+      "sourceMode": "synthetic"
     }
   ],
   "decisions": [
@@ -114,50 +388,9 @@
       "reviewer": "Demo product council",
       "decidedAt": "2026-07-10T16:22:00.000Z",
       "sourceMode": "simulated"
-    },
-    {
-      "id": "DEC-0101",
-      "featureId": "FEAT-0001",
-      "outcome": "approved",
-      "rationale": "Evidence-backed scope approved for delivery.",
-      "reviewer": "product-council",
-      "decidedAt": "2026-07-10T19:00:00.000Z",
-      "sourceMode": "simulated"
     }
   ],
   "tickets": [
-    {
-      "id": "TKT-0001",
-      "featureId": "FEAT-0001",
-      "title": "Build recovery reason API",
-      "description": "Normalize checkout validation failures into actionable reason codes.",
-      "status": "done",
-      "workstream": "recovery-api",
-      "dependsOn": [],
-      "acceptanceCriteria": [
-        "Reason code schema validates",
-        "Unknown errors remain safe"
-      ],
-      "externalUrl": "https://github.com/xkarx/ai-delivery-evalops-control-tower/issues/1",
-      "sourceMode": "mocked"
-    },
-    {
-      "id": "TKT-0002",
-      "featureId": "FEAT-0001",
-      "title": "Render recovery guidance",
-      "description": "Map reason codes to accessible recovery actions in checkout.",
-      "status": "done",
-      "workstream": "checkout-ui",
-      "dependsOn": [
-        "TKT-0001"
-      ],
-      "acceptanceCriteria": [
-        "Keyboard accessible",
-        "Analytics event emitted"
-      ],
-      "externalUrl": "https://github.com/xkarx/ai-delivery-evalops-control-tower/issues/2",
-      "sourceMode": "mocked"
-    },
     {
       "id": "TKT-0101",
       "featureId": "FEAT-0001",
@@ -169,7 +402,7 @@
       "acceptanceCriteria": [
         "The primary improve checkout recovery journey completes in supported demo scenarios."
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
     {
       "id": "TKT-0102",
@@ -183,7 +416,7 @@
         "Every outcome emits checkout_recovery_success_rate telemetry with a feature ID.",
         "Critical deterministic and regression eval cases pass before release."
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
     {
       "id": "TKT-0103",
@@ -199,7 +432,7 @@
       "acceptanceCriteria": [
         "Both predecessor checks pass and the preview links to the approved feature."
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     }
   ],
   "approvals": [
@@ -224,189 +457,15 @@
       "reviewer": "Demo release manager",
       "rationale": "Corrected campaign passed",
       "sourceMode": "simulated"
-    },
-    {
-      "id": "APR-0101",
-      "featureId": "FEAT-0001",
-      "stage": "feature",
-      "status": "approved",
-      "requestedAt": "2026-07-10T19:00:00.000Z",
-      "resolvedAt": "2026-07-10T19:00:00.000Z",
-      "reviewer": "product-council",
-      "rationale": "Evidence-backed scope approved for delivery.",
-      "sourceMode": "simulated"
-    },
-    {
-      "id": "APR-0102",
-      "featureId": "FEAT-0001",
-      "stage": "release",
-      "status": "pending",
-      "requestedAt": "2026-07-10T19:00:00.000Z",
-      "sourceMode": "simulated"
     }
   ],
   "runs": [
     {
-      "id": "RUN-0001",
-      "agent": "pm",
-      "status": "succeeded",
-      "startedAt": "2026-07-10T16:00:00.000Z",
-      "finishedAt": "2026-07-10T16:07:00.000Z",
-      "featureId": "FEAT-0001",
-      "ticketIds": [],
-      "traceId": "trace-pm-0001",
-      "costUsd": 0.083,
-      "latencyMs": 4210,
-      "retries": 0,
-      "steps": [
-        {
-          "name": "Retrieve evidence",
-          "status": "succeeded",
-          "durationMs": 620,
-          "detail": "47 evidence records scored"
-        },
-        {
-          "name": "Cluster signals",
-          "status": "succeeded",
-          "durationMs": 1410,
-          "detail": "6 opportunity clusters"
-        },
-        {
-          "name": "Rank opportunities",
-          "status": "succeeded",
-          "durationMs": 2180,
-          "detail": "Evidence-weighted ranking stored"
-        }
-      ],
-      "sourceMode": "simulated"
-    },
-    {
-      "id": "RUN-0002",
-      "agent": "engineering",
-      "status": "succeeded",
-      "startedAt": "2026-07-10T16:42:00.000Z",
-      "finishedAt": "2026-07-10T17:18:00.000Z",
-      "featureId": "FEAT-0001",
-      "ticketIds": [
-        "TKT-0001"
-      ],
-      "traceId": "trace-eng-0002",
-      "costUsd": 0.129,
-      "latencyMs": 19240,
-      "retries": 1,
-      "steps": [
-        {
-          "name": "Inspect",
-          "status": "succeeded",
-          "durationMs": 1240,
-          "detail": "Checkout service mapped"
-        },
-        {
-          "name": "Implement",
-          "status": "succeeded",
-          "durationMs": 16400,
-          "detail": "Reason API and tests created"
-        },
-        {
-          "name": "Test",
-          "status": "succeeded",
-          "durationMs": 1600,
-          "detail": "18 checks passed"
-        }
-      ],
-      "sourceMode": "simulated"
-    },
-    {
-      "id": "RUN-0003",
-      "agent": "engineering",
-      "status": "succeeded",
-      "startedAt": "2026-07-10T16:42:00.000Z",
-      "finishedAt": "2026-07-10T17:25:00.000Z",
-      "featureId": "FEAT-0001",
-      "ticketIds": [
-        "TKT-0002"
-      ],
-      "traceId": "trace-eng-0003",
-      "costUsd": 0.142,
-      "latencyMs": 22450,
-      "retries": 0,
-      "steps": [
-        {
-          "name": "Inspect",
-          "status": "succeeded",
-          "durationMs": 980,
-          "detail": "Checkout UI mapped"
-        },
-        {
-          "name": "Implement",
-          "status": "succeeded",
-          "durationMs": 19520,
-          "detail": "Recovery panel built"
-        },
-        {
-          "name": "Test",
-          "status": "succeeded",
-          "durationMs": 1950,
-          "detail": "Accessibility checks passed"
-        }
-      ],
-      "sourceMode": "simulated"
-    },
-    {
-      "id": "RUN-0004",
-      "agent": "eval",
-      "status": "failed",
-      "startedAt": "2026-07-10T17:28:00.000Z",
-      "finishedAt": "2026-07-10T17:31:00.000Z",
-      "featureId": "FEAT-0001",
-      "ticketIds": [
-        "TKT-0001",
-        "TKT-0002"
-      ],
-      "traceId": "trace-eval-0004",
-      "costUsd": 0.031,
-      "latencyMs": 3100,
-      "retries": 0,
-      "steps": [
-        {
-          "name": "Regression suite",
-          "status": "failed",
-          "durationMs": 3100,
-          "detail": "Critical keyboard focus regression reproduced"
-        }
-      ],
-      "sourceMode": "simulated"
-    },
-    {
-      "id": "RUN-0005",
-      "agent": "eval",
-      "status": "succeeded",
-      "startedAt": "2026-07-10T17:52:00.000Z",
-      "finishedAt": "2026-07-10T17:56:00.000Z",
-      "featureId": "FEAT-0001",
-      "ticketIds": [
-        "TKT-0002"
-      ],
-      "traceId": "trace-eval-0005",
-      "costUsd": 0.032,
-      "latencyMs": 3380,
-      "retries": 0,
-      "steps": [
-        {
-          "name": "Regression suite",
-          "status": "succeeded",
-          "durationMs": 3380,
-          "detail": "Corrected focus behavior verified"
-        }
-      ],
-      "sourceMode": "simulated"
-    },
-    {
       "id": "RUN-0100",
       "agent": "pm",
       "status": "waiting_approval",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T16:00:00.000Z",
+      "finishedAt": "2026-07-10T16:00:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [],
       "traceId": "trace-run-0100",
@@ -433,14 +492,14 @@
           "detail": "Ranked 3 opportunities with input evidence citations"
         }
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
     {
       "id": "RUN-0110",
       "agent": "ux",
       "status": "succeeded",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T16:05:00.000Z",
+      "finishedAt": "2026-07-10T16:05:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [],
       "traceId": "trace-run-0110",
@@ -461,14 +520,14 @@
           "detail": "Findings are linked to the PM-owned implementation brief"
         }
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
     {
       "id": "RUN-0111",
       "agent": "engineering_feasibility",
       "status": "succeeded",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T16:07:00.000Z",
+      "finishedAt": "2026-07-10T16:07:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [],
       "traceId": "trace-run-0111",
@@ -489,14 +548,14 @@
           "detail": "Findings are linked to the PM-owned implementation brief"
         }
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
     {
       "id": "RUN-0101",
       "agent": "tpm",
       "status": "succeeded",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T16:15:00.000Z",
+      "finishedAt": "2026-07-10T16:15:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [
         "TKT-0101",
@@ -533,7 +592,7 @@
           "detail": "Prepared integration gate, ownership, and release-readiness checklist"
         }
       ],
-      "sourceMode": "simulated"
+      "sourceMode": "synthetic"
     },
     {
       "id": "RUN-0102",
@@ -620,51 +679,50 @@
       "sourceMode": "mocked"
     },
     {
-      "id": "RUN-0104",
+      "id": "RUN-0004",
       "agent": "eval",
       "status": "failed",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T17:28:00.000Z",
+      "finishedAt": "2026-07-10T17:31:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [
-        "TKT-0101",
-        "TKT-0102"
+        "TKT-0001",
+        "TKT-0002"
       ],
-      "traceId": "trace-run-0104",
-      "costUsd": 0,
-      "latencyMs": 12,
+      "traceId": "trace-eval-0004",
+      "costUsd": 0.031,
+      "latencyMs": 3100,
       "retries": 0,
       "steps": [
         {
-          "name": "critical-regression",
+          "name": "Regression suite",
           "status": "failed",
-          "durationMs": 12,
-          "detail": "Blocked by EVALCASE-0001"
+          "durationMs": 3100,
+          "detail": "Critical keyboard focus regression reproduced"
         }
       ],
       "sourceMode": "simulated"
     },
     {
-      "id": "RUN-0105",
+      "id": "RUN-0005",
       "agent": "eval",
       "status": "succeeded",
-      "startedAt": "2026-07-10T19:00:00.000Z",
-      "finishedAt": "2026-07-10T19:00:00.000Z",
+      "startedAt": "2026-07-10T17:52:00.000Z",
+      "finishedAt": "2026-07-10T17:56:00.000Z",
       "featureId": "FEAT-0001",
       "ticketIds": [
-        "TKT-0101",
-        "TKT-0102"
+        "TKT-0002"
       ],
-      "traceId": "trace-run-0105",
-      "costUsd": 0,
-      "latencyMs": 12,
+      "traceId": "trace-eval-0005",
+      "costUsd": 0.032,
+      "latencyMs": 3380,
       "retries": 0,
       "steps": [
         {
-          "name": "corrected-regression",
+          "name": "Regression suite",
           "status": "succeeded",
-          "durationMs": 12,
-          "detail": "Passed 100/100 after correction"
+          "durationMs": 3380,
+          "detail": "Corrected focus behavior verified"
         }
       ],
       "sourceMode": "simulated"
@@ -712,7 +770,7 @@
       ],
       "requiredApprovalPresent": true,
       "releaseAllowed": false,
-      "runId": "RUN-0104",
+      "runId": "RUN-0005",
       "sourceMode": "simulated"
     },
     {
@@ -754,7 +812,7 @@
       "failureCategories": [],
       "requiredApprovalPresent": true,
       "releaseAllowed": true,
-      "runId": "RUN-0105",
+      "runId": "RUN-0006",
       "sourceMode": "simulated"
     }
   ],
@@ -791,7 +849,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -801,7 +859,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -811,7 +869,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -821,7 +879,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -831,7 +889,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -841,7 +899,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -851,7 +909,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -861,7 +919,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -871,7 +929,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -881,7 +939,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -891,7 +949,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -901,7 +959,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -911,7 +969,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -921,7 +979,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -931,7 +989,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -941,7 +999,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -951,7 +1009,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -961,7 +1019,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -971,7 +1029,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -981,7 +1039,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -991,7 +1049,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1001,7 +1059,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1011,7 +1069,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1021,7 +1079,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1031,7 +1089,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1041,7 +1099,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1051,7 +1109,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1061,7 +1119,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1071,7 +1129,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1081,7 +1139,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1091,7 +1149,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1101,7 +1159,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1111,7 +1169,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1121,7 +1179,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1131,7 +1189,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1141,7 +1199,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1151,7 +1209,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1161,7 +1219,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1171,7 +1229,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1181,7 +1239,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1191,7 +1249,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1201,7 +1259,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1211,7 +1269,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1221,7 +1279,7 @@
       "relationship": "supports",
       "targetType": "feature",
       "targetId": "FEAT-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1230,8 +1288,8 @@
       "sourceId": "FEAT-0001",
       "relationship": "approved_by",
       "targetType": "decision",
-      "targetId": "DEC-0101",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "targetId": "DEC-0001",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1241,7 +1299,7 @@
       "relationship": "specified_by",
       "targetType": "prd",
       "targetId": "PRD-0001",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {}
     },
     {
@@ -1251,7 +1309,7 @@
       "relationship": "decomposed_into",
       "targetType": "ticket",
       "targetId": "TKT-0101",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "workstream": "experience",
         "dependsOn": []
@@ -1264,7 +1322,7 @@
       "relationship": "decomposed_into",
       "targetType": "ticket",
       "targetId": "TKT-0102",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "workstream": "reliability",
         "dependsOn": []
@@ -1277,7 +1335,7 @@
       "relationship": "decomposed_into",
       "targetType": "ticket",
       "targetId": "TKT-0103",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "workstream": "integration",
         "dependsOn": [
@@ -1293,7 +1351,7 @@
       "relationship": "executed_by",
       "targetType": "agent_run",
       "targetId": "RUN-0102",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "branch": "agent/tkt-0101-experience",
         "executor": "Mocked deterministic engineering executor"
@@ -1306,7 +1364,7 @@
       "relationship": "produced",
       "targetType": "pull_request",
       "targetId": "PR-0101",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "url": "https://example.invalid/mock/pull/101"
       }
@@ -1318,7 +1376,7 @@
       "relationship": "executed_by",
       "targetType": "agent_run",
       "targetId": "RUN-0103",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "branch": "agent/tkt-0102-reliability",
         "executor": "Mocked deterministic engineering executor"
@@ -1331,10 +1389,30 @@
       "relationship": "produced",
       "targetType": "pull_request",
       "targetId": "PR-0102",
-      "createdAt": "2026-07-10T19:00:00.000Z",
+      "createdAt": "2026-07-10T16:30:00.000Z",
       "metadata": {
         "url": "https://example.invalid/mock/pull/102"
       }
+    },
+    {
+      "id": "LIN-0020",
+      "sourceType": "eval_campaign",
+      "sourceId": "EVAL-0001",
+      "relationship": "executed_case",
+      "targetType": "eval_case",
+      "targetId": "EVALCASE-0001",
+      "createdAt": "2026-07-10T17:30:00.000Z",
+      "metadata": {}
+    },
+    {
+      "id": "LIN-0021",
+      "sourceType": "eval_campaign",
+      "sourceId": "EVAL-0001",
+      "relationship": "executed_case",
+      "targetType": "eval_case",
+      "targetId": "EVALCASE-0002",
+      "createdAt": "2026-07-10T17:30:00.000Z",
+      "metadata": {}
     }
   ],
   "integrations": [
@@ -1449,68 +1527,33 @@
   ],
   "funnel": [
     {
-      "stage": "Sessions",
-      "count": 2400
+      "stage": "session started",
+      "count": 50
     },
     {
-      "stage": "Product views",
-      "count": 1812
+      "stage": "product viewed",
+      "count": 50
     },
     {
-      "stage": "Cart adds",
-      "count": 922
+      "stage": "cart added",
+      "count": 25
     },
     {
-      "stage": "Checkout starts",
-      "count": 601
+      "stage": "checkout started",
+      "count": 21
     },
     {
-      "stage": "Completed",
-      "count": 438
+      "stage": "checkout completed",
+      "count": 10
     }
   ],
   "activity": [
     {
-      "at": "2026-07-10T19:00:00.000Z",
-      "type": "workflow",
-      "title": "Workflow paused for release approval",
-      "detail": "Improve Checkout Recovery passed corrected evals and is waiting for a human release decision.",
-      "entityId": "APR-0102"
-    },
-    {
-      "at": "2026-07-10T19:00:00.000Z",
-      "type": "eval",
-      "title": "Corrected campaign passed",
-      "detail": "EVAL-0002 scored 100 / 100 after the blocked run was corrected.",
-      "entityId": "EVAL-0002"
-    },
-    {
-      "at": "2026-07-10T19:00:00.000Z",
-      "type": "workflow",
-      "title": "Critical eval blocked release",
-      "detail": "EVAL-0001 blocked release until the correction was rerun.",
-      "entityId": "EVAL-0001"
-    },
-    {
-      "at": "2026-07-10T19:00:00.000Z",
-      "type": "workflow",
-      "title": "Workflow paused for release approval",
-      "detail": "Improve Checkout Recovery passed corrected evals and is waiting for a human release decision.",
-      "entityId": "APR-0102"
-    },
-    {
-      "at": "2026-07-10T19:00:00.000Z",
-      "type": "eval",
-      "title": "Corrected campaign passed",
-      "detail": "EVAL-0002 scored 100 / 100 after the blocked run was corrected.",
-      "entityId": "EVAL-0002"
-    },
-    {
-      "at": "2026-07-10T19:00:00.000Z",
-      "type": "workflow",
-      "title": "Critical eval blocked release",
-      "detail": "EVAL-0001 blocked release until the correction was rerun.",
-      "entityId": "EVAL-0001"
+      "at": "2026-07-10T18:30:00.000Z",
+      "type": "traffic",
+      "title": "Synthetic traffic generated",
+      "detail": "202 measured product events · 34 persistent customers",
+      "entityId": "TRAFFIC-20260710-0001"
     },
     {
       "at": "2026-07-10T18:27:00.000Z",

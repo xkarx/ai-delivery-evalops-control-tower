@@ -1,13 +1,14 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { analyzeProductEvidence, createPlanningAndDeliveryLineage, createTpmPlan, executeIndependentEngineeringWorkstreams, loadCompanyContextPack, runEngineeringFeasibilityReview, runLiveAgentReasoning, runUxReview } from "@dailycart/agents";
-import { ConnectorError, createConnectorSuite, postAgentHandoffThread, type AgentHandoffThreadResult } from "@dailycart/connectors";
+import { analyzeProductEvidence, annotateAgentRun, createImplementationBrief, createPlanningAndDeliveryLineage, createTpmPlan, executeIndependentEngineeringWorkstreams, loadCompanyContextPack, runEngineeringFeasibilityReview, runLiveAgentReasoning, runUxReview } from "@dailycart/agents";
+import { ConnectorError, createConnectorSuite, postAgentHandoffFanout, postAgentHandoffThread, type AgentHandoffFanoutResult, type AgentHandoffThreadResult } from "@dailycart/connectors";
 import { runCriticalFailureRecoveryDemo } from "@dailycart/evals";
 import { DeliveryWorkflow } from "@dailycart/workflow";
 import { agentRunSchema, assertDemoState, decisionSchema, type DemoState } from "@dailycart/schemas";
 import { NextResponse } from "next/server";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
+import { requireOperatorAccess } from "@/lib/operator-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,6 +16,10 @@ export const dynamic = "force-dynamic";
 const RUN_KEY = "v1-cohesive-multi-agent";
 const WORKFLOW_ARTIFACT = "workflow-run.json";
 const now = "2026-07-10T19:00:00.000Z";
+
+function slackChannelMap(env: NodeJS.ProcessEnv): Record<string, string | undefined> {
+  return { delivery: env.SLACK_DELIVERY_CHANNEL, approvals: env.SLACK_APPROVALS_CHANNEL, alerts: env.SLACK_ALERTS_CHANNEL, analytics: env.SLACK_ANALYTICS_CHANNEL };
+}
 
 type StoredWorkflowRun = {
   key: string;
@@ -32,7 +37,11 @@ type StoredWorkflowRun = {
   evidenceIds?: string[];
   workflow: ReturnType<DeliveryWorkflow["snapshot"]>;
   handoffThread?: AgentHandoffThreadResult;
+  handoffFanout?: AgentHandoffFanoutResult;
   agentReasoning?: Record<string, { model: string; summary: string; sourceMode: string }>;
+  featureBatchId?: string;
+  recommendations?: Array<{ id: string; title: string; score: number; confidence: number; evidenceIds: string[]; problem: string; hypothesis: string; status: string; workstream: string; metrics: string[]; sourceMode: string }>;
+  featureTracks?: Array<{ featureId: string; featureTitle: string; prdId: string; ticketIds: string[]; engineeringRunIds: string[]; blockedCampaignId: string; passedCampaignId: string; featureApprovalId: string; releaseApprovalId: string; status: string }>;
 };
 
 function rootPath(): string {
@@ -60,6 +69,8 @@ function appendUnique<T extends { id: string }>(items: T[], additions: T[]): T[]
  * configured Slack adapter.
  */
 export async function POST(request: Request) {
+  const denied = await requireOperatorAccess();
+  if (denied) return denied;
   const root = rootPath();
   const artifactPath = path.resolve(root, "artifacts", WORKFLOW_ARTIFACT);
   const existing = await readExisting(artifactPath);
@@ -86,28 +97,34 @@ export async function POST(request: Request) {
   try {
     const contextPack = await loadCompanyContextPack(root, { expectedVersion: "1.0.0" });
     const evidence = contextPack.evidence;
-    const pm = analyzeProductEvidence(evidence, {
+    const featureBatchId = "BATCH-0101";
+    const pmRaw = analyzeProductEvidence(evidence, {
       runId: "RUN-0100",
       now,
       maxOpportunities: 3,
       sourceMode: "simulated"
     });
-    const uxReview = runUxReview(pm.opportunities[0]!, pm.implementationBrief, { now, sourceMode: "simulated" });
-    const feasibilityReview = runEngineeringFeasibilityReview(pm.opportunities[0]!, pm.implementationBrief, { now, sourceMode: "simulated" });
+    const selected = pmRaw.opportunities[0]!;
+    const pmReasoning = await runLiveAgentReasoning({ role: "PM agent", task: "Explain the selected opportunity and why it is ranked first.", context: { feature: selected, evidenceIds: selected.evidenceIds } });
+    const pm = { ...pmRaw, run: annotateAgentRun(pmRaw.run, { skillId: "feature-prioritization", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: pmRaw.evidenceIds, reasoningSummary: pmReasoning.summary }) };
+    const uxRaw = runUxReview(selected, pm.implementationBrief, { now, sourceMode: "simulated" });
+    const uxReview = { ...uxRaw, run: annotateAgentRun(uxRaw.run, { skillId: "ux-review", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: selected.evidenceIds }) };
+    const feasibilityRaw = runEngineeringFeasibilityReview(selected, pm.implementationBrief, { now, sourceMode: "simulated" });
+    const feasibilityReview = { ...feasibilityRaw, run: annotateAgentRun(feasibilityRaw.run, { skillId: "engineering-feasibility-review", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: selected.evidenceIds }) };
     const reasoningResults = await Promise.all([
-      ["pm", { role: "PM agent", task: "Explain the selected opportunity and why it is ranked first.", context: { feature: pm.opportunities[0], evidenceIds: pm.opportunities[0]?.evidenceIds } }],
+      ["pm", { role: "PM agent", task: "Explain the selected opportunity and why it is ranked first.", context: { feature: selected, evidenceIds: selected.evidenceIds } }],
       ["ux", { role: "UX agent", task: "Summarize the journey and accessibility review.", context: uxReview }],
       ["engineering-feasibility", { role: "Engineering feasibility agent", task: "Summarize affected surfaces, risks, and preview requirements.", context: feasibilityReview }]
     ].map(async ([key, input]) => [key, await runLiveAgentReasoning(input as { role: string; task: string; context: unknown })] as const));
     const agentReasoning = Object.fromEntries(reasoningResults);
     if (!featureApproved) {
-      const pendingWorkflow = DeliveryWorkflow.start({ id: "PROJ-0101", featureId: pm.opportunities[0]!.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
+      const pendingWorkflow = DeliveryWorkflow.start({ id: "PROJ-0101", featureId: selected.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
       pendingWorkflow.requestFeatureApproval("APR-0101", "pm-agent");
       const pending = {
         key: RUN_KEY, createdAt: now, phase: pendingWorkflow.snapshot().phase, sourceMode: "simulated" as const,
-        featureId: pm.opportunities[0]!.id, featureTitle: pm.opportunities[0]!.title, evidenceIds: pm.opportunities[0]!.evidenceIds,
+        featureId: selected.id, featureTitle: selected.title, evidenceIds: selected.evidenceIds,
         ticketIds: [], engineeringRunIds: [], blockedCampaignId: "", passedCampaignId: "", releaseApprovalId: "APR-0101",
-        workflow: pendingWorkflow.snapshot(), agentReasoning
+        workflow: pendingWorkflow.snapshot(), agentReasoning, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2)
       } satisfies StoredWorkflowRun;
       await mkdir(path.resolve(root, "artifacts"), { recursive: true });
       try {
@@ -116,23 +133,27 @@ export async function POST(request: Request) {
           workflowId: pending.workflow.id,
           evidenceIds: pending.evidenceIds
         }).slice(0, 3);
+        const chat = createConnectorSuite({ env: process.env }).chat;
         const handoffThread = await postAgentHandoffThread(
-          createConnectorSuite({ env: process.env }).chat,
+          chat,
           preApprovalHandoffs,
           { title: `DailyCart workflow ${pending.workflow.id}` }
         );
+        (pending as StoredWorkflowRun).handoffFanout = await postAgentHandoffFanout(chat, preApprovalHandoffs, slackChannelMap(process.env), `DailyCart workflow ${pending.workflow.id}`);
         (pending as StoredWorkflowRun).handoffThread = handoffThread;
         await persistHandoffThread(root, handoffThread);
       } catch {
         // Approval remains usable when Slack is unavailable; the UI labels the fallback.
       }
       await writeFile(artifactPath, `${JSON.stringify(pending, null, 2)}\n`);
-      await writeFile(path.resolve(root, "artifacts/workflow-reviews.json"), `${JSON.stringify({ featureId: pm.opportunities[0]!.id, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, agentReasoning }, null, 2)}\n`);
-      return NextResponse.json({ ok: true, featureApprovalRequired: true, workflow: { ...pending, recommendation: pm.opportunities[0], uxReview, feasibilityReview, implementationBrief: pm.implementationBrief } });
+      await writeFile(path.resolve(root, "artifacts/workflow-reviews.json"), `${JSON.stringify({ featureId: selected.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, agentReasoning }, null, 2)}\n`);
+      return NextResponse.json({ ok: true, featureApprovalRequired: true, workflow: { ...pending, recommendation: selected, recommendations: pmRaw.opportunities.slice(0, 2), uxReview, feasibilityReview, implementationBrief: pm.implementationBrief, featureBatchId } });
     }
-    const recommended = { ...pm.opportunities[0]!, status: "approved" as const, sourceMode: "simulated" as const };
-    const plan = createTpmPlan(recommended, { implementationBrief: pm.implementationBrief, runId: "RUN-0101", now, ticketStartOrdinal: 101 });
-    const workstreams = await executeIndependentEngineeringWorkstreams(recommended, plan.tickets, { runStartOrdinal: 102 });
+    const recommended = { ...selected, status: "approved" as const, sourceMode: "simulated" as const };
+    const planRaw = createTpmPlan(recommended, { implementationBrief: pm.implementationBrief, runId: "RUN-0101", now, ticketStartOrdinal: 101 });
+    const plan = { ...planRaw, run: annotateAgentRun(planRaw.run, { skillId: "implementation-planning", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds }) };
+    const workstreamRaw = await executeIndependentEngineeringWorkstreams(recommended, plan.tickets, { runStartOrdinal: 102 });
+    const workstreams = workstreamRaw.map((record) => ({ ...record, run: annotateAgentRun(record.run, { skillId: "code-implementation", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds }) }));
     const recovery = await runCriticalFailureRecoveryDemo();
     const failedCampaign = { ...recovery.failed.campaign, featureId: recommended.id, sourceMode: "simulated" as const };
     const passedCampaign = { ...recovery.corrected.campaign, featureId: recommended.id, sourceMode: "simulated" as const };
@@ -143,16 +164,41 @@ export async function POST(request: Request) {
         featureId: recommended.id, ticketIds: plan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: "trace-run-0104",
         costUsd: 0, latencyMs: 12, retries: 0,
         steps: [{ name: "critical-regression", status: "failed", durationMs: 12, detail: `Blocked by ${failedCampaign.results.find((result) => !result.passed)?.caseId ?? "critical case"}` }],
-        sourceMode: "simulated"
+        sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds
       }),
       agentRunSchema.parse({
         id: "RUN-0105", agent: "eval", status: "succeeded", startedAt: now, finishedAt: now,
         featureId: recommended.id, ticketIds: plan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: "trace-run-0105",
         costUsd: 0, latencyMs: 12, retries: 0,
         steps: [{ name: "corrected-regression", status: "succeeded", durationMs: 12, detail: `Passed ${passedCampaign.weightedScore}/100 after correction` }],
-        sourceMode: "simulated"
+        sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds
       })
     ];
+
+    const secondaryCandidate = pmRaw.opportunities[1];
+    const secondary = secondaryCandidate ? { ...secondaryCandidate, status: "approved" as const, sourceMode: "simulated" as const } : undefined;
+    const secondaryBrief = secondary ? createImplementationBrief(secondary, { briefOrdinal: 2, now }) : undefined;
+    const secondaryUx = secondary && secondaryBrief ? runUxReview(secondary, secondaryBrief, { now, sourceMode: "simulated", runId: "RUN-0112", reviewId: "EXT-0220" }) : undefined;
+    const secondaryFeasibility = secondary && secondaryBrief ? runEngineeringFeasibilityReview(secondary, secondaryBrief, { now, sourceMode: "simulated", runId: "RUN-0113", reviewId: "EXT-0230" }) : undefined;
+    const secondaryReasoning = secondary && secondaryUx && secondaryFeasibility ? await Promise.all([
+      runLiveAgentReasoning({ role: "PM agent", task: "Explain the second ranked opportunity and its evidence.", context: { feature: secondary, evidenceIds: secondary.evidenceIds } }),
+      runLiveAgentReasoning({ role: "UX agent", task: "Summarize the second feature's accessibility review.", context: secondaryUx }),
+      runLiveAgentReasoning({ role: "Engineering feasibility agent", task: "Summarize the second feature's implementation risks and preview requirements.", context: secondaryFeasibility })
+    ]) : [];
+    const allAgentReasoning = { ...agentReasoning, ...(secondaryReasoning[0] ? { "pm-secondary": secondaryReasoning[0] } : {}), ...(secondaryReasoning[1] ? { "ux-secondary": secondaryReasoning[1] } : {}), ...(secondaryReasoning[2] ? { "engineering-feasibility-secondary": secondaryReasoning[2] } : {}) };
+    const secondaryUxAnnotated = secondaryUx ? { ...secondaryUx, run: annotateAgentRun(secondaryUx.run, { skillId: "ux-review", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary?.evidenceIds, reasoningSummary: secondaryReasoning[1]?.summary }) } : undefined;
+    const secondaryFeasibilityAnnotated = secondaryFeasibility ? { ...secondaryFeasibility, run: annotateAgentRun(secondaryFeasibility.run, { skillId: "engineering-feasibility-review", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary?.evidenceIds, reasoningSummary: secondaryReasoning[2]?.summary }) } : undefined;
+    const secondaryPlanRaw = secondary && secondaryBrief ? createTpmPlan(secondary, { implementationBrief: secondaryBrief, runId: "RUN-0114", now, ticketStartOrdinal: 201 }) : undefined;
+    const secondaryPlan = secondaryPlanRaw ? { ...secondaryPlanRaw, run: annotateAgentRun(secondaryPlanRaw.run, { skillId: "implementation-planning", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary!.evidenceIds }) } : undefined;
+    const secondaryWorkstreamRaw = secondary && secondaryPlan ? await executeIndependentEngineeringWorkstreams(secondary, secondaryPlan.tickets, { runStartOrdinal: 215 }) : [];
+    const secondaryWorkstreams = secondaryWorkstreamRaw.map((record) => ({ ...record, run: annotateAgentRun(record.run, { skillId: "code-implementation", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary?.evidenceIds }) }));
+    const secondaryRecovery = secondary ? await runCriticalFailureRecoveryDemo() : undefined;
+    const secondaryFailedCampaign = secondaryRecovery && secondary ? { ...secondaryRecovery.failed.campaign, id: "EVAL-0011", featureId: secondary.id, runId: "RUN-0116", sourceMode: "simulated" as const } : undefined;
+    const secondaryPassedCampaign = secondaryRecovery && secondary ? { ...secondaryRecovery.corrected.campaign, id: "EVAL-0012", featureId: secondary.id, runId: "RUN-0117", sourceMode: "simulated" as const } : undefined;
+    const secondaryEvalRuns = secondary && secondaryPlan && secondaryFailedCampaign && secondaryPassedCampaign ? [
+      agentRunSchema.parse({ id: "RUN-0116", agent: "eval", status: "failed", startedAt: now, finishedAt: now, featureId: secondary.id, ticketIds: secondaryPlan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: "trace-run-0116", costUsd: 0, latencyMs: 12, retries: 0, steps: [{ name: "critical-regression", status: "failed", durationMs: 12, detail: `Blocked by ${secondaryFailedCampaign.results.find((result) => !result.passed)?.caseId ?? "critical case"}` }], sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary.evidenceIds }),
+      agentRunSchema.parse({ id: "RUN-0117", agent: "eval", status: "succeeded", startedAt: now, finishedAt: now, featureId: secondary.id, ticketIds: secondaryPlan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: "trace-run-0117", costUsd: 0, latencyMs: 12, retries: 0, steps: [{ name: "corrected-regression", status: "succeeded", durationMs: 12, detail: `Passed ${secondaryPassedCampaign.weightedScore}/100 after correction` }], sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary.evidenceIds })
+    ] : [];
 
     const workflow = DeliveryWorkflow.start({ id: "PROJ-0101", featureId: recommended.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
     workflow.requestFeatureApproval("APR-0101", "pm-agent");
@@ -170,19 +216,21 @@ export async function POST(request: Request) {
       ...data,
       generatedAt: now,
       sourceMode: "simulated",
-      features: appendUnique(data.features.filter((feature) => feature.id !== recommended.id), [recommended]),
-      decisions: appendUnique(data.decisions, [decision]),
-      tickets: appendUnique(data.tickets.filter((ticket) => !plan.tickets.some((nextTicket) => nextTicket.id === ticket.id)), plan.tickets),
-      approvals: appendUnique(data.approvals.filter((approval) => !["APR-0101", "APR-0102"].includes(approval.id)), [
+      features: appendUnique(data.features.filter((feature) => feature.id !== recommended.id && feature.id !== secondary?.id), [recommended, ...(secondary ? [secondary] : [])]),
+      decisions: appendUnique(data.decisions, [decision, ...(secondary ? [decisionSchema.parse({ id: "DEC-0102", featureId: secondary.id, outcome: "approved", rationale: "Second evidence-ranked feature track approved for parallel delivery.", reviewer: "product-council", decidedAt: now, sourceMode: "simulated" })] : [])]),
+      tickets: appendUnique(data.tickets.filter((ticket) => ![...plan.tickets, ...(secondaryPlan?.tickets ?? [])].some((nextTicket) => nextTicket.id === ticket.id)), [...plan.tickets, ...(secondaryPlan?.tickets ?? [])]),
+      approvals: appendUnique(data.approvals.filter((approval) => !["APR-0101", "APR-0102", "APR-0103", "APR-0104"].includes(approval.id)), [
         { id: "APR-0101", featureId: recommended.id, stage: "feature", status: "approved", requestedAt: now, resolvedAt: now, reviewer: "product-council", rationale: "Evidence-backed scope approved for delivery.", sourceMode: "simulated" },
-        { id: "APR-0102", featureId: recommended.id, stage: "release", status: "pending", requestedAt: now, sourceMode: "simulated" }
+        { id: "APR-0102", featureId: recommended.id, stage: "release", status: "pending", requestedAt: now, sourceMode: "simulated" },
+        ...(secondary ? [{ id: "APR-0103", featureId: secondary.id, stage: "feature" as const, status: "approved" as const, requestedAt: now, resolvedAt: now, reviewer: "product-council", rationale: "Second evidence-ranked feature track approved for parallel delivery.", sourceMode: "simulated" as const }, { id: "APR-0104", featureId: secondary.id, stage: "release" as const, status: "pending" as const, requestedAt: now, sourceMode: "simulated" as const }] : [])
       ]),
-      runs: appendUnique(data.runs.filter((run) => !["RUN-0100", "RUN-0110", "RUN-0111", "RUN-0101", "RUN-0102", "RUN-0103", "RUN-0104", "RUN-0105"].includes(run.id)), [pm.run, uxReview.run, feasibilityReview.run, plan.run, ...workstreams.map((record) => record.run), ...evalRuns]),
-      campaigns: appendUnique(data.campaigns.filter((campaign) => ![failedCampaign.id, passedCampaign.id].includes(campaign.id)), [
+      runs: appendUnique(data.runs.filter((run) => !["RUN-0100", "RUN-0110", "RUN-0111", "RUN-0101", "RUN-0102", "RUN-0103", "RUN-0104", "RUN-0105", "RUN-0112", "RUN-0113", "RUN-0114", "RUN-0116", "RUN-0117"].includes(run.id)), [pm.run, uxReview.run, feasibilityReview.run, plan.run, ...workstreams.map((record) => record.run), ...evalRuns, ...(secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan ? [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run), ...secondaryEvalRuns] : [])]),
+      campaigns: appendUnique(data.campaigns.filter((campaign) => ![failedCampaign.id, passedCampaign.id, ...(secondaryFailedCampaign ? [secondaryFailedCampaign.id] : []), ...(secondaryPassedCampaign ? [secondaryPassedCampaign.id] : [])].includes(campaign.id)), [
         { ...failedCampaign, runId: "RUN-0104" },
-        { ...passedCampaign, runId: "RUN-0105" }
+        { ...passedCampaign, runId: "RUN-0105" },
+        ...(secondaryFailedCampaign && secondaryPassedCampaign ? [{ ...secondaryFailedCampaign }, { ...secondaryPassedCampaign }] : [])
       ]),
-      lineage: appendUnique(data.lineage, createPlanningAndDeliveryLineage({ evidenceIds: recommended.evidenceIds, featureId: recommended.id, decisionId: decision.id, prdId: plan.implementationBrief.id, tickets: plan.tickets, workstreams, createdAt: now })),
+      lineage: appendUnique(data.lineage, [...createPlanningAndDeliveryLineage({ evidenceIds: recommended.evidenceIds, featureId: recommended.id, decisionId: decision.id, prdId: plan.implementationBrief.id, tickets: plan.tickets, workstreams, createdAt: now }), ...(secondary && secondaryPlan && secondaryUxAnnotated && secondaryFeasibilityAnnotated ? createPlanningAndDeliveryLineage({ evidenceIds: secondary.evidenceIds, featureId: secondary.id, decisionId: "DEC-0102", prdId: secondaryPlan.implementationBrief.id, tickets: secondaryPlan.tickets, workstreams: secondaryWorkstreams, createdAt: now }) : [])]),
       activity: [
         { at: now, type: "workflow", title: "Workflow paused for release approval", detail: `${recommended.title} passed corrected evals and is waiting for a human release decision.`, entityId: "APR-0102" },
         { at: now, type: "eval", title: "Corrected campaign passed", detail: `${passedCampaign.id} scored ${passedCampaign.weightedScore} / 100 after the blocked run was corrected.`, entityId: passedCampaign.id },
@@ -205,19 +253,27 @@ export async function POST(request: Request) {
       releaseApprovalId: "APR-0102",
       evidenceIds: recommended.evidenceIds,
       workflow: workflowSnapshot,
-      agentReasoning
+      agentReasoning: allAgentReasoning,
+      featureBatchId,
+      recommendations: pmRaw.opportunities.slice(0, 2),
+      featureTracks: [
+        { featureId: recommended.id, featureTitle: recommended.title, prdId: plan.implementationBrief.id, ticketIds: plan.tickets.map((ticket) => ticket.id), engineeringRunIds: workstreams.map((record) => record.run.id), blockedCampaignId: failedCampaign.id, passedCampaignId: passedCampaign.id, featureApprovalId: "APR-0101", releaseApprovalId: "APR-0102", status: "ready_to_release" },
+        ...(secondary && secondaryPlan && secondaryFailedCampaign && secondaryPassedCampaign ? [{ featureId: secondary.id, featureTitle: secondary.title, prdId: secondaryPlan.implementationBrief.id, ticketIds: secondaryPlan.tickets.map((ticket) => ticket.id), engineeringRunIds: secondaryWorkstreams.map((record) => record.run.id), blockedCampaignId: secondaryFailedCampaign.id, passedCampaignId: secondaryPassedCampaign.id, featureApprovalId: "APR-0103", releaseApprovalId: "APR-0104", status: "ready_to_release" }] : [])
+      ]
     };
     await mkdir(path.resolve(root, "artifacts"), { recursive: true });
     await writeFile(path.resolve(root, "artifacts/demo-state.json"), `${JSON.stringify(validated, null, 2)}\n`);
-    await writeFile(path.resolve(root, "artifacts/workflow-reviews.json"), `${JSON.stringify({ featureId: recommended.id, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview }, null, 2)}\n`);
+    await writeFile(path.resolve(root, "artifacts/workflow-reviews.json"), `${JSON.stringify({ featureId: recommended.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, secondary: secondary ? { featureId: secondary.id, implementationBrief: secondaryBrief, uxReview: secondaryUxAnnotated, feasibilityReview: secondaryFeasibilityAnnotated } : undefined, agentReasoning: allAgentReasoning }, null, 2)}\n`);
     await writeFile(artifactPath, `${JSON.stringify(stored, null, 2)}\n`);
     try {
       const allHandoffs = buildWorkflowHandoffs({ ...stored, workflowId: stored.workflow.id, evidenceIds: recommended.evidenceIds });
+      const chat = createConnectorSuite({ env: process.env }).chat;
       const handoffThread = await postAgentHandoffThread(
-        createConnectorSuite({ env: process.env }).chat,
+        chat,
         existing?.handoffThread ? allHandoffs.slice(3) : allHandoffs,
         { title: `DailyCart workflow ${stored.workflow.id}`, threadId: existing?.handoffThread?.threadId }
       );
+      stored.handoffFanout = await postAgentHandoffFanout(chat, allHandoffs, slackChannelMap(process.env), `DailyCart workflow ${stored.workflow.id}`);
       if (existing?.handoffThread) {
         stored.handoffThread = {
           ...existing.handoffThread,

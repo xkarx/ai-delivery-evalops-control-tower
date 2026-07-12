@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LiveSlackChatAdapter, MockSlackChatAdapter, postAgentHandoffThread } from "../packages/connectors/src/index";
+import { LiveSlackChatAdapter, MockSlackChatAdapter, postAgentHandoffFanout, postAgentHandoffThread } from "../packages/connectors/src/index";
 
 describe("agent handoff threads", () => {
   it("posts one deterministic message per persona in a single thread", async () => {
@@ -34,5 +34,13 @@ describe("agent handoff threads", () => {
 
     await chat.postMessage({ text: "handoff", metadata: { workflowId: "WF-1", persona: "PM agent" } });
     expect(payload?.metadata).toEqual({ event_type: "dailycart_message", event_payload: { workflowId: "WF-1", persona: "PM agent" } });
+  });
+
+  it("mirrors one workflow into configured operational channels", async () => {
+    const chat = new MockSlackChatAdapter({ env: { INTEGRATION_MODE: "mock", SLACK_DEFAULT_CHANNEL: "CDAILYCART" } });
+    const handoff = { id: "WF-2:pm", workflowId: "WF-2", persona: "PM agent", role: "Product manager", task: "Cluster evidence", evidenceIds: ["EVD-0001"], result: "Selected feature", nextAction: "Request approval", status: "succeeded" as const, sourceMode: "mocked" as const };
+    const result = await postAgentHandoffFanout(chat, [handoff], { delivery: "CDELIVERY", approvals: "CAPprovals", alerts: "CALERTS", analytics: "CANALYTICS" }, "DailyCart workflow WF-2");
+    expect(Object.keys(result.channels)).toHaveLength(4);
+    expect(new Set(Object.values(result.channels).map((channel) => channel.messages[0]?.channel)).size).toBe(4);
   });
 });

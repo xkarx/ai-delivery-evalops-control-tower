@@ -2,11 +2,14 @@ import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
+import { requireOperatorAccess } from "@/lib/operator-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const denied = await requireOperatorAccess();
+  if (denied) return denied;
   try {
     const body = await request.json() as { title?: string; description?: string; featureId?: string };
     if (!body.title || !body.description) return NextResponse.json({ ok: false, message: "Title and description are required." }, { status: 400 });

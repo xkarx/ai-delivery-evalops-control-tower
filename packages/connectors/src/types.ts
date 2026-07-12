@@ -147,6 +147,9 @@ export interface TicketInput extends IssueInput {
   parentId?: string;
   dependsOn?: string[];
   workflowStatus?: DeliveryTicketStatus;
+  skillId?: string;
+  contextPackId?: string;
+  featureBatchId?: string;
 }
 
 export type DeliveryTicketStatus = "todo" | "in_progress" | "in_review" | "done" | "blocked";
@@ -158,6 +161,9 @@ export interface TicketMetadata {
   evidenceIds?: string[];
   owner?: string;
   dependsOn?: string[];
+  skillId?: string;
+  contextPackId?: string;
+  featureBatchId?: string;
 }
 
 export interface TicketRecord extends IssueRecord {
