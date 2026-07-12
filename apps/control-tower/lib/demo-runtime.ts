@@ -5,6 +5,7 @@ import { runCriticalFailureRecoveryDemo, InMemoryEvalResultStore } from "@dailyc
 import { generateTraffic } from "../../../packages/sample-product/src/traffic-engine";
 import { evidenceSchema, demoStateSchema, type Evidence } from "@dailycart/schemas";
 import { fallbackDemoState } from "./demo-state";
+import { embeddedDemoEvidence } from "./demo-evidence";
 import { generateCompany } from "../../../scripts/generate-company";
 
 export interface DemoRuntimeOptions {
@@ -19,7 +20,7 @@ export async function runDeterministicDemo(options: DemoRuntimeOptions): Promise
   const artifacts = path.resolve(options.root, "artifacts");
   const timestamp = options.now ?? "2026-07-10T18:30:00.000Z";
   const seed = options.seed ?? 20260710;
-  const evidence = JSON.parse(await readFile(path.resolve(generated, "research/evidence.json"), "utf8")) as unknown[];
+  const evidence = await readEvidence(generated);
   const parsedEvidence = evidence.map((item) => evidenceSchema.parse(item));
   const pm = analyzeProductEvidence(parsedEvidence as Evidence[], { runId: "RUN-0100", now: "2026-07-10T16:00:00.000Z", maxOpportunities: 3 });
   const uxReview = runUxReview(pm.opportunities[0]!, pm.implementationBrief, { runId: "RUN-0110", now: "2026-07-10T16:05:00.000Z" });
@@ -47,6 +48,14 @@ export async function runDeterministicDemo(options: DemoRuntimeOptions): Promise
   await writeFile(path.resolve(artifacts, "runtime-summary.json"), `${JSON.stringify({ pmRun: pm.run.id, recommendation: recommended.id, workstreams: workstreams.map((item) => item.run.id), blockedCampaign: recovery.failed.campaign.id, passedCampaign: recovery.corrected.campaign.id, trafficRun: traffic.runId }, null, 2)}\n`);
   await writeFile(path.resolve(artifacts, "workflow-reviews.json"), `${JSON.stringify({ featureId: recommended.id, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview }, null, 2)}\n`);
   return { recommendation: recommended.id, blockedCampaign: recovery.failed.campaign.id, passedCampaign: recovery.corrected.campaign.id, trafficRun: traffic.runId };
+}
+
+async function readEvidence(generated: string): Promise<unknown[]> {
+  try {
+    return JSON.parse(await readFile(path.resolve(generated, "research/evidence.json"), "utf8")) as unknown[];
+  } catch {
+    return embeddedDemoEvidence;
+  }
 }
 
 export async function resetDeterministicDemo(options: DemoRuntimeOptions): Promise<void> {
