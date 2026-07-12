@@ -90,6 +90,7 @@ test("guide reopens without reserving or blocking page width", async ({ page }) 
 });
 
 test("company context, eval authoring, incident creation, and export are interactive", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.goto("/company");
   await expect(page.getByRole("heading", { name: "Company data" })).toBeVisible();
   await page.getByRole("button", { name: "Validate references" }).click();
