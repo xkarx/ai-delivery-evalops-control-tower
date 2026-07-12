@@ -18,8 +18,12 @@ export interface LiveAgentReasoningResult {
  */
 export async function runLiveAgentReasoning(input: LiveAgentReasoningInput, env: Record<string, string | undefined> = process.env): Promise<LiveAgentReasoningResult> {
   const apiKey = env.OPENAI_API_KEY?.trim();
+  const liveRequired = env.INTEGRATION_MODE === "live";
   const model = env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
-  if (!apiKey) return { model: "deterministic-role-engine", summary: "No model credential configured; deterministic role contract executed.", sourceMode: "deterministic-fallback" };
+  if (!apiKey) {
+    if (liveRequired) throw new Error("Live agent execution requires OPENAI_API_KEY.");
+    return { model: "deterministic-role-engine", summary: "No model credential configured; deterministic role contract executed.", sourceMode: "deterministic-fallback" };
+  }
   const base = (env.OPENAI_BASE_URL?.trim() || "https://api.openai.com/v1").replace(/\/$/, "");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15_000);
@@ -38,7 +42,8 @@ export async function runLiveAgentReasoning(input: LiveAgentReasoningInput, env:
     const summary = payload.choices?.[0]?.message?.content?.trim();
     if (!summary) throw new Error("Model returned no summary");
     return { model, summary, sourceMode: "live" };
-  } catch {
+  } catch (error) {
+    if (liveRequired) throw new Error(`Live model reasoning failed: ${error instanceof Error ? error.message : "provider error"}`);
     return { model: "deterministic-role-engine", summary: "Live model reasoning was unavailable; deterministic role contract executed.", sourceMode: "deterministic-fallback" };
   } finally { clearTimeout(timer); }
 }

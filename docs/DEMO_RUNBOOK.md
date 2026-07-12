@@ -15,7 +15,7 @@ The scripted run performs the complete vertical slice:
 1. Generate DailyCart company data with `SYNTHETIC_DATA_SEED`.
 2. Analyze evidence and rank opportunities at runtime from the versioned company context pack.
 3. Run explicit UX and engineering-feasibility reviews, then create a PM-owned implementation brief and human-gated feature decision.
-4. TPM consumes the approved brief to create dependencies, readiness checks, and tickets; it does not author the brief.
+4. Delivery planning turns the approved brief into dependencies, readiness checks, owners, milestones, and tracker tickets.
 5. Execute two independent engineering workstreams and offer an isolated product preview build.
 6. Run a critical regression campaign that blocks release.
 7. Apply the correction and rerun; the passing campaign unlocks the release.

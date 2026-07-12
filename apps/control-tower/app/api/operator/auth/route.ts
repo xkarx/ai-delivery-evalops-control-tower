@@ -10,5 +10,5 @@ export async function POST(request: Request) {
   const expected = process.env.DAILYCART_OPERATOR_PASSCODE?.trim();
   if (!expected) return NextResponse.json({ ok: false, message: "DAILYCART_OPERATOR_PASSCODE is not configured in the deployment." }, { status: 503 });
   if (!passcode || passcode !== expected) return NextResponse.json({ ok: false, message: "That operator passcode was not accepted." }, { status: 401 });
-  return operatorSessionResponse({ ok: true, message: "Live actions unlocked for this browser session." }, passcode);
+  return operatorSessionResponse({ ok: true, message: "Live actions unlocked for this browser session." });
 }

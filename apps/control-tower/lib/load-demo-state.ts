@@ -1,20 +1,11 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { assertDemoState, type DemoState } from "@dailycart/schemas";
 import { fallbackDemoState } from "./demo-state";
-
-const candidates = [
-  path.resolve(process.cwd(), "../../artifacts/demo-state.json"),
-  path.resolve(process.cwd(), "artifacts/demo-state.json")
-];
+import { readArtifact } from "./durable-artifacts";
 
 export async function loadDemoState(): Promise<DemoState> {
-  for (const candidate of candidates) {
-    try {
-      return assertDemoState(JSON.parse(await readFile(candidate, "utf8")));
-    } catch {
-      // The checked-in, schema-valid fixture keeps a fresh clone operational.
-    }
-  }
+  try {
+    const stored = await readArtifact<DemoState>("demoState");
+    if (stored) return assertDemoState(stored);
+  } catch { /* The schema-valid fixture keeps public browsing operational. */ }
   return fallbackDemoState;
 }

@@ -79,10 +79,23 @@ export function WorkflowAction() {
       const builds = payload.builds ?? (payload.build ? [payload.build] : []);
       setPreview(payload.build); setPreviews(builds); setMessage(`${builds.length} preview${builds.length === 1 ? "" : "s"} ready · running preview evals…`);
       const evalResponse = await fetch("/api/workflow/preview-eval", { method: "POST" });
-      const evalPayload = await evalResponse.json() as { ok?: boolean; evaluations?: PreviewEvaluation[]; detail?: string; message?: string };
+      const evalPayload = await evalResponse.json() as { ok?: boolean; evaluations?: PreviewEvaluation[]; allPassed?: boolean; detail?: string; message?: string };
       if (!evalResponse.ok || !evalPayload.ok || !evalPayload.evaluations?.length) throw new Error(evalPayload.detail ?? evalPayload.message ?? "Preview evaluation failed.");
-      setPreviewEvals(evalPayload.evaluations); setState("done"); setMessage(`All previews evaluated · ${Math.min(...evalPayload.evaluations.map((evaluation) => evaluation.score))}/100 minimum · ${evalPayload.evaluations[0]!.sourceMode}`);
+      setPreviewEvals(evalPayload.evaluations); setState("done"); setMessage(evalPayload.allPassed ? `All previews evaluated · ${Math.min(...evalPayload.evaluations.map((evaluation) => evaluation.score))}/100 minimum · ${evalPayload.evaluations[0]!.sourceMode}` : "Preview evaluation blocked release. Inspect the failed focus-restoration case, then create the correction commit.");
     } catch (error) { setState("error"); setMessage(error instanceof Error ? error.message : "Preview build failed."); }
+  }
+  async function correctPreview() {
+    setState("running"); setMessage("Creating the focus-restoration correction commit and rebuilding the preview…");
+    try {
+      const response = await fetch("/api/workflow/preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ correctBlocked: true }) });
+      const payload = await response.json() as { ok?: boolean; builds?: PreviewBuild[]; build?: PreviewBuild; detail?: string; message?: string };
+      if (!response.ok || !payload.ok || !payload.build) throw new Error(payload.detail ?? payload.message ?? "Correction build failed.");
+      const builds = payload.builds ?? [payload.build]; setPreview(payload.build); setPreviews(builds);
+      const evalResponse = await fetch("/api/workflow/preview-eval", { method: "POST" });
+      const evalPayload = await evalResponse.json() as { ok?: boolean; evaluations?: PreviewEvaluation[]; allPassed?: boolean; detail?: string; message?: string };
+      if (!evalResponse.ok || !evalPayload.ok || !evalPayload.evaluations?.length) throw new Error(evalPayload.detail ?? evalPayload.message ?? "Corrected preview evaluation failed.");
+      setPreviewEvals(evalPayload.evaluations); setState("done"); setMessage(evalPayload.allPassed ? "Correction committed, preview rebuilt, and all critical evals passed." : "The corrected preview is still blocked.");
+    } catch (error) { setState("error"); setMessage(error instanceof Error ? error.message : "Correction build failed."); }
   }
   return <span className={`workflow-action ${state}`}>
     <button className="button primary" type="button" onClick={runWorkflow} disabled={state === "running"}>
@@ -95,8 +108,9 @@ export function WorkflowAction() {
     {result && featurePending && <button className="button primary workflow-approve" type="button" onClick={approveFeature} disabled={state === "running"}>Approve feature tracks</button>}
     {result && !featurePending && !approved && <button className="button secondary workflow-approve" type="button" onClick={approveRelease} disabled={state === "running" || !previewEvals.length || !previewEvals.every((evaluation) => evaluation.passed)}>Approve release</button>}
     {result && !preview && <button className="button secondary workflow-approve" type="button" onClick={buildPreview} disabled={state === "running"}>Build product preview</button>}
+    {previewEvals.some((evaluation) => !evaluation.passed) && <button className="button primary workflow-approve" type="button" onClick={correctPreview} disabled={state === "running"}>Fix blocked preview</button>}
     {result && approved && !deployed && <button className="button primary workflow-approve" type="button" onClick={deployRelease} disabled={state === "running"}>Deploy approved release</button>}
-    {result && approved && !synced && <button className="button secondary workflow-approve" type="button" onClick={syncDelivery} disabled={state === "running"}>Sync delivery records</button>}
+    {result && !featurePending && !synced && <button className="button secondary workflow-approve" type="button" onClick={syncDelivery} disabled={state === "running"}>Create Linear and provider records</button>}
     {syncDetails && <div className="external-sync-links" role="status"><b>External records</b><div>{syncDetails.ticketRecords.map((ticket) => <a href={ticket.url} target="_blank" rel="noreferrer" key={ticket.internalId}>{ticket.identifier} ↗</a>)}{syncDetails.notification && <a href={syncDetails.notification.url} target="_blank" rel="noreferrer">{syncDetails.notification.provider} message ↗</a>}{syncDetails.trace && <a href={syncDetails.trace.url} target="_blank" rel="noreferrer">Langfuse trace ↗</a>}{syncDetails.workflowEvent && <a href={syncDetails.workflowEvent.url} target="_blank" rel="noreferrer">Inngest event ↗</a>}</div></div>}
     {preview && <div className="external-sync-links" role="status"><b>Product builds</b>{previews.map((build) => <div key={build.featureId}><span>{build.featureId}</span><a href={build.deploymentUrl} target="_blank" rel="noreferrer">Open preview ↗</a><a href={build.pullRequestUrl} target="_blank" rel="noreferrer">GitHub PR ↗</a><a href={build.commitUrl} target="_blank" rel="noreferrer">Commit {build.commitSha.slice(0, 7)} ↗</a></div>)}</div>}
     {previewEvals.length > 0 && <div className="external-sync-links" role="status"><b>Preview evals</b>{previewEvals.map((evaluation) => <div key={evaluation.targetUrl}><span>{evaluation.featureId ?? "feature"} · {evaluation.score}/100 · {evaluation.sourceMode}</span><a href={evaluation.targetUrl} target="_blank" rel="noreferrer">Evaluated target ↗</a></div>)}</div>}

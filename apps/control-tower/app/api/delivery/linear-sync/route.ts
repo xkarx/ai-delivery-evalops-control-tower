@@ -1,11 +1,10 @@
-import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { ConnectorError, createConnectorSuite, type DeliveryTicketStatus, type TicketMetadata } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { loadDeliveryBacklog, loadDeliveryFeatures } from "@/lib/load-delivery-backlog";
 import type { Ticket } from "@dailycart/schemas";
+import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,9 +27,9 @@ function deliveryStatus(ticket: Ticket, tickets: Ticket[]): Ticket["status"] {
   return ticket.status;
 }
 
-async function readState(file: string): Promise<SyncState> {
+async function readState(): Promise<SyncState> {
   try {
-    const parsed = JSON.parse(await readFile(file, "utf8")) as Partial<SyncState>;
+    const parsed = await readArtifact<Partial<SyncState>>("linearSync") ?? {};
     return { records: parsed.records ?? [], errors: parsed.errors ?? [], syncedAt: parsed.syncedAt };
   } catch {
     return { records: [], errors: [] };
@@ -44,15 +43,13 @@ function metadataFor(ticket: { featureId: string; id: string; dependsOn: string[
 export async function POST() {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
-  const root = path.resolve(process.cwd(), "../..");
-  const file = path.resolve(root, "artifacts/linear-delivery-sync.json");
   const data = await loadDemoState();
   const generatedTickets = await loadDeliveryBacklog();
   const generatedFeatures = await loadDeliveryFeatures();
   const tickets = generatedTickets.length ? generatedTickets : data.tickets;
   const features = [...data.features, ...generatedFeatures.filter((feature) => !data.features.some((candidate) => candidate.id === feature.id))];
   const suite = createConnectorSuite({ env: process.env });
-  const sync = await readState(file);
+  const sync = await readState();
   sync.errors = [];
   const byInternalId = new Map(sync.records.map((record) => [record.internalId, record]));
 
@@ -93,8 +90,6 @@ export async function POST() {
   }
   sync.records = [...byInternalId.values()];
   sync.syncedAt = new Date().toISOString();
-  await mkdir(path.dirname(file), { recursive: true });
-  await writeFile(file, `${JSON.stringify(sync, null, 2)}\n`);
-  await appendFile(path.resolve(root, "artifacts/external-actions.jsonl"), `${JSON.stringify({ action: "linear_delivery_sync", sync })}\n`);
+  await writeArtifact("linearSync", sync);
   return NextResponse.json({ ok: sync.errors.length === 0, partial: sync.records.length > 0 && sync.errors.length > 0, sync });
 }

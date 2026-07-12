@@ -1,9 +1,8 @@
-import { appendFile, mkdir } from "node:fs/promises";
-import path from "node:path";
 import { verifySlackWebhook } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
 import { executeOperatorCommand } from "@/lib/operator-command";
 import { createConnectorSuite } from "@dailycart/connectors";
+import { recordActionReceipt } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,9 +18,7 @@ export async function POST(request: Request) {
   const command = slashCommand === "/dailycart" ? slashText || "status" : slashText || fields.get("command") || "";
   const result = await executeOperatorCommand(command, request.url);
   try {
-    const root = path.resolve(process.cwd(), "../..");
-    await mkdir(path.resolve(root, "artifacts"), { recursive: true });
-    await appendFile(path.resolve(root, "artifacts/slack-command-events.jsonl"), `${JSON.stringify({ command, reply: result.reply, ok: result.ok, sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked", at: new Date().toISOString() })}\n`);
+    await recordActionReceipt({ actionId: `SLACK-${Date.now()}`, sessionId: "slack", status: result.ok ? "succeeded" : "failed", phase: "slack_command", message: result.reply, nextAction: result.ok ? "Continue from the workflow guide." : "Correct the command or provider configuration and retry.", deepLink: result.url ?? "/runs", sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "deterministic-fallback", at: new Date().toISOString(), externalRefs: result.url ? [{ provider: "slack", id: command, url: result.url }] : [], error: result.ok ? undefined : { code: "SLACK_COMMAND_FAILED", detail: result.reply, retryable: true } });
   } catch {
     // The command response must remain usable even when local audit storage is unavailable.
   }

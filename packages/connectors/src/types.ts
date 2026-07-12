@@ -232,9 +232,21 @@ export interface TraceScoreInput {
   comment?: string;
 }
 
+export interface TraceObservationInput {
+  id?: string;
+  traceId: string;
+  name: string;
+  input?: unknown;
+  output?: unknown;
+  metadata?: Record<string, unknown>;
+  startedAt?: string;
+  endedAt?: string;
+}
+
 export interface TraceAdapter extends BaseAdapter {
   readonly kind: "trace";
   startTrace(input: TraceInput): Promise<TraceRecord>;
+  addObservation(input: TraceObservationInput): Promise<ExternalReference>;
   addScore(input: TraceScoreInput): Promise<ExternalReference>;
   getTrace(traceId: string): Promise<TraceRecord | undefined>;
 }

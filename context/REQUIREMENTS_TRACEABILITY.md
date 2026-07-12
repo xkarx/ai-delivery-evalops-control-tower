@@ -1,6 +1,6 @@
 # Requirements Traceability Matrix
 
-Codex must update the implementation link and evidence columns.
+Codex must update the implementation link and evidence columns. “Implemented” means code and automated local tests pass; “verified live” is reserved for a fresh hosted action with recorded external IDs. The current recovery build is not release-complete until the production verification report is attached.
 
 | ID | Requirement | Target | Verification |
 |---|---|---|---|
@@ -28,7 +28,7 @@ Codex must update the implementation link and evidence columns.
 | R022 | Credential-free demo mode | Adapters | Complete — `pnpm demo` without credentials |
 | R023 | Live mode | Adapters | Complete — `/api/integrations/health`, workflow sync, ticket, Slack, analytics, sample-product sidecar, and Vercel deployment paths use live adapters when `INTEGRATION_MODE=live`; the Integrations page now probes adapters on initial load as well as on demand |
 | R024 | Open-source attribution | References | Complete — `references/OPEN_SOURCE_ATTRIBUTION.md` |
-| R025 | Responsive UI | UI | Complete — route-specific desktop/mobile layouts + Playwright mobile project |
+| R025 | Responsive UI | UI | Implemented and locally verified — 22 Playwright checks cover mobile/desktop behavior and presentation widths 390, 768, 1024, 1280, 1440, and 1920px without document overflow or crushed headings |
 | R026 | Two independent workstreams | Orchestration | Complete — separate concurrent `RUN-*` records |
 | R027 | GitHub deployment/release links | GitHub | Complete — authenticated GitHub repository health and normalized links in code-host/deployment adapters; Vercel deployment is gated on project ID |
 | R028 | Reusable skills | Skills | Complete — 15 generic skill contracts |
@@ -44,7 +44,7 @@ Codex must update the implementation link and evidence columns.
 | R038 | Preview-target evaluation gate | Preview + release | Complete — preview build records a target URL, `/api/workflow/preview-eval` probes/evaluates that target, persists checks and source mode, and release approval/deployment reject missing or failing preview results |
 | R039 | Guided operator flow | Control plane | Complete — persistent Demo Guide explains current phase, previous events, next action, why it matters, mode boundary, AI summary, linked records, and contextual questions |
 | R040 | Executable skill provenance | Agents + traceability | Complete — versioned skill registry, role-boundary metadata, context-pack/evidence/tool provenance, and agent-run inspection |
-| R041 | Two parallel feature tracks | Workflow + product | Complete — two PM-ranked features receive approval, TPM plans, engineering runs, previews, preview evals, and production deployment records in one batch |
-| R042 | Multi-channel Slack operations | Slack | Complete — one bot fans the workflow into delivery, approvals, alerts, and analytics channels when channel IDs are configured, with shared workflow/thread metadata |
+| R041 | Two parallel feature tracks | Workflow + product | Implemented; hosted proof pending — two PM-ranked features receive approval, delivery planning, distinct branch/PR/preview actions, preview evals, and production promotion in one batch |
+| R042 | Multi-channel Slack operations | Slack | Implemented; hosted proof pending — one bot fans the workflow into delivery, approvals, alerts, and analytics channels when channel IDs are configured, with shared workflow/thread metadata |
 | R043 | Editable eval workbench | EvalOps | Complete — operator can author versioned cases, select cases, execute deterministic/model graders, and inspect measured gate results |
-| R044 | Operator-only live actions | Deployment security | Complete — live writes/model calls/replay/reset require an HttpOnly operator session; read-only browsing remains available |
+| R044 | Operator-only live actions | Deployment security | Implemented and locally verified — signed HttpOnly operator sessions protect browser writes, dedicated service authorization protects internal traffic, and read-only browsing remains available; production access test pending |

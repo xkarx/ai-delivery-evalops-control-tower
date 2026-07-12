@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
+import { readArtifact } from "@/lib/durable-artifacts";
 
 export type OperatorCommandResult = { ok: boolean; reply: string; url?: string; sourceMode?: string };
 
@@ -18,18 +17,13 @@ type WorkflowContext = {
   syncErrors?: string[];
 };
 
-async function readJson<T>(file: string): Promise<T | undefined> {
-  try { return JSON.parse(await readFile(file, "utf8")) as T; } catch { return undefined; }
-}
-
 async function loadWorkflowContext(): Promise<WorkflowContext> {
-  const root = path.resolve(process.cwd(), "../..");
-  const stored = await readJson<{
+  const stored = await readArtifact<{
     phase?: string; featureId?: string; featureTitle?: string; ticketIds?: string[]; engineeringRunIds?: string[];
     blockedCampaignId?: string; passedCampaignId?: string; releaseApprovalId?: string;
     handoffThread?: { messages?: unknown[]; sourceMode?: string };
-  }>(path.resolve(root, "artifacts/workflow-run.json"));
-  const sync = await readJson<{ errors?: string[] }>(path.resolve(root, "artifacts/workflow-external-sync.json"));
+  }>("workflow");
+  const sync = await readArtifact<{ errors?: string[] }>("workflowSync");
   return {
     phase: stored?.phase,
     featureId: stored?.featureId,
@@ -87,18 +81,28 @@ export async function executeOperatorCommand(command: string, requestUrl?: strin
       const health = unhealthy.length === 0 ? `All ${checks.length} connected providers are healthy.` : `${checks.filter((check) => check.status === "healthy").length}/${checks.length} providers healthy. ${unhealthy.map((check) => `${check.provider}: ${check.status}`).join("; ")}`;
       return { ok: unhealthy.length === 0, reply: `${health} ${contextSummary(context)}` };
     }
-    const endpoint = lower === "run workflow" || lower === "start workflow" ? "/api/workflow/run"
-      : lower === "approve feature" || lower === "confirm opportunity" ? "/api/workflow/approve-feature"
-      : lower === "approve release" || lower === "approve" ? "/api/workflow/approve"
-        : lower === "sync delivery" || lower === "sync" ? "/api/workflow/sync" : undefined;
+    const endpoint = lower === "run" || lower === "run workflow" || lower === "start workflow" ? "/api/workflow/run"
+      : /^approve feature(?:\s+feat-\d+)?$/.test(lower) || lower === "confirm opportunity" ? "/api/workflow/approve-feature"
+      : /^approve release(?:\s+feat-\d+)?$/.test(lower) || lower === "approve" ? "/api/workflow/approve"
+        : lower === "sync delivery" || lower === "sync" ? "/api/workflow/sync"
+          : lower === "replay" ? "/api/workflow/replay"
+            : lower === "reset" ? "/api/demo/reset" : undefined;
     if (endpoint) {
-      const response = await fetch(`${baseUrl(requestUrl)}${endpoint}`, { method: "POST", headers: { "content-type": "application/json" }, body: endpoint.endsWith("approve") ? JSON.stringify({ reviewer: "operator", rationale: "Approved from operator command after the corrected evaluation passed." }) : undefined, cache: "no-store" });
+      const response = await fetch(`${baseUrl(requestUrl)}${endpoint}`, { method: "POST", headers: { "content-type": "application/json", ...(process.env.DAILYCART_OPERATOR_PASSCODE ? { authorization: `Bearer ${process.env.DAILYCART_OPERATOR_PASSCODE}` } : {}) }, body: endpoint.endsWith("approve") ? JSON.stringify({ reviewer: "operator", rationale: "Approved from operator command after the corrected evaluation passed." }) : undefined, cache: "no-store" });
       const payload = await response.json() as { ok?: boolean; detail?: string; message?: string; workflow?: { phase?: string; passedCampaignId?: string }; sync?: { ticketRecords?: Array<{ identifier: string }>; errors?: string[] } };
       if (!response.ok || payload.ok === false) return { ok: false, reply: payload.detail ?? payload.message ?? `${endpoint} failed.` };
+      if (endpoint.includes("replay")) return { ok: true, reply: "The prior workflow was archived and a clean guided session is ready." };
+      if (endpoint.includes("demo/reset")) return { ok: true, reply: "The active deterministic scenario was reset; audit receipts remain available." };
       if (payload.workflow) return { ok: true, reply: `${endpoint.includes("approve-feature") ? "Feature selection approved" : endpoint.includes("approve") ? "Release approved" : "Workflow executed"}${payload.workflow.passedCampaignId ? `; ${payload.workflow.passedCampaignId} passed` : ""}${payload.workflow.phase ? `; phase ${payload.workflow.phase}` : ""}.` };
       return { ok: true, reply: `Delivery sync completed${payload.sync?.ticketRecords?.length ? ` for ${payload.sync.ticketRecords.map((ticket) => ticket.identifier).join(", ")}` : ""}${payload.sync?.errors?.length ? `. Warnings: ${payload.sync.errors.join("; ")}` : "."}` };
     }
-    const ticketMatch = normalized.match(/^(?:create|open|file)\s+(?:a\s+)?ticket\s*[:\-]\s*(.+)$/i);
+    const featureMatch = normalized.match(/^add(?:-|\s)+feature\s+(.+)$/i);
+    if (featureMatch) {
+      const description = featureMatch[1].trim();
+      const ticket = await createConnectorSuite({ env: process.env }).issueTracker.createTicket({ title: `Feature intake: ${description}`, description: `Operator-submitted feature intake from Slack. This enters discovery and still requires evidence analysis and human approval before delivery.`, ticketId: `INTAKE-${Date.now()}`, dependsOn: [], workflowStatus: "todo" });
+      return { ok: true, reply: `Feature intake ${ticket.identifier} created for discovery: ${description}.`, url: ticket.url, sourceMode: ticket.sourceMode };
+    }
+    const ticketMatch = normalized.match(/^(?:create|open|file)(?:-|\s)+(?:a\s+)?ticket\s*(?:[:\-]\s*|\s+)(.+)$/i);
     if (ticketMatch) {
       const title = ticketMatch[1].trim();
       const ticket = await createConnectorSuite({ env: process.env }).issueTracker.createTicket({ title, description: `Created from operator command: ${normalized}`, featureId: "FEAT-0001", ticketId: `CMD-${Date.now()}`, dependsOn: [] });

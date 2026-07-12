@@ -154,8 +154,9 @@ export class LiveSampleProductAdapter extends BaseConnector implements SamplePro
   }
 
   private headers(): Record<string, string> {
-    return jsonHeaders(this.env.SAMPLE_PRODUCT_TRAFFIC_TOKEN
-      ? { authorization: `Bearer ${this.env.SAMPLE_PRODUCT_TRAFFIC_TOKEN}` }
+    const token = this.env.SAMPLE_PRODUCT_TRAFFIC_TOKEN || this.env.DAILYCART_OPERATOR_PASSCODE;
+    return jsonHeaders(token
+      ? { authorization: `Bearer ${token}` }
       : {});
   }
 

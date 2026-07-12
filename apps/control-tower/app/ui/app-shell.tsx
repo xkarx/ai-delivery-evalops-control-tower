@@ -69,23 +69,22 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
             return (
               <Link key={href} href={href} className={active ? "nav-link active" : "nav-link"} onClick={() => setOpen(false)}>
                 <Icon size={17} /><span>{label}</span>
-                {label === "Human review" && <em>2</em>}
               </Link>
             );
           })}
         </nav>
         <div className="sidebar-footer">
-          <div className="mode-badge"><span /> {runtimeMode === "live" ? "Connected mode" : "Synthetic demo"}</div>
-          <p>{runtimeMode === "live" ? "Provider adapters enabled" : "No credentials required"}</p>
+          <div className="mode-badge"><span /> {runtimeMode === "live" ? "Synthetic inputs · live delivery" : "Deterministic demo"}</div>
+          <p>{runtimeMode === "live" ? "Writes require operator access" : "No credentials required"}</p>
         </div>
       </aside>
       {open && <button className="sidebar-backdrop" onClick={() => setOpen(false)} aria-label="Close navigation" />}
       <div className="content-frame">
         <header className="topbar">
           <button className="icon-button mobile-only" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={21} /></button>
-          <div className="environment"><Boxes size={15} /><span>DailyCart / V1 scenario</span><b>{runtimeMode === "live" ? "LIVE" : "DEMO"}</b></div>
+          <div className="environment"><Boxes size={15} /><span>DailyCart / V1 scenario</span><b>{runtimeMode === "live" ? "SYNTHETIC INPUTS · LIVE DELIVERY" : "DETERMINISTIC DEMO"}</b></div>
           <div className="top-actions">
-            <span className="system-status"><i /> Systems nominal</span>
+            <Link className="system-status" href="/integrations"><i /> Verify providers</Link>
             <button className="avatar" aria-label="Demo operator">KO</button>
           </div>
         </header>

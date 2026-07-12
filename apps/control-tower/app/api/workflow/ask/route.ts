@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
+import { readArtifact } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,15 +10,14 @@ export async function POST(request: Request): Promise<Response> {
   if (!question) return NextResponse.json({ ok: false, message: "Ask a question about the current workflow." }, { status: 400 });
   let phase = "not_started";
   try {
-    const root = path.resolve(process.cwd(), "../..");
-    const stored = JSON.parse(await readFile(path.resolve(root, "artifacts/workflow-run.json"), "utf8")) as { workflow?: { phase?: string } };
-    phase = stored.workflow?.phase ?? phase;
+    const stored = await readArtifact<{ workflow?: { phase?: string } }>("workflow");
+    phase = stored?.workflow?.phase ?? phase;
   } catch { /* The answer remains useful before the first run. */ }
   const lower = question.toLowerCase();
   const answer = lower.includes("why") && lower.includes("feature")
     ? "PM ranked the opportunity from recurring interview, support, analytics, and survey signals. The selected feature is the one with the strongest cross-source evidence and measurable checkout impact."
     : lower.includes("tpm")
-      ? "TPM does not author the PRD. TPM converts the approved PM scope into workstreams, dependencies, owners, milestones, and readiness checks."
+      ? "Delivery planning converts approved product scope into workstreams, dependencies, owners, milestones, risks, and readiness checks."
       : lower.includes("eval") || lower.includes("block")
         ? "EvalOps runs deterministic and semantic checks against the candidate behavior. A critical regression blocks release even when the weighted score is high."
         : lower.includes("slack") || lower.includes("linear")

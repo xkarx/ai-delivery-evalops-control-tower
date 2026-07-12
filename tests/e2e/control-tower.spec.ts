@@ -78,3 +78,51 @@ test("agent workflow runs through eval and stops at release approval", async ({ 
   await expect(page.locator("small[role=status]")).toContainText(/Preview evaluated|previews evaluated/i, { timeout: 30_000 });
   await expect(page.getByRole("button", { name: "Approve release" })).toBeEnabled();
 });
+
+test("guide reopens without reserving or blocking page width", async ({ page }) => {
+  await page.goto("/runs");
+  await page.getByRole("button", { name: "Expand demo guide" }).click();
+  await expect(page.getByRole("complementary", { name: "Demo guide" })).toContainText("What happens next");
+  await page.getByRole("button", { name: "Collapse demo guide" }).click();
+  await expect(page.getByRole("button", { name: "Start workflow" })).toBeVisible();
+});
+
+test("company context, eval authoring, incident creation, and export are interactive", async ({ page }) => {
+  await page.goto("/company");
+  await expect(page.getByRole("heading", { name: "Company data" })).toBeVisible();
+  await page.getByRole("button", { name: "Validate references" }).click();
+  await expect(page.getByRole("status")).toContainText(/validated|references/i);
+  await page.locator(".record-preview").first().click();
+  await expect(page.locator(".record-preview").first()).toHaveAttribute("open", "");
+
+  await page.goto("/evals#eval-workbench");
+  await page.getByRole("button", { name: "Save case" }).click();
+  await expect(page.getByRole("status")).toContainText(/saved/i);
+  await page.getByRole("button", { name: "Run selected evals" }).click();
+  await expect(page.getByRole("status")).toContainText(/passed|blocked|100/i);
+
+  await page.goto("/incidents");
+  await page.getByRole("button", { name: "Declare incident" }).click();
+  await page.getByRole("button", { name: "Create incident and regression" }).click();
+  await expect(page.getByRole("status")).toContainText(/created/i);
+
+  const download = page.waitForEvent("download");
+  await page.goto("/lineage");
+  await page.getByRole("link", { name: "Export evidence" }).click();
+  expect((await download).suggestedFilename()).toMatch(/dailycart-lineage/i);
+});
+
+test("critical pages remain readable at every supported presentation width", async ({ page }) => {
+  test.setTimeout(120_000);
+  for (const width of [390, 768, 1024, 1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const route of ["/", "/delivery", "/runs", "/evals", "/company"]) {
+      await page.goto(route);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, `${route} overflows at ${width}px`).toBeLessThanOrEqual(1);
+      const heading = page.locator("h1");
+      await expect(heading).toBeVisible();
+      expect((await heading.boundingBox())?.width ?? 0, `${route} heading is crushed at ${width}px`).toBeGreaterThan(150);
+    }
+  }
+});

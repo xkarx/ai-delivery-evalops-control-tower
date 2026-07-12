@@ -7,6 +7,7 @@ import type {
   ExternalReference,
   TraceAdapter,
   TraceInput,
+  TraceObservationInput,
   TraceRecord,
   TraceScoreInput
 } from "../types";
@@ -54,6 +55,10 @@ export class MockLangfuseTraceAdapter extends BaseConnector implements TraceAdap
       url: this.externalUrl(`traces/${input.traceId}`),
       sourceMode: "mocked"
     };
+  }
+
+  async addObservation(input: TraceObservationInput): Promise<ExternalReference> {
+    return { provider: "langfuse", externalId: input.id ?? `mock-observation-${input.traceId}-${input.name}`, url: this.externalUrl(`traces/${input.traceId}`), sourceMode: "mocked" };
   }
 
   async getTrace(traceId: string): Promise<TraceRecord | undefined> {
@@ -133,6 +138,12 @@ export class LiveLangfuseTraceAdapter extends BaseConnector implements TraceAdap
       url: this.externalUrl(`traces/${externalId}`),
       sourceMode: "live"
     };
+  }
+
+  async addObservation(input: TraceObservationInput): Promise<ExternalReference> {
+    const externalId = input.id ?? randomUUID(); const timestamp = input.startedAt ?? this.now().toISOString();
+    await this.request<unknown>("/api/public/ingestion", { method: "POST", body: JSON.stringify({ batch: [{ id: randomUUID(), timestamp, type: "span-create", body: { id: externalId, traceId: input.traceId, name: input.name, startTime: timestamp, endTime: input.endedAt ?? this.now().toISOString(), input: input.input, output: input.output, metadata: input.metadata } }] }) });
+    return { provider: "langfuse", externalId, url: this.externalUrl(`traces/${input.traceId}`), sourceMode: "live" };
   }
 
   async addScore(input: TraceScoreInput): Promise<ExternalReference> {

@@ -1,15 +1,14 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { configuredOperatorPasscode, isOperatorAuthorized } from "@/lib/operator-auth";
+import { readArtifact } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<Response> {
   try {
-    const root = path.resolve(process.cwd(), "../..");
-    const stored = JSON.parse(await readFile(path.resolve(root, "artifacts/workflow-run.json"), "utf8")) as { workflow?: { phase?: string; revision?: number; history?: Array<{ id: string; at: string; from: string | null; to: string; actor: string; reason: string; entityIds: string[] }>; featureId?: string }; featureTitle?: string; sourceMode?: string; agentReasoning?: Record<string, { model: string; summary: string; sourceMode: string }>; handoffThread?: { messages?: Array<{ url: string; provider: string; sourceMode: string }> }; handoffFanout?: { channels?: Record<string, { messages?: Array<{ url: string; provider: string; sourceMode: string }> }> } };
+    const stored = await readArtifact<{ workflow?: { phase?: string; revision?: number; history?: Array<{ id: string; at: string; from: string | null; to: string; actor: string; reason: string; entityIds: string[] }>; featureId?: string }; featureTitle?: string; sourceMode?: string; agentReasoning?: Record<string, { model: string; summary: string; sourceMode: string }>; handoffThread?: { messages?: Array<{ url: string; provider: string; sourceMode: string }> }; handoffFanout?: { channels?: Record<string, { messages?: Array<{ url: string; provider: string; sourceMode: string }> }> } }>("workflow");
+    if (!stored) throw new Error("No workflow");
     const workflow = stored.workflow;
     const last = workflow?.history?.at(-1);
     return NextResponse.json({

@@ -1,6 +1,5 @@
-import { appendFile, mkdir } from "node:fs/promises";
-import path from "node:path";
 import type { AgentHandoffMessage, AgentHandoffThreadResult } from "@dailycart/connectors";
+import { appendArtifact } from "./durable-artifacts";
 
 export interface WorkflowHandoffInput {
   workflowId: string;
@@ -56,8 +55,6 @@ export function buildWorkflowHandoffs(input: WorkflowHandoffInput): AgentHandoff
   ];
 }
 
-export async function persistHandoffThread(root: string, result: AgentHandoffThreadResult): Promise<void> {
-  const artifacts = path.resolve(root, "artifacts");
-  await mkdir(artifacts, { recursive: true });
-  await appendFile(path.resolve(artifacts, "agent-handoffs.jsonl"), `${JSON.stringify({ ...result, recordedAt: new Date().toISOString() })}\n`);
+export async function persistHandoffThread(_root: string, result: AgentHandoffThreadResult): Promise<void> {
+  await appendArtifact("agentHandoffs", { ...result, recordedAt: new Date().toISOString() }, 100);
 }

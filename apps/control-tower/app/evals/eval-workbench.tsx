@@ -41,7 +41,7 @@ export function EvalWorkbench() {
 
   function resetForm() { setCategory("requirements"); setExpected('{"requiredFields":["featureId"]}'); }
 
-  return <section className="panel eval-workbench">
+  return <section className="panel eval-workbench" id="eval-workbench">
     <div className="section-title"><div><p className="eyebrow">Author and measure</p><h2>Eval workbench</h2></div><span className="source-label">Versioned · evidence-linked</span></div>
     <p className="muted-copy">Write a case, select it, run the grader, and inspect the measured gate. Structural checks are deterministic; semantic cases use the configured model only when available.</p>
     <div className="eval-workbench-grid">

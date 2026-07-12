@@ -7,6 +7,7 @@ import { evidenceSchema, demoStateSchema, type Evidence } from "@dailycart/schem
 import { fallbackDemoState } from "./demo-state";
 import { embeddedDemoEvidence } from "./demo-evidence";
 import { generateCompany } from "../../../scripts/generate-company";
+import { clearArtifact, clearWorkflowArtifacts, writeArtifact } from "./durable-artifacts";
 
 export interface DemoRuntimeOptions {
   root: string;
@@ -17,7 +18,6 @@ export interface DemoRuntimeOptions {
 
 export async function runDeterministicDemo(options: DemoRuntimeOptions): Promise<{ recommendation: string; blockedCampaign: string; passedCampaign: string; trafficRun: string; persisted: boolean }> {
   const generated = path.resolve(options.root, "company/generated");
-  const artifacts = path.resolve(options.root, "artifacts");
   const timestamp = options.now ?? "2026-07-10T18:30:00.000Z";
   const seed = options.seed ?? 20260710;
   const evidence = await readEvidence(generated);
@@ -45,10 +45,8 @@ export async function runDeterministicDemo(options: DemoRuntimeOptions): Promise
   demoStateSchema.parse(state);
   let persisted = true;
   try {
-    await mkdir(artifacts, { recursive: true });
-    await writeFile(path.resolve(artifacts, "demo-state.json"), `${JSON.stringify(state, null, 2)}\n`);
-    await writeFile(path.resolve(artifacts, "runtime-summary.json"), `${JSON.stringify({ pmRun: pm.run.id, recommendation: recommended.id, workstreams: workstreams.map((item) => item.run.id), blockedCampaign: recovery.failed.campaign.id, passedCampaign: recovery.corrected.campaign.id, trafficRun: traffic.runId }, null, 2)}\n`);
-    await writeFile(path.resolve(artifacts, "workflow-reviews.json"), `${JSON.stringify({ featureId: recommended.id, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview }, null, 2)}\n`);
+    await writeArtifact("demoState", state);
+    await writeArtifact("workflowReviews", { featureId: recommended.id, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview });
   } catch (error) {
     persisted = false;
     console.warn("Demo artifacts could not be persisted; continuing with the computed run result.", error instanceof Error ? error.message : String(error));
@@ -67,10 +65,11 @@ async function readEvidence(generated: string): Promise<unknown[]> {
 export async function resetDeterministicDemo(options: DemoRuntimeOptions): Promise<void> {
   const artifacts = path.resolve(options.root, "artifacts");
   const runtime = path.resolve(artifacts, "runtime");
+  await clearWorkflowArtifacts();
+  await clearArtifact("demoState");
+  await writeArtifact("demoState", { ...structuredClone(fallbackDemoState), generatedAt: options.now ?? new Date().toISOString(), seed: options.seed ?? Number(process.env.SYNTHETIC_DATA_SEED ?? 20260710), scenario: options.scenario ?? process.env.COMPANY_SCENARIO ?? "checkout-friction" });
+  if (process.env.INTEGRATION_MODE === "live") return;
   await rm(runtime, { recursive: true, force: true });
-  await rm(path.resolve(artifacts, "demo-state.json"), { force: true });
-  await rm(path.resolve(artifacts, "workflow-run.json"), { force: true });
-  await Promise.all(["workflow-reviews.json", "workflow-preview.json", "workflow-preview-eval.json", "workflow-external-sync.json", "linear-delivery-sync.json", "agent-handoffs.jsonl", "slack-command-events.jsonl"].map((file) => rm(path.resolve(artifacts, file), { force: true })));
   try {
     await mkdir(runtime, { recursive: true });
     await writeFile(path.resolve(runtime, "reset.json"), JSON.stringify({ resetAt: options.now ?? new Date().toISOString(), mode: "synthetic" }, null, 2));

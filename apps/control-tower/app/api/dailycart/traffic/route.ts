@@ -2,13 +2,13 @@ import { ConnectorError, type TrafficConfig } from "@dailycart/connectors";
 import { createPersistentCustomerIds, generateTraffic, validateTrafficConfig } from "@dailycart/sample-product";
 import { NextResponse } from "next/server";
 import { currentTrafficRun, isTrafficRunning, nextTrafficRunSequence, saveTrafficRun, setTrafficRunning } from "@/lib/traffic-sidecar";
-import { requireOperatorAccess } from "@/lib/operator-auth";
+import { requireOperatorOrService } from "@/lib/operator-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  const denied = await requireOperatorAccess();
+  const denied = await requireOperatorOrService(request);
   if (denied) return denied;
   try {
     if (isTrafficRunning()) throw new ConnectorError({ provider: "sample-product", code: "INVALID_REQUEST", message: "A traffic run is already active." });

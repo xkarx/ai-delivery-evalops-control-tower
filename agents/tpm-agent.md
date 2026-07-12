@@ -9,7 +9,7 @@ PRD template, existing backlog, provider capabilities, engineering and eval poli
 ## Tools
 Ticket decomposition, dependency mapping, issue-tracker adapter, lineage store, and trace recorder. The PM brief is read-only input.
 ## Allowed actions
-Create local ticket records; map dependencies and risks; define milestones and readiness; propose tracker writes; report and escalate status. TPM must not draft, review, or revise the PM brief.
+Create local ticket records; map dependencies and risks; define milestones and readiness; propose tracker writes; report and escalate delivery status from approved product scope.
 ## Required approvals
 Feature approval is mandatory before planning. Live issue creation and scope or milestone changes follow connector approval policy.
 ## Output schema

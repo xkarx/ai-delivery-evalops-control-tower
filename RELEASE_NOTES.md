@@ -4,7 +4,7 @@
 
 - Evidence-driven PM analysis with scenario-change coverage and stable citations.
 - Human approval state machine with serializable pause/resume state.
-- TPM PRDs, dependencies, risks, milestones, and ticket decomposition.
+- PM briefs plus delivery dependencies, risks, milestones, and ticket decomposition.
 - Two concurrent isolated engineering workstreams with mock GitHub artifacts.
 - Deterministic EvalOps campaigns, semantic-judge scaffold, human calibration, and a real blocked-then-corrected release path.
 - Responsive control tower pages for portfolio, lineage, runs, evals, reviews, releases, incidents, analytics, company data, integrations, and settings.

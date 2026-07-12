@@ -1,8 +1,7 @@
-import { appendFile, mkdir } from "node:fs/promises";
-import path from "node:path";
 import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
 import { requireOperatorAccess } from "@/lib/operator-auth";
+import { recordActionReceipt } from "@/lib/durable-artifacts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,10 +22,8 @@ export async function POST(request: Request) {
       console.error("Delivery ticket notification failed", detail);
       return NextResponse.json({ ok: false, partial: true, ticket, message: "Ticket created, but the Slack notification failed.", detail }, { status: 502 });
     }
-    const root = path.resolve(process.cwd(), "../..");
-    await mkdir(path.resolve(root, "artifacts"), { recursive: true });
-    await appendFile(path.resolve(root, "artifacts/external-actions.jsonl"), `${JSON.stringify({ action: "create_ticket", ticket, notification, at: new Date().toISOString() })}\n`);
-    return NextResponse.json({ ok: true, ticket, notification });
+    const action = await recordActionReceipt({ actionId: `ACTION-${Date.now()}`, sessionId: "operator", status: "succeeded", phase: "ticket_created", message: `${ticket.identifier} created and announced.`, nextAction: "Open the delivery roadmap.", deepLink: "/delivery", sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "deterministic-fallback", at: new Date().toISOString(), externalRefs: [{ provider: "linear", id: ticket.externalId, url: ticket.url }, { provider: "slack", id: notification.externalId, url: notification.url }] });
+    return NextResponse.json({ ok: true, ticket, notification, action });
   } catch (error) {
     const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "The provider returned an unexpected error.";
     console.error("Delivery ticket action failed", detail);
