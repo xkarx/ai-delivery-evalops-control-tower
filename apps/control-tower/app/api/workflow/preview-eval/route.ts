@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 type PreviewBuild = { featureId: string; deploymentUrl: string; sourceMode: string; commitSha?: string };
 type PreviewEval = { featureId: string; targetUrl: string; passed: boolean; score: number; checks: Array<{ name: string; passed: boolean; detail: string }>; sourceMode: string; evaluatedAt: string };
 
-export async function POST() {
+export async function POST(request: Request) {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
   try {
@@ -16,7 +16,8 @@ export async function POST() {
     if (!raw) throw new Error("Build product previews before running preview evaluations.");
     const builds = raw.builds ?? (raw.featureId && raw.deploymentUrl ? [{ featureId: raw.featureId, deploymentUrl: raw.deploymentUrl, sourceMode: raw.sourceMode ?? "mocked" }] : []);
     if (!builds.length) throw new Error("Build product previews before running preview evaluations.");
-    const existing = await readArtifact<{ evaluations?: PreviewEval[]; correctionPending?: boolean }>("workflowPreviewEval");
+    const body = await request.json().catch(() => ({})) as { rerun?: boolean };
+    const existing = body.rerun ? undefined : await readArtifact<{ evaluations?: PreviewEval[]; correctionPending?: boolean }>("workflowPreviewEval");
     const firstLiveEvaluation = builds.some((build) => build.sourceMode !== "mocked") && !existing?.correctionPending && !(existing?.evaluations?.length);
     const evaluations: PreviewEval[] = [];
     for (const build of builds) {
@@ -24,7 +25,10 @@ export async function POST() {
       if (previous) { evaluations.push(previous); continue; }
       const checks: PreviewEval["checks"] = [];
       if (build.sourceMode !== "mocked") {
-        const response = await fetch(build.deploymentUrl, { signal: AbortSignal.timeout(10_000) });
+        const response = await fetch(build.deploymentUrl, {
+          signal: AbortSignal.timeout(10_000),
+          headers: process.env.VERCEL_OIDC_TOKEN ? { "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_OIDC_TOKEN } : {}
+        });
         const html = await response.text();
         checks.push({ name: "preview reachable", passed: response.ok, detail: `HTTP ${response.status}` });
         checks.push({ name: "feature shell rendered", passed: response.ok && /DailyCart|checkout/i.test(html), detail: "Preview HTML contains the product shell." });
