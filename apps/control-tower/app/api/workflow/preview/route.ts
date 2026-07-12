@@ -22,6 +22,18 @@ async function productSource(root: string, productPath: string, ref = process.en
   return Buffer.from(payload.content.replace(/\s/g, ""), "base64").toString("utf8");
 }
 
+async function branchHeadSha(branch: string): Promise<string> {
+  if (process.env.INTEGRATION_MODE !== "live") return "mock-refreshed-commit";
+  const repository = process.env.GITHUB_DEFAULT_REPOSITORY;
+  const token = process.env.GITHUB_TOKEN;
+  if (!repository || !token) throw new Error("GitHub repository and token are required to refresh live previews.");
+  const response = await fetch(`https://api.github.com/repos/${repository}/git/ref/heads/${branch.split("/").map(encodeURIComponent).join("/")}`, { headers: { authorization: `Bearer ${token}`, accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28" } });
+  if (!response.ok) throw new Error(`GitHub branch lookup returned HTTP ${response.status}.`);
+  const payload = await response.json() as { object?: { sha?: string } };
+  if (!payload.object?.sha) throw new Error(`GitHub did not return the current commit for ${branch}.`);
+  return payload.object.sha;
+}
+
 function implementTrack(source: string, featureId: string, index: number): string {
   if (index === 0) {
     return source
@@ -37,14 +49,25 @@ export async function POST(request: Request): Promise<Response> {
   if (denied) return denied;
   const root = path.resolve(process.cwd(), "../..");
   try {
-    const body = await request.json().catch(() => ({})) as { correctBlocked?: boolean };
+    const body = await request.json().catch(() => ({})) as { correctBlocked?: boolean; refreshBranches?: boolean };
     const existing = await readArtifact<{ builds?: PreviewBuild[]; featureId?: string }>("workflowPreview");
-    if (existing?.builds?.length && !body.correctBlocked) return NextResponse.json({ ok: true, reused: true, build: existing.builds[0], builds: existing.builds });
+    if (existing?.builds?.length && !body.correctBlocked && !body.refreshBranches) return NextResponse.json({ ok: true, reused: true, build: existing.builds[0], builds: existing.builds });
     const workflow = await readArtifact<{ featureId: string; featureTitle?: string; featureTracks?: Array<{ featureId: string; featureTitle: string }> }>("workflow");
     if (!workflow) throw new Error("Run and approve the feature workflow before building previews.");
     const tracks = workflow.featureTracks?.length ? workflow.featureTracks : [{ featureId: workflow.featureId, featureTitle: workflow.featureTitle ?? workflow.featureId }];
     const suite = createConnectorSuite({ env: process.env });
     const productPath = "apps/control-tower/app/product/product-client.tsx";
+    if (body.refreshBranches && existing?.builds?.length) {
+      const builds: PreviewBuild[] = [];
+      for (const build of existing.builds) {
+        const commitSha = await branchHeadSha(build.branch);
+        const deployment = await suite.deployment.deploy({ id: build.deploymentId, featureId: build.featureId, environment: "preview", commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: build.branch });
+        builds.push({ ...build, commitSha, commitUrl: process.env.GITHUB_DEFAULT_REPOSITORY ? `https://github.com/${process.env.GITHUB_DEFAULT_REPOSITORY}/commit/${commitSha}` : build.commitUrl, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
+      }
+      await writeArtifact("workflowPreview", { builds, refreshedAt: new Date().toISOString() });
+      await writeArtifact("workflowPreviewEval", { evaluations: [], correctionPending: true });
+      return NextResponse.json({ ok: true, refreshed: true, builds, build: builds[0] });
+    }
     if (body.correctBlocked && existing?.builds?.length) {
       const blocked = existing.builds[0]!;
       const source = await productSource(root, productPath, blocked.branch);
