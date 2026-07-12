@@ -14,6 +14,22 @@ export function resolveIntegrationMode(env: Environment = process.env): Connecto
   return env.INTEGRATION_MODE === "live" ? "live" : "mock";
 }
 
+/**
+ * Provider configuration is often provisioned before its optional deep-link
+ * metadata. Never let an empty or malformed link turn a read-only health page
+ * into a 500; omit the link and keep the provider's explicit status visible.
+ */
+function safeExternalUrl(value?: string): string | undefined {
+  const candidate = value?.trim();
+  if (!candidate) return undefined;
+  try {
+    new URL(candidate);
+    return candidate;
+  } catch {
+    return undefined;
+  }
+}
+
 export abstract class BaseConnector implements BaseAdapter {
   abstract readonly kind: string;
   abstract readonly provider: ConnectorProvider;
@@ -78,7 +94,7 @@ export abstract class BaseConnector implements BaseAdapter {
       status: "healthy",
       message,
       checkedAt: this.now().toISOString(),
-      externalUrl,
+      externalUrl: safeExternalUrl(externalUrl),
       capabilities: this.capabilities
     });
   }
@@ -92,7 +108,7 @@ export abstract class BaseConnector implements BaseAdapter {
         status: "unconfigured",
         message: configuration.message,
         checkedAt: this.now().toISOString(),
-        externalUrl,
+        externalUrl: safeExternalUrl(externalUrl),
         capabilities: this.capabilities
       });
     }
@@ -106,7 +122,7 @@ export abstract class BaseConnector implements BaseAdapter {
         status: normalized.retryable ? "degraded" : "error",
         message: `${normalized.code}: ${normalized.message}`,
         checkedAt: this.now().toISOString(),
-        externalUrl,
+        externalUrl: safeExternalUrl(externalUrl),
         capabilities: this.capabilities
       });
     }
