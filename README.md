@@ -47,7 +47,7 @@ The demo works without credentials. It generates deterministic DailyCart data, e
 
 | Tool | V1 action | What it demonstrates |
 |---|---|---|
-| Linear (or GitHub Issues fallback) | **Sync delivery records** creates the three delivery tickets | Structured decomposition, dependencies, and external traceability |
+| Linear (or GitHub Issues fallback) | **Sync delivery records** creates the delivery roadmap tickets for both feature tracks | Structured decomposition, dependencies, and external traceability |
 | Slack | One bot fans handoffs into delivery, approvals, alerts, and analytics channels; slash commands work in each | Human-in-the-loop coordination and command-driven automation |
 | GitHub | Repository health, issue fallback, branches/PR/check/release links | Code-host integration and isolated engineering work |
 | Langfuse | Sync creates a delivery trace and `workflow_completed` score | Agent observability, lineage, and outcome scoring |
