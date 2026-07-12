@@ -219,3 +219,43 @@ main, .page-container, .panel, .page-heading, .page-heading > div, .section-titl
 .recovery-panel h3:focus { outline:3px solid #a996f3; outline-offset:4px; }
 .workflow-ai-summary { margin-top:12px; padding:10px 12px; border:1px solid #dfe9ff; border-radius:8px; background:#f7faff; }.workflow-ai-summary b, .workflow-ai-summary p, .workflow-ai-summary small { display:block; }.workflow-ai-summary b { color:#3c5e9e; font-size:10px; }.workflow-ai-summary p { margin:5px 0; color:#687084; font-size:10px; line-height:1.45; }.workflow-ai-summary small { color:#8190ae; font-size:8px; text-transform:uppercase; letter-spacing:.04em; }
 .context-pack { margin-top:16px; padding:18px; }.context-category-grid { margin-top:14px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:9px; }.context-category { min-width:0; padding:11px; display:grid; gap:4px; color:inherit; text-decoration:none; border:1px solid var(--line); border-radius:8px; background:#fbfbfe; }.context-category:hover { border-color:#d6cdf8; background:#f8f6ff; }.context-category b { color:#493695; font-size:10px; }.context-category span { color:#7d8496; font-size:9px; }.context-category small { overflow:hidden; color:#9a9fad; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+
+/* DailyCart neutral theme: calm slate surfaces with teal actions. Keep violet
+   reserved for historical fixture data, never for the operator chrome. */
+:root { --canvas:#f4f6f5; --surface:#ffffff; --surface-soft:#f8faf9; --ink:#172126; --muted:#68767a; --line:#dfe7e4; --line-strong:#cbd8d4; --violet:#0f766e; --violet-dark:#0b5f59; --violet-soft:#e4f2ef; }
+body { background:var(--canvas); }
+.content-frame { background:var(--canvas); }
+.sidebar { background:#172126; border-right-color:#26363a; }
+.brand-mark, .product-brand-mark { background:linear-gradient(145deg,#159a8c,#0f766e); box-shadow:0 6px 20px #0f766e35; }
+.nav-link.active { background:linear-gradient(90deg,#147f76,#0f766e); box-shadow:inset 0 0 0 1px #51b8aa55,0 5px 15px #0a2020aa; }
+.environment b { color:#0f766e; background:#e4f2ef; }
+.button.primary { border-color:#0f766e; background:linear-gradient(145deg,#159a8c,#0f766e); }
+.button.primary:hover { background:linear-gradient(145deg,#0f766e,#0b5f59); }
+.eyebrow, .panel-heading > a, .guide-links a, .guide-empty a, .integration-last-action a, .delivery-ticket dd a, .delivery-ticket-meta a { color:#0f766e; }
+.metric-icon.violet { color:#0f766e; background:#e4f2ef; }
+.status-dot { background:#0f766e; box-shadow:0 0 0 4px #d8efeb; }
+.workflow-next { border-left-color:#0f766e; background:#f0f8f6; }
+.demo-guide { border-color:#d5e1de; box-shadow:0 18px 55px #17212620; }
+.demo-guide .eyebrow, .guide-kicker { color:#0f766e; }
+.demo-guide-mode, .guide-ai { background:#eef7f5; }
+.guide-history i { background:#0f766e; }
+.guide-ask p { color:#155e59!important; background:#e9f5f2; }
+.workflow-recommendations { background:#f5faf9; border-color:#d9e9e5; }
+.workflow-recommendations > b, .run-provenance b { color:#0f766e; }
+.workflow-recommendations article { border-top-color:#e2eeeb; }
+.workflow-recommendations article > span { background:#0f766e; }
+.run-provenance { background:#f7faf9; border-color:#dfeae7; }
+.eval-case-list { background:#f7faf9; }
+.eval-case-list label:hover { background:#e7f4f1; }
+.eval-case-list b { color:#0f766e; }
+.context-category { background:#f8faf9; }
+.context-category:hover { border-color:#a9d3cb; background:#eef7f5; }
+.context-category b { color:#0f766e; }
+.product-card-body > strong { color:#0f766e; }
+.product-add { color:#0f766e; background:#e5f3f0; border-color:#c8e4de; }
+.product-add:hover { color:#fff; background:#0f766e; }
+.release-marker span { background:#e4f2ef; color:#0f766e; }
+.recovery-panel { color:#174e4a; background:#e7f4f1; border-color:#c8e4de; }
+.recovery-panel-icon { background:#0f766e; }
+.recovery-panel p { color:#52736f; }
+.integration-last-action b { color:#0f766e; }
