@@ -14,3 +14,5 @@ artifacts/workflow-run.json
 artifacts/workflow-external-sync.json
 artifacts/workflow-external-sync.json
 company/.generation-tmp/
+.vercel
+.env*
