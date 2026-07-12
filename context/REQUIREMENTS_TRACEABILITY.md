@@ -13,24 +13,24 @@ Codex must update the implementation link and evidence columns. “Implemented�
 | R007 | Recommendation not hardcoded | Agent | Complete — scenario-change acceptance test |
 | R008 | Human approval gate | Workflow | Complete — serialized pause/resume test |
 | R009 | Ticket creation | Connector | Complete — `/api/delivery/tickets` and `/api/workflow/sync` create normalized live Linear/GitHub Issues tickets and preserve partial success when Slack permissions reject the notification |
-| R010 | Isolated engineering work | GitHub | Complete — isolated branch/PR records in mock executor |
+| R010 | Isolated engineering work | GitHub | Verified live — PRs [#3](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/3) and [#4](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/4) used distinct branches, functional commits, checks, and merge commits |
 | R011 | Real code tests | CI | Complete — CI runs lint/type/test/build and browser checks |
 | R012 | Real eval execution | Eval service | Complete — per-case stored measured results; live mode uses the configured OpenAI-compatible judge for semantic cases and mock mode uses the explicit deterministic fallback |
 | R013 | Failed eval blocks release | Gate | Complete — EVAL-0001 blocked, EVAL-0002 passes |
-| R014 | Langfuse trace links | Observability | Complete — live workflow sync ingests a trace and boolean score through the public Langfuse write API; trace IDs remain linked in runs |
-| R015 | Product analytics events | PostHog | Complete — `/product` emits real interaction events, `/api/product/events` captures them, `/analytics` exposes bounded user/spawn/duration/scenario/seed/cap controls through `/api/product/traffic`, local JSONL is surfaced in `/analytics`, and PostHog is used in live mode |
+| R014 | Langfuse trace links | Observability | Verified live — workflow trace `dailycart-workflow-v1` contains linked observations and scores in the configured Langfuse project |
+| R015 | Product analytics events | PostHog | Verified live — production run `TRAFFIC-20260712-0001` durably recorded 49 events for 12 users and sent the live event path to the configured PostHog project |
 | R016 | Agent cost and latency | Observability | Complete — run telemetry and cost/latency view |
 | R017 | Incident becomes regression | Workflow | Complete — incident conversion + lineage edge |
 | R018 | Slack approval/status | Slack | Complete — approval adapter + HMAC verification |
 | R019 | Linear or fallback | Connector | Complete — Linear adapter with GitHub Issues fallback |
-| R020 | Supabase lineage state | Database | Complete — migration + database adapter |
+| R020 | Supabase lineage state | Database | Verified live — session `SESSION-1783851681641`, workflow `WORKFLOW-1783851681641`, approvals, runs, previews, deployments, incident, and replay archive survived hosted refreshes through the durable repository |
 | R021 | No committed credentials | Security | Complete — `.env.example` + secret scan |
 | R022 | Credential-free demo mode | Adapters | Complete — `pnpm demo` without credentials |
-| R023 | Live mode | Adapters | Complete — `/api/integrations/health`, workflow sync, ticket, Slack, analytics, sample-product sidecar, and Vercel deployment paths use live adapters when `INTEGRATION_MODE=live`; the Integrations page now probes adapters on initial load as well as on demand |
+| R023 | Live mode | Adapters | Verified live — production health reported all nine adapters readable and write-configured; the proof run recorded real external actions for every provider, with Slack using its configured default channel |
 | R024 | Open-source attribution | References | Complete — `references/OPEN_SOURCE_ATTRIBUTION.md` |
 | R025 | Responsive UI | UI | Implemented and locally verified — 21 Playwright checks pass and one mutating workflow check runs once instead of concurrently; mobile/desktop behavior and presentation widths 390, 768, 1024, 1280, 1440, and 1920px have no document overflow or crushed headings |
 | R026 | Two independent workstreams | Orchestration | Complete — separate concurrent `RUN-*` records |
-| R027 | GitHub deployment/release links | GitHub | Complete — authenticated GitHub repository health and normalized links in code-host/deployment adapters; Vercel deployment is gated on project ID |
+| R027 | GitHub deployment/release links | GitHub | Verified live — two PRs, green CI checks, two passing Vercel previews, merge commits, and production deployments are linked in the verification report |
 | R028 | Reusable skills | Skills | Complete — 15 generic skill contracts |
 | R029 | Manual connection checklist | Docs | Complete — exact user-owned steps |
 | R030 | V2 arbitrary-repo path | Architecture | Complete — adapter boundary + V2 scope/ADR |
@@ -41,10 +41,11 @@ Codex must update the implementation link and evidence columns. “Implemented�
 | R035 | Logical multi-agent Slack thread | Slack | Complete — one DailyCart bot posts PM, UX, feasibility, TPM, engineering, EvalOps, and release handoffs in one workflow thread; `/dailycart ask` and status read persisted workflow context |
 | R036 | Visible product feature behavior | Customer product | Complete — checkout interruption/recovery interaction, accessible focus restoration, recovery telemetry, and workflow-created preview build action |
 | R037 | Follow-along workflow console | Control plane | Complete — collapsible `/runs` console with current phase, actor, history, next action, source mode, polling, and contextual questions |
-| R038 | Preview-target evaluation gate | Preview + release | Complete — preview build records a target URL, `/api/workflow/preview-eval` probes/evaluates that target, persists checks and source mode, and release approval/deployment reject missing or failing preview results |
+| R038 | Preview-target evaluation gate | Preview + release | Verified live with qualification — the workflow persisted a blocked 75-point first version and passing corrected previews; remote Playwright independently verified rendering, focus restoration, and cart persistence on the deployed product. The deliberate initial block remains an orchestrated gate case rather than a captured failing browser trace. |
 | R039 | Guided operator flow | Control plane | Complete — persistent Demo Guide explains current phase, previous events, next action, why it matters, mode boundary, AI summary, linked records, and contextual questions |
 | R040 | Executable skill provenance | Agents + traceability | Complete — versioned skill registry, role-boundary metadata, context-pack/evidence/tool provenance, and agent-run inspection |
-| R041 | Two parallel feature tracks | Workflow + product | Implemented; hosted proof pending — two PM-ranked features receive approval, delivery planning, distinct branch/PR/preview actions, preview evals, and production promotion in one batch |
-| R042 | Multi-channel Slack operations | Slack | Implemented; hosted proof pending — one bot fans the workflow into delivery, approvals, alerts, and analytics channels when channel IDs are configured, with shared workflow/thread metadata |
+| R041 | Two parallel feature tracks | Workflow + product | Verified live — FEAT-0001 and FEAT-0002 produced distinct branches, commits, PRs, previews, passing final checks, merge commits, and production deployment records |
+| R042 | Multi-channel Slack operations | Slack | Partially verified — logical-agent handoffs, approval, release, and incident messages were written live, but all used default channel `C0BGNTCJBKL`; four distinct channels still require user-owned channel IDs and bot membership |
 | R043 | Editable eval workbench | EvalOps | Complete — operator can author versioned cases, select cases, execute deterministic/model graders, and inspect measured gate results |
-| R044 | Operator-only live actions | Deployment security | Implemented and locally verified — signed HttpOnly operator sessions protect browser writes, dedicated service authorization protects internal traffic, and read-only browsing remains available; production access test pending |
+| R044 | Operator-only live actions | Deployment security | Verified live — anonymous workflow start returned HTTP 401, signed operator sessions allowed writes, and the internal traffic token authorized server-to-product traffic without exposing provider secrets |
+| R045 | Durable Inngest execution proof | Orchestration | Verified live — event `01KXBX209NPKG5KYGKKXZTWTZH` produced completed function run `01KXBX20PX2RT49S792KEPTS6Q`, with step output persisted and linked from proof `INNGEST-PROOF-D74015B5` |

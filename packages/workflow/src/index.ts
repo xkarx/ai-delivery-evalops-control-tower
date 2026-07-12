@@ -271,7 +271,7 @@ export class DeliveryWorkflow {
     }
     assertUniqueStableIds(ticketIds, "Ticket IDs");
     this.#state.ticketIds = [...ticketIds];
-    this.#transition("planning", "delivery", actor, "PRD decomposed into executable workstreams", ticketIds);
+    this.#transition("planning", "delivery", actor, "Approved feature scope organized into executable workstreams", ticketIds);
     return this.snapshot();
   }
 

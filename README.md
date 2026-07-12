@@ -104,7 +104,7 @@ Each role is backed by a versioned executable skill definition. The UI shows con
 | Supabase | Durable workflow state, context records, and lineage edges |
 | Langfuse | Traces, observations, scores, cost, and latency |
 | PostHog | Product events, exposure, funnel, and adoption measurement |
-| Inngest | Resumable workflow and phase events |
+| Inngest | Durable workflow-phase execution, event receipts, and completed run evidence |
 | Vercel | Preview and production deployment records |
 
 The Integrations page shows each provider's mode, health, write capability, latest action, timestamp, and external link. A failed permission or unavailable provider is shown as a failure or fallback, never as a fabricated success.
@@ -168,4 +168,4 @@ corepack pnpm test:e2e
 corepack pnpm security:scan
 ```
 
-The current implementation has 50 unit tests and 16 responsive Playwright checks. The hosted deployment is the canonical live demo; local mode remains the credential-free fallback.
+The current implementation has 50 unit tests and 22 browser checks, including responsive coverage and a remote deployed-product suite. The hosted deployment is the canonical live demo; local mode remains the credential-free fallback. The latest external proof and the remaining Slack-channel limitation are recorded in [the live verification report](docs/LIVE_VERIFICATION_REPORT.md).
