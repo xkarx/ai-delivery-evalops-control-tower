@@ -673,7 +673,7 @@ export function runUxReview(featureInput: Feature, briefInput: ProductRequiremen
   if (brief.userStories.length === 0) findings.push({ id: "EXT-0201", severity: "critical", title: "No user story", detail: "The brief has no user-centered outcome to validate.", recommendation: "Add a user story before delivery planning." });
   if (brief.acceptanceCriteria.length < 3) findings.push({ id: "EXT-0202", severity: "critical", title: "Acceptance coverage is incomplete", detail: "Fewer than three observable acceptance criteria are defined.", recommendation: "Add success, telemetry, and regression criteria." });
   if (brief.metrics.length === 0) findings.push({ id: "EXT-0203", severity: "warning", title: "Outcome metric is missing", detail: "The experience cannot be evaluated against a measurable outcome.", recommendation: "Define at least one customer-facing metric." });
-  if (findings.length === 0) findings.push({ id: "EXT-0204", severity: "info", title: "Journey is reviewable", detail: "User stories and observable acceptance criteria are present.", recommendation: "Validate the journey with human review at preview." });
+  if (findings.length === 0) findings.push({ id: "EXT-0204", severity: "info", title: "Keyboard recovery path is testable", detail: "The brief preserves keyboard navigation, restores focus to the actionable validation message after interruption, and defines observable recovery behavior.", recommendation: "Run keyboard-only preview checks and block release if focus is lost, hidden, or restored to a non-actionable element." });
   return createReviewSummary(featureInput, brief, "ux", findings, options, "ux", "RUN-0110", "EXT-0200");
 }
 
