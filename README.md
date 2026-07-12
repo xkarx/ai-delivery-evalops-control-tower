@@ -1,29 +1,131 @@
-# DailyCart Delivery OS — AI Product Delivery & EvalOps Control Tower
+# DailyCart Delivery OS
 
-DailyCart is a visual control tower for taking a product signal from discovery to a safe release. It makes the delivery chain inspectable: evidence → opportunity → product decision → technical delivery plan → implementation → evaluation → human approval → deployment → production feedback. The sample product is DailyCart Commerce, an intentionally deterministic synthetic e-commerce company modeled on the Google Online Boutique scenario.
+DailyCart Delivery OS is an AI-first product delivery control tower. It turns a customer signal into an inspectable, governed release: discover evidence, choose an opportunity, shape the product brief, coordinate delivery, build a preview, evaluate it, obtain human approval, deploy, and learn from production feedback.
 
-This is an operating system demo, not a static dashboard. The synthetic fixtures are real, schema-validated records with stable IDs and lineage. Running the workflow executes agents, writes state, evaluates gates, and pauses for approval. When connected credentials are supplied, provider adapters perform live read/write calls; without them, the same contracts run safely in deterministic demo mode.
+## Try the hosted demo
 
-## The responsibility model
+**[Open DailyCart Delivery OS](https://ai-delivery-evalops-control-tower-c.vercel.app)**
 
-- **PM** retrieves and clusters customer evidence, ranks the opportunity, and drafts the PRD.
-- **TPM** receives the PM-approved delivery scope, decomposes it into workstreams, maps dependencies and risks, and prepares delivery readiness. TPM has no PRD authoring or review responsibility.
-- **Engineering** implements tickets and records tests and telemetry requirements.
-- **EvalOps** runs deterministic and (when configured) model-judged evals and blocks critical regressions.
-- **Human review** approves the feature and release gates.
-- **Release** deploys the approved change and syncs external delivery records.
-- **Incident** converts production feedback into a linked regression case.
+The hosted application is configured for live provider adapters. Browsing is read-only until the operator unlocks the session from the Demo Guide. The operator credential is intentionally kept out of source control and documentation; enter the private passcode supplied to the operator in the access panel.
 
-## Start here
+The local equivalent is available at `http://localhost:3000` after starting the app, but the hosted link above is the canonical demo URL.
 
-1. `AGENTS.md`
-2. `CONTEXT_INDEX.md`
-3. `MASTER_CONTEXT.md`
-4. `context/NON_NEGOTIABLES.md`
-5. `context/REQUIREMENTS_TRACEABILITY.md`
-6. `tasks/MASTER_BUILD_PLAN.md`
+## What the product demonstrates
 
-## Run the completed V1
+DailyCart is designed to teach and demonstrate how an AI-enabled delivery organization can work as one evidence-linked system:
+
+- **Evidence-led product judgment** — customer interviews, support signals, analytics, incidents, and existing work become a versioned context pack.
+- **Specialized AI collaboration** — research, product, UX, feasibility, delivery, engineering, evaluation, release, and incident roles contribute bounded outputs with citations.
+- **Human governance** — feature and release decisions pause at explicit approval boundaries.
+- **Traceable execution** — every meaningful output carries context, feature, run, skill, ticket, evaluation, approval, and deployment identifiers.
+- **Quality as a release policy** — critical regressions block release even when an aggregate score looks acceptable.
+- **Operational observability** — the same workflow is visible in the control tower and, when configured, in Slack, Linear, GitHub, Supabase, Langfuse, PostHog, Inngest, and Vercel.
+- **Learning from outcomes** — bounded product traffic and incidents feed analytics and regression protection.
+
+The customer and company records are synthetic and privacy-safe. Delivery execution, evaluations, approvals, provider calls, and deployment records are executable and are labeled clearly as live, deterministic fallback, or simulated.
+
+## The mental model
+
+```mermaid
+flowchart LR
+  A[Company context] --> B[Evidence and signals]
+  B --> C[Opportunity ranking]
+  C --> D[Product brief]
+  D --> E[Specialist reviews]
+  E --> F{Human feature approval}
+  F --> G[Delivery plan]
+  G --> H[Parallel implementation]
+  H --> I[Preview deployments]
+  I --> J[Preview evaluations]
+  J --> K{Human release approval}
+  K --> L[Production deployment]
+  L --> M[Telemetry and incidents]
+  M --> B
+```
+
+The product is not a chat window pretending to be a delivery organization. It is a set of executable contracts: agents produce structured records, skills define how each role operates, evaluators measure outputs, and adapters make external actions visible.
+
+## The end-to-end demo
+
+1. Open **Company data** and inspect a context collection or evidence record.
+2. Open **Overview** and follow the Demo Guide. Run the workflow from company context.
+3. Review the two ranked feature opportunities and the evidence behind each recommendation.
+4. Read the specialist review summaries, then approve the feature tracks.
+5. Inspect the delivery roadmap, ownership, dependencies, and readiness checks.
+6. Build the two product previews. Each track records its branch, commit, pull request, checks, and preview URL.
+7. Run preview evaluations. A critical accessibility regression intentionally blocks the first campaign; the corrected campaign passes.
+8. Approve the release, deploy both tracks, and sync delivery records.
+9. Follow the identifiers across **Agent runs**, **Eval campaigns**, **Human review**, **Deployments**, **Integrations**, **Product**, and **Analytics**.
+10. Use **Replay run** to archive the workflow artifacts and safely reset the scenario for another demonstration.
+
+```mermaid
+sequenceDiagram
+  participant O as Operator
+  participant T as Control tower
+  participant A as Role agents
+  participant X as Provider adapters
+  participant P as DailyCart product
+  O->>T: Start from Company data
+  T->>A: Retrieve context and rank opportunities
+  A-->>T: Brief, citations, UX and feasibility findings
+  O->>T: Approve feature tracks
+  T->>X: Create tickets, branches, previews, traces
+  X-->>T: External IDs and links
+  T->>P: Run preview checks and bounded product traffic
+  P-->>T: Events, exposure, funnel, and recovery outcomes
+  T-->>O: Block or pass release gate
+  O->>T: Approve release
+  T->>X: Deploy and synchronize delivery records
+```
+
+## Role model
+
+| Role | Contribution | Visible result |
+|---|---|---|
+| Research and signal agents | Retrieve, cluster, and cite company evidence | Context pack and opportunity signals |
+| PM | Synthesize the opportunity and product brief | Ranked recommendation and revision history |
+| UX | Review clarity, accessibility, and interaction risks | Findings and acceptance criteria |
+| Engineering feasibility | Map affected surfaces, dependencies, telemetry, and preview needs | Feasibility assessment |
+| TPM | Turn approved scope into workstreams, owners, milestones, risks, and readiness | Delivery roadmap and ticket metadata |
+| Engineering | Implement feature-flagged product changes and tests | Branch, commit, PR, checks, and preview |
+| EvalOps | Run structural and semantic quality checks | Case results, scores, and release gate |
+| Release | Coordinate approved production deployment | Deployment record and provider links |
+| Incident | Convert production feedback into regression protection | Linked incident and eval case |
+
+Each role is backed by a versioned executable skill definition. The UI shows concise reasoning summaries, citations, tool calls, latency, cost, and outputs; it does not expose private chain-of-thought.
+
+## Where the integrations fit
+
+| System | Purpose in the delivery story |
+|---|---|
+| Slack | Agent handoffs, approval requests, alerts, analytics summaries, questions, and commands |
+| Linear | Roadmap, statuses, dependencies, ownership, acceptance criteria, and ticket history |
+| GitHub | Branches, commits, pull requests, checks, and release references |
+| Supabase | Durable workflow state, context records, and lineage edges |
+| Langfuse | Traces, observations, scores, cost, and latency |
+| PostHog | Product events, exposure, funnel, and adoption measurement |
+| Inngest | Resumable workflow and phase events |
+| Vercel | Preview and production deployment records |
+
+The Integrations page shows each provider's mode, health, write capability, latest action, timestamp, and external link. A failed permission or unavailable provider is shown as a failure or fallback, never as a fabricated success.
+
+## Slack control surface
+
+One DailyCart bot represents the logical roles in shared threads. Configure the delivery, approvals, alerts, and analytics channel IDs to mirror the workflow across operational spaces. Supported commands include:
+
+```text
+/dailycart status
+/dailycart run
+/dailycart add-feature <description>
+/dailycart ask <question>
+/dailycart approve feature <feature-id>
+/dailycart approve release <feature-id>
+/dailycart create-ticket <description>
+/dailycart replay
+/dailycart reset
+```
+
+## Run locally in deterministic mode
 
 ```bash
 corepack pnpm install
@@ -31,49 +133,31 @@ corepack pnpm demo
 corepack pnpm dev
 ```
 
-The demo works without credentials. It generates deterministic DailyCart data, executes the PM/TPM/engineering/EvalOps lifecycle, demonstrates a blocked critical gate followed by a corrected passing rerun, and serves the responsive control tower at `http://localhost:3000`.
+Open `http://localhost:3000`. This mode requires no credentials and still executes the workflow, persistence contracts, evaluators, approval pauses, lineage, and replay behavior with deterministic provider adapters.
 
-## A complete demo flow
+## Connected mode and access control
 
-1. Open **Company data**. Select a collection or evidence row to preview the synthetic transcript, support signal, analytics note, and its linked feature/lineage.
-2. Open **Overview** and follow the **Demo Guide**. Start from company context, then choose **Run demo**. Watch the workflow rank two feature tracks and move from context retrieval through PM synthesis, UX review, engineering-feasibility review, TPM delivery planning, parallel engineering, preview evals, and the release gates.
-3. Open **Agent runs** to inspect each run and its step-level evidence. TPM consumes the PM-owned brief and only plans workstreams, dependencies, risks, and readiness. Use the Follow-along console to see the current phase, next action, and ask a contextual question.
-4. Open **Eval campaigns**. The first campaign intentionally blocks on a critical regression; the corrected campaign passes. This demonstrates why a weighted score alone cannot override a critical failure.
-5. Use **Human review** to approve the pending release, then **Deployments** to record the release and **Incidents** to see how production feedback becomes a regression case.
-6. Use the **operator command** panel or Slack `/dailycart` command for `run workflow`, `approve release`, `create ticket: ...`, `sync delivery`, and `status`. Every command returns visible success/error feedback and updates the local workflow state.
-7. Click **Build product preview** from the workflow action. Both feature tracks create isolated GitHub branches, commits, PRs, and Vercel previews. Preview evals run against each target before release approval. In demo mode the same normalized records are deterministic and clearly labeled as fallback.
+For a deployment with provider side effects:
 
-### Where each connected tool appears
+1. Set `INTEGRATION_MODE=live`.
+2. Add provider secrets only through the deployment secret store.
+3. Set a private `DAILYCART_OPERATOR_PASSCODE` in that store.
+4. Configure the Slack channel IDs and provider project identifiers.
+5. Redeploy, open **Integrations**, and verify read-only health before making writes.
+6. Unlock the hosted session from the Demo Guide before running workflows, traffic, replay, or deployment actions.
 
-| Tool | V1 action | What it demonstrates |
-|---|---|---|
-| Linear (or GitHub Issues fallback) | **Sync delivery records** creates the delivery roadmap tickets for both feature tracks | Structured decomposition, dependencies, and external traceability |
-| Slack | One bot fans handoffs into delivery, approvals, alerts, and analytics channels; slash commands work in each | Human-in-the-loop coordination and command-driven automation |
-| GitHub | Repository health, issue fallback, branches/PR/check/release links | Code-host integration and isolated engineering work |
-| Langfuse | Sync creates a delivery trace and `workflow_completed` score | Agent observability, lineage, and outcome scoring |
-| PostHog | Product interactions and bounded traffic are captured | Funnel, exposure, failure, and adoption measurement |
-| Supabase | Workflow records and lineage can be persisted through the adapter | Durable shared state and external references |
-| Inngest | Sync emits `dailycart/workflow.completed` | Event-driven orchestration boundary |
-| Vercel | Approved release calls the deployment adapter | Release gating and deployment evidence |
-| DailyCart sample product | Analytics → Traffic controls generates capped activity | A controllable product surface rather than a screenshot |
+Provider keys remain server-side. Anonymous visitors can inspect the product without spending shared model credits or creating external records.
 
-After **Sync delivery records**, the UI exposes the actual ticket, Slack message, Langfuse trace, and Inngest event links. In live mode those links point to the connected provider; in demo mode they point to deterministic adapter records and are labeled as mocked.
+## Repository guide
 
-## Live mode versus demo mode
+- [Demo runbook](docs/DEMO_RUNBOOK.md) — exact operator sequence and live-mode boundaries.
+- [Implementation status](IMPLEMENTATION_STATUS.md) — completed phases, verification, risks, and deferred scope.
+- [Manual connection checklist](MANUAL_CONNECTION_CHECKLIST.md) — provider setup without secret values.
+- [Architecture](docs/ARCHITECTURE.md) — package and adapter boundaries.
+- [EvalOps model](docs/EVALOPS.md) — graders, campaigns, and release policy.
+- [Requirements traceability](context/REQUIREMENTS_TRACEABILITY.md) — requirement-to-implementation map.
 
-`DEMO_MODE=synthetic` is deliberately credential-free. It is useful for a repeatable product demo and still executes the workflow locally. Set `INTEGRATION_MODE=live` and provide provider secrets in the deployment secret store to use GitHub, Slack, Linear, Supabase, Langfuse, PostHog, Vercel, Inngest, and the sample-product traffic adapter. Set `DAILYCART_OPERATOR_PASSCODE` so live writes and model credits require an operator session. Configure `SLACK_DELIVERY_CHANNEL`, `SLACK_APPROVALS_CHANNEL`, `SLACK_ALERTS_CHANNEL`, and `SLACK_ANALYTICS_CHANNEL` for multi-channel fan-out. The Integrations page runs read-only health probes on load and on **Check all**; each provider card shows its actual mode, configuration, write capability, and missing variables.
-
-Company evidence remains synthetic by design in V1. “Live” means the delivery workflow and provider side effects are live; it does not invent access to private customer research. The sample product traffic endpoint lets you generate bounded, repeatable traffic against the product contract and observe funnel analytics.
-
-## Deployment
-
-The production app is the `apps/control-tower` workspace. In Vercel, set the project root to `apps/control-tower`, use `pnpm --filter @dailycart/control-tower build`, and add the variables listed in `MANUAL_CONNECTION_CHECKLIST.md`. Vercel automatically creates a new deployment after a push to `main`. Never commit `.env.local` or provider secrets.
-
-## V2 boundary
-
-V1 intentionally stops at a single synthetic company, one release gate, and adapter-backed provider actions. V2 can add multi-company tenancy, a durable external evidence store, richer Slack conversational threads, background job orchestration, and configurable load-test scenarios. Those are extensions, not substitutes for the V1 flow above.
-
-Useful checks:
+## Verification
 
 ```bash
 corepack pnpm validate:data
@@ -84,6 +168,4 @@ corepack pnpm test:e2e
 corepack pnpm security:scan
 ```
 
-See `docs/DEMO_RUNBOOK.md`, `docs/TROUBLESHOOTING.md`, and `MANUAL_CONNECTION_CHECKLIST.md` for connected-mode setup.
-
-For a new Codex task, paste `codex/INITIAL_PROMPT.md`.
+The current implementation has 50 unit tests and 16 responsive Playwright checks. The hosted deployment is the canonical live demo; local mode remains the credential-free fallback.
