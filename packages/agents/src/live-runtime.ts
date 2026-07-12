@@ -30,15 +30,15 @@ export async function runLiveAgentReasoning(input: LiveAgentReasoningInput, env:
   try {
     const response = await fetch(`${base.endsWith("/v1") ? base : `${base}/v1`}/chat/completions`, {
       method: "POST",
-      headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-      body: JSON.stringify({ model, temperature: 0, max_tokens: 180, messages: [
+      headers: { authorization: `Bearer ${apiKey}`, "x-portkey-api-key": apiKey, "content-type": "application/json" },
+      body: JSON.stringify({ model, temperature: 0, max_completion_tokens: 180, messages: [
         { role: "system", content: "Return only a concise operator-safe summary. Do not reveal chain-of-thought. State the evidence considered, decision, risk, and next action in 3-5 sentences." },
         { role: "user", content: JSON.stringify(input) }
       ] }),
       signal: controller.signal
     });
-    if (!response.ok) throw new Error(`Model returned HTTP ${response.status}`);
-    const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }>; error?: { message?: string } };
+    if (!response.ok) throw new Error(payload.error?.message ?? `Model returned HTTP ${response.status}`);
     const summary = payload.choices?.[0]?.message?.content?.trim();
     if (!summary) throw new Error("Model returned no summary");
     return { model, summary, sourceMode: "live" };
