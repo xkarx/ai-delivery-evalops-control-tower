@@ -17,7 +17,7 @@ function sendEvent(event: "session_started" | "product_viewed" | "search_used" |
 }
 
 const cartPersistenceEnabled = true; // FEAT-0002: approved persistent cart
-const focusRestorationEnabled = true;
+const focusRestorationEnabled = false; // FEAT-0001: first preview intentionally exposes the measured focus regression
 
 export function ProductClient({ runtimeMode }: { runtimeMode: RuntimeMode }) {
   const checkoutRecoveryEnabled = true; // FEAT-0001: approved recovery guidance
