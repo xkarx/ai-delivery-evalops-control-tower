@@ -183,11 +183,24 @@ export async function GET(request: Request): Promise<Response> {
     const latestRun = relatedRun ?? matchingRun ?? (!runningStep
       ? [...runs].sort((a, b) => (b.finishedAt ?? b.startedAt ?? "").localeCompare(a.finishedAt ?? a.startedAt ?? ""))[0]
       : undefined);
-    const provenanceWarnings = runs.flatMap((run) => [
+    const requiredAnalysisSkills = [
+      "context-retrieval",
+      "interview-synthesis",
+      "support-ticket-clustering",
+      "analytics-anomaly-analysis",
+      "feature-prioritization",
+      "ux-review",
+      "engineering-feasibility-review",
+      "agent-output-evaluation"
+    ];
+    const missingAnalysisRuns = stageOrder.indexOf(stage) >= stageOrder.indexOf("feature_approval")
+      ? requiredAnalysisSkills.filter((skillId) => !runs.some((run) => run.skillId === skillId)).map((skillId) => `The current session is missing its ${skillId} run.`)
+      : [];
+    const provenanceWarnings = [...missingAnalysisRuns, ...runs.flatMap((run) => [
       !run.skillId || !run.skillVersion ? `${run.id} is missing an executable skill/version.` : undefined,
       !run.contextPackId ? `${run.id} is missing its context-pack ID.` : undefined,
       !run.citedEvidenceIds?.length ? `${run.id} is missing cited evidence.` : undefined
-    ].filter((item): item is string => Boolean(item)));
+    ].filter((item): item is string => Boolean(item)))];
     const activeAgent = runningStep || latestRun ? {
       role: runningStep?.agent ?? latestRun?.agent ?? "operator",
       runId: latestRun?.id,
