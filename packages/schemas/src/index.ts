@@ -65,7 +65,7 @@ export type Ticket = z.infer<typeof ticketSchema>;
 
 export const agentRunSchema = z.object({
   id: z.string().regex(/^RUN-\d{4,}$/),
-  agent: z.enum(["pm", "ux", "engineering_feasibility", "tpm", "engineering", "eval", "release", "incident"]),
+  agent: z.enum(["context", "research", "support", "analytics", "pm", "ux", "engineering_feasibility", "tpm", "engineering", "eval", "release", "incident"]),
   status: z.enum(["queued", "running", "waiting_approval", "failed", "blocked", "succeeded"]),
   startedAt: timestampSchema,
   finishedAt: timestampSchema.optional(),

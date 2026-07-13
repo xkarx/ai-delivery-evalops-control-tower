@@ -18,6 +18,7 @@ export type SkillId =
   | "pull-request-preparation"
   | "eval-case-generation"
   | "rubric-authoring"
+  | "agent-output-evaluation"
   | "release-readiness";
 
 export interface SkillDefinition {
@@ -50,6 +51,7 @@ export const skillRegistry: Record<SkillId, SkillDefinition> = {
   "pull-request-preparation": skill("pull-request-preparation", "Prepare an inspectable branch, commit, PR, checks, and preview request.", ["implementation result"], ["github", "vercel"], "none", ["links recorded", "diff scoped"]),
   "eval-case-generation": skill("eval-case-generation", "Create versioned cases from requirements, incidents, and acceptance criteria.", ["brief", "incident", "rubric"], ["eval-store"], "none", ["case executable", "criticality justified"]),
   "rubric-authoring": skill("rubric-authoring", "Define deterministic and semantic grading criteria with calibration labels.", ["acceptance criteria", "human labels"], ["eval-store", "langfuse"], "none", ["threshold explicit", "critical cases marked"]),
+  "agent-output-evaluation": skill("agent-output-evaluation", "Evaluate agent outputs for citation integrity, structured contracts, semantic quality, and approval-policy compliance.", ["agent runs", "company context pack", "evaluation rubrics"], ["eval-store", "langfuse", "model-judge"], "none", ["every result links to a run", "grader mode is explicit", "blocking failures stop progression"]),
   "release-readiness": skill("release-readiness", "Verify preview evals, approvals, provider links, and deployment readiness.", ["preview eval", "approval", "checks"], ["vercel", "linear", "github"], "release", ["critical failures block", "human approval present"])
 };
 

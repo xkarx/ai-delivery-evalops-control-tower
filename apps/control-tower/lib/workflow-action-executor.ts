@@ -57,20 +57,21 @@ export async function executeWorkflowActionDirect(request: Request, identity: Id
       await completeStep(identity.actionId, identity.sessionId, { id: "context", label: "Company context retrieved", detail: "Loaded the versioned evidence pack and validated its references.", progress: 12, phase: "context", agent: "Context Retrieval Agent", skillId: "context-retrieval" });
       const current = await getAction(identity.actionId, identity.sessionId);
       const queuedAgents: WorkflowProgressStep[] = [
-        { id: "research", label: "Synthesize research", detail: "Interview evidence and customer language are being synthesized.", status: "running", agent: "Research Agent", skillId: "research-synthesis", startedAt: new Date().toISOString() },
-        { id: "support", label: "Cluster support signals", detail: "Support issues will be grouped and linked to evidence.", status: "pending", agent: "Support Insight Agent", skillId: "support-clustering" },
-        { id: "analytics", label: "Analyze product behavior", detail: "Behavioral signals and funnel observations will be assessed.", status: "pending", agent: "Analytics Agent", skillId: "analytics-analysis" },
+        { id: "research", label: "Synthesize research", detail: "Interview evidence and customer language are being synthesized.", status: "running", agent: "research", skillId: "interview-synthesis", startedAt: new Date().toISOString() },
+        { id: "support", label: "Cluster support signals", detail: "Support issues will be grouped and linked to evidence.", status: "pending", agent: "support", skillId: "support-ticket-clustering" },
+        { id: "analytics", label: "Analyze product behavior", detail: "Behavioral signals and funnel observations will be assessed.", status: "pending", agent: "analytics", skillId: "analytics-anomaly-analysis" },
         { id: "pm", label: "Rank opportunities", detail: "Evidence-grounded opportunities will be scored and ranked.", status: "pending", agent: "PM Agent", skillId: "feature-prioritization" },
         { id: "ux", label: "Review experience risks", detail: "Clarity, accessibility, and interaction risks will be reviewed.", status: "pending", agent: "UX Agent", skillId: "ux-review" },
-        { id: "feasibility", label: "Review engineering feasibility", detail: "Affected surfaces, dependencies, telemetry, and preview needs will be reviewed.", status: "pending", agent: "Engineering Feasibility Agent", skillId: "engineering-feasibility" },
-        { id: "agent-evals", label: "Evaluate agent outputs", detail: "Citation, grounding, quality, and role-boundary checks will run.", status: "pending", agent: "EvalOps Agent", skillId: "agent-output-evaluation" }
+        { id: "feasibility", label: "Review engineering feasibility", detail: "Affected surfaces, dependencies, telemetry, and preview needs will be reviewed.", status: "pending", agent: "engineering_feasibility", skillId: "engineering-feasibility-review" },
+        { id: "agent-evals", label: "Evaluate agent outputs", detail: "Citation, grounding, quality, and role-boundary checks will run.", status: "pending", agent: "eval", skillId: "agent-output-evaluation" }
       ];
       await updateAction(identity.actionId, { status: "running", phase: "agent_research", progress: 22, message: "Research Agent is synthesizing interview evidence.", nextAction: "Seven visible agent and evaluation stages run before the feature-approval gate.", steps: [...(current?.steps ?? []), ...queuedAgents] }, identity.sessionId);
-      await callRoute(request, "/api/workflow/run", { method: "POST" }, identity);
+      const runResult = await callRoute(request, "/api/workflow/run", { method: "POST" }, identity);
+      const progressRunIds = (runResult.progressRunIds ?? {}) as Record<string, string>;
       await bindAction(identity);
       const completed = new Date().toISOString();
       const afterRun = await getAction(identity.actionId, identity.sessionId);
-      await updateAction(identity.actionId, { status: "running", progress: 100, phase: "awaiting_feature_approval", message: "Specialist agents and their output evaluations completed.", steps: (afterRun?.steps ?? []).map((step) => step.id === "context" ? step : { ...step, status: "succeeded" as const, startedAt: step.startedAt ?? completed, completedAt: completed }) }, identity.sessionId);
+      await updateAction(identity.actionId, { status: "running", progress: 100, phase: "awaiting_feature_approval", message: "Specialist agents and their output evaluations completed.", steps: (afterRun?.steps ?? []).map((step) => ({ ...step, status: "succeeded" as const, relatedRunIds: progressRunIds[step.id] ? [progressRunIds[step.id]!] : step.relatedRunIds, startedAt: step.startedAt ?? completed, completedAt: step.completedAt ?? completed })) }, identity.sessionId);
       return updateAction(identity.actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Review the ranked evidence and approve or reject the proposed feature tracks.", error: undefined }, identity.sessionId);
     }
 
