@@ -6,8 +6,8 @@ Codex must update the implementation link and evidence columns. “Implemented�
 
 | Requirement | Implementation | Verification |
 |---|---|---|
-| A first-time operator can follow the complete delivery story | Persistent Demo Guide checklist links Company context → opportunity ranking → agent analysis → feature approval → plan/build → eval campaigns → release approval → deployment → analytics → incident learning → lineage. | `tests/e2e/control-tower.spec.ts` — guided walkthrough test on desktop and mobile. |
-| Eval campaigns are a visible guided step | `/evals` has a route-specific explanation and the next guided action points to the release decision. | Browser route audit plus Playwright navigation assertion. |
+| A first-time operator can follow the complete delivery story | Persistent Demo Guide checklist links Company context → opportunity ranking → agent analysis → feature approval → plan/build → eval campaigns → release approval → deployment → analytics → incident learning → lineage. | Verified in `tests/e2e/control-tower.spec.ts` on desktop/mobile and in hosted production at commit `8a2fd88`; GitHub run `29218981827` passed. |
+| Eval campaigns are a visible guided step | `/evals` has a route-specific explanation and the next guided action points to the release decision. | Hosted browser verified canonical `/evals` → `/reviews#release-gate`; the Human Review gate summary rendered at the target. |
 | Human decisions use the durable workflow | Feature and release approvals queue `/api/workflow/actions` and route to the durable run timeline; rejection remains an explicit decision endpoint. | Typecheck, lint, and workflow browser coverage. |
 | Eval and review layouts remain readable | Eval matrices scroll inside their card; review gate summary and decision actions reflow at narrow widths. | Tablet/mobile overflow tests at 820px and 390px. |
 
