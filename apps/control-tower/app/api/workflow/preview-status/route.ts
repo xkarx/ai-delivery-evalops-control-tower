@@ -5,7 +5,9 @@ import { requestSessionId } from "@/lib/demo-session";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Build = { featureId: string; deploymentId: string; externalDeploymentId?: string; deploymentUrl: string; commitSha: string; sourceMode: string };
+type Build = { featureId: string; deploymentId: string; externalDeploymentId?: string; deploymentUrl: string; commitSha: string; sourceMode: string; createdAt?: string };
+
+const previewMaxAgeMs = () => Math.max(5_000, Number(process.env.WORKFLOW_PREVIEW_MAX_WAIT_SECONDS ?? 900) * 1_000);
 
 export async function GET(request: Request): Promise<Response> {
   try {
@@ -24,7 +26,8 @@ export async function GET(request: Request): Promise<Response> {
     const statuses = builds.map((build) => {
       const match = payload.deployments?.find((item) => item.uid === build.externalDeploymentId || (item.url && `https://${item.url}` === build.deploymentUrl));
       const state = (match?.readyState ?? match?.state ?? "QUEUED").toUpperCase();
-      return { featureId: build.featureId, deploymentId: build.deploymentId, externalDeploymentId: match?.uid ?? build.externalDeploymentId, state, url: build.deploymentUrl, commitSha: build.commitSha, checkedAt: new Date().toISOString() };
+      const timedOut = Boolean(build.createdAt && Date.now() - Date.parse(build.createdAt) > previewMaxAgeMs() && !["READY", "ERROR", "CANCELED"].includes(state));
+      return { featureId: build.featureId, deploymentId: build.deploymentId, externalDeploymentId: match?.uid ?? build.externalDeploymentId, state: timedOut ? "TIMEOUT" : state, url: build.deploymentUrl, commitSha: build.commitSha, checkedAt: new Date().toISOString() };
     });
     return NextResponse.json({ ok: true, statuses });
   } catch (error) {

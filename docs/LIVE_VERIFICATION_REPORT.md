@@ -6,6 +6,16 @@ Verified on 2026-07-12 against the canonical hosted application:
 
 This report records observed production evidence. It does not treat configured credentials, static fixtures, or local checks as proof of a live provider action.
 
+## How to read the cockpit and this report
+
+The `/demo` cockpit is the authoritative presentation for one signed session. A provider link is attached to the stage that caused it: an `artifactUrl` is the exact ticket/message/PR/preview/event/deployment record, while a `dashboardUrl` is a broader provider view. A health probe, configured secret, or “live” runtime label is not an action receipt. When no exact link exists, the UI should say pending, unavailable, partial, or deterministic fallback.
+
+The product intentionally has a mixed boundary. Company/customer inputs are synthetic and privacy-safe. Showcase selects one feature track; Full Verification selects two tracks plus the measured correction path. Provider liveness is independent of that profile: only model calls, writes, previews, evaluations, deployments, events, and incident follow-up that returned external records are live. Any fallback remains explicitly labelled.
+
+Agent-output evaluations and preview evaluations are separate evidence. Agent-output evaluations grade the structured role response for grounding, scope, and provenance. Preview evaluations run browser/accessibility checks against the exact built commit and preview URL. Both remain subordinate to the feature and release human gates.
+
+Full Verification is asynchronous: worker start can take up to 15 seconds, analysis and provider synchronization commonly take 30–90 seconds each, previews and browser evaluations commonly take 1–3 minutes each, and correction/rebuild/rerun commonly takes 2–5 minutes. Human approval phases have no automatic timeout. These are operator estimates, not additional live records.
+
 ## Guided workflow recovery deployment — 2026-07-12
 
 | Record | Observed value |
@@ -104,3 +114,11 @@ An independent remote Playwright run against the deployed product passed three b
 3. **The deliberate blocked first preview is an orchestrated release-gate case.** The corrected deployed behavior has independent browser proof, but the original 75-point failure does not include a captured failing browser trace.
 
 These limitations are displayed as limitations rather than converted into simulated success.
+
+## Current limitations and non-claims
+
+- This report proves the recorded sessions and provider IDs above; it does not prove a future run, a different workspace, or a newly configured channel.
+- Distinct Slack channel routing remains the documented configuration gap; the observed messages used the configured default channel.
+- The local DailyCart product/HTTP sidecar is the verified sample-product adapter target. The repository does not claim that Google's upstream Online Boutique multi-service deployment is already hosted or receiving traffic.
+- The workflow includes durable execution and Inngest evidence, but the report should not be interpreted as proof that every phase is exclusively advanced by a background Inngest function.
+- A passing agent-output score cannot substitute for a preview-target browser pass, and a passing preview cannot substitute for a human release approval.

@@ -10,6 +10,7 @@ import { loadDemoState } from "@/lib/load-demo-state";
 import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { getDemoSession } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -62,6 +63,7 @@ type StoredWorkflowRun = {
   featureBatchId?: string;
   recommendations?: Array<{ id: string; title: string; score: number; confidence: number; evidenceIds: string[]; problem: string; hypothesis: string; status: string; workstream: string; metrics: string[]; sourceMode: string }>;
   featureTracks?: Array<{ featureId: string; featureTitle: string; prdId: string; ticketIds: string[]; engineeringRunIds: string[]; blockedCampaignId: string; passedCampaignId: string; featureApprovalId: string; releaseApprovalId: string; status: string }>;
+  executionMode?: "showcase" | "full_verification";
 };
 
 function rootPath(): string {
@@ -214,6 +216,8 @@ export async function POST(request: Request) {
   const runKey = `${RUN_KEY}:${sessionId}`;
   const executionSourceMode = process.env.INTEGRATION_MODE === "live" ? "live" as const : "simulated" as const;
   const existing = await readArtifact<StoredWorkflowRun>("workflow", sessionId);
+  const session = await getDemoSession(sessionId);
+  const executionMode = request.headers.get("x-dailycart-execution-mode") === "full_verification" || session?.executionMode === "full_verification" ? "full_verification" as const : "showcase" as const;
   const featureApproved = request.headers.get("x-dailycart-feature-approved") === "true";
   // The command route writes a minimal session binding before execution. That
   // binding proves identity but does not mean the agent workflow has run.
@@ -320,7 +324,7 @@ export async function POST(request: Request) {
       const pendingWorkflow = DeliveryWorkflow.start({ id: ids.project, featureId: selected.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
       pendingWorkflow.requestFeatureApproval(ids.featureApproval, "pm-agent");
       const pending = {
-        key: runKey, sessionId, workflowInstanceId, activeActionId, createdAt: now, phase: pendingWorkflow.snapshot().phase, sourceMode: executionSourceMode,
+        key: runKey, sessionId, workflowInstanceId, activeActionId, createdAt: now, phase: pendingWorkflow.snapshot().phase, sourceMode: executionSourceMode, executionMode,
         featureId: selected.id, featureTitle: selected.title, evidenceIds: selected.evidenceIds,
         ticketIds: [], engineeringRunIds: [], blockedCampaignId: "", passedCampaignId: "", releaseApprovalId: ids.featureApproval,
         workflow: pendingWorkflow.snapshot(), agentReasoning, agentEvals, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2)
@@ -356,7 +360,7 @@ export async function POST(request: Request) {
     const allAgentEvals = [...agentEvals, ...planningAgentEvals];
     const workstreamRaw = await executeIndependentEngineeringWorkstreams(recommended, plan.tickets, { runStartOrdinal: ids.engineeringStart });
     const workstreams = workstreamRaw.map((record) => ({ ...record, run: annotateAgentRun(record.run, { skillId: "code-implementation", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds }) }));
-    const secondaryCandidate = pmRaw.opportunities[1];
+    const secondaryCandidate = executionMode === "full_verification" ? pmRaw.opportunities[1] : undefined;
     const secondary = secondaryCandidate ? { ...secondaryCandidate, status: "approved" as const, sourceMode: "simulated" as const } : undefined;
     const secondaryBrief = secondary ? createImplementationBrief(secondary, { briefOrdinal: 2, now }) : undefined;
     const secondaryUx = secondary && secondaryBrief ? runUxReview(secondary, secondaryBrief, { now, sourceMode: "simulated", runId: ids.secondaryUx, reviewId: `EXT-${ids.secondaryEngineeringStart}` }) : undefined;
@@ -405,6 +409,7 @@ export async function POST(request: Request) {
     const validated = assertDemoState(next);
     const stored: StoredWorkflowRun = {
       key: runKey,
+      executionMode,
       sessionId,
       workflowInstanceId,
       activeActionId,

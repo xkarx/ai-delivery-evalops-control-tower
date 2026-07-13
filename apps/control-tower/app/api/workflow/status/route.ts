@@ -160,7 +160,13 @@ export async function GET(request: Request): Promise<Response> {
     ]);
 
     const activeAction = stored?.activeActionId ? await getAction(stored.activeActionId, sessionId) : latestAction(actions, sessionId);
-    const durablePhase = activeAction && ["queued", "running", "waiting_human", "failed"].includes(activeAction.status) ? activeAction.phase : stored?.workflow?.phase ?? "not_started";
+    // Queueing a release/incident/retry must not make the timeline jump back
+    // to a synthetic `queued` phase. The aggregate remains the source of
+    // truth until execution has actually started; actions may carry the phase
+    // they were queued from for recovery and observability.
+    const durablePhase = activeAction && ["running", "waiting_human", "failed"].includes(activeAction.status)
+      ? activeAction.phase
+      : stored?.workflow?.phase ?? activeAction?.parentPhase ?? "not_started";
     const phase = durablePhase === "released" && (demoState?.incidents?.length ?? 0) > 0
       ? "incident_learning"
       : durablePhase === "released" && (productEvents?.length ?? 0) > 0
@@ -229,8 +235,10 @@ export async function GET(request: Request): Promise<Response> {
         ? [{ command: "approve_feature", label: "Approve feature tracks", enabled: provenanceWarnings.length === 0 }]
         : phase === "awaiting_release_approval"
           ? [{ command: "approve_release", label: "Approve release", enabled: allPassed && !(sync?.errors?.length) }]
-          : ["released", "product_outcomes"].includes(phase)
+      : ["released", "product_outcomes"].includes(phase)
             ? [{ command: "declare_incident", label: "Record an incident", enabled: true }]
+            : phase === "incident_learning"
+              ? []
             : !activeAction || ["succeeded"].includes(activeAction.status)
               ? [{ command: "analyze", label: "Analyze opportunities", enabled: !stored?.workflow }]
               : [];
@@ -245,7 +253,7 @@ export async function GET(request: Request): Promise<Response> {
     ].sort((a, b) => a.at.localeCompare(b.at));
 
     const progress = activeAction?.progress ?? Math.round((stageOrder.indexOf(stage) / (stageOrder.length - 1)) * 100);
-    const workflow = { workflowId: session.workflowId, phase, revision: stored?.workflow?.revision ?? 0, featureId: stored?.workflow?.featureId ?? stored?.featureId, featureTitle: stored?.featureTitle, featureBatchId: stored?.featureBatchId };
+    const workflow = { workflowId: session.workflowId, phase, revision: stored?.workflow?.revision ?? 0, featureId: stored?.workflow?.featureId ?? stored?.featureId, featureTitle: stored?.featureTitle, featureBatchId: stored?.featureBatchId, executionMode: session.executionMode ?? activeAction?.executionMode ?? "showcase" };
     const completionSummary = ["released", "product_outcomes", "incident_learning"].includes(phase) ? {
       sessionId, workflowId: session.workflowId, startedAt: activeAction?.createdAt ?? session.createdAt, completedAt: activeAction?.updatedAt,
       durationMs: activeAction ? Math.max(0, Date.parse(activeAction.updatedAt) - Date.parse(activeAction.createdAt)) : 0,
@@ -261,6 +269,7 @@ export async function GET(request: Request): Promise<Response> {
     return NextResponse.json({
       started: Boolean(stored?.workflow || activeAction),
       session,
+      executionMode: session.executionMode ?? activeAction?.executionMode ?? "showcase",
       sessionId,
       workflow,
       workflowId: session.workflowId,

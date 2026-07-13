@@ -20,6 +20,16 @@ test("the root route opens the authoritative demo cockpit", async ({ page }) => 
   await expect(page.getByText("Executed delivery actions", { exact: true })).toBeVisible();
 });
 
+test("cockpit exposes the approved run profiles and target durations", async ({ page }) => {
+  await page.goto("/demo");
+  await expect(page.getByText("Run profile", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Showcase.*8–12 minutes/i)).toBeVisible();
+  await expect(page.getByText(/Full verification.*18–25 minutes/i)).toBeVisible();
+  const full = page.getByRole("radio", { name: /Full verification/i });
+  await full.check();
+  await expect(full).toBeChecked();
+});
+
 test("operator access can be opened from the global header", async ({ page }) => {
   await page.goto("/demo");
   const operator = page.getByRole("button", { name: "Demo operator" });
@@ -137,6 +147,8 @@ test("company context, eval authoring, incident creation, and export are interac
   await expect(page.locator(".record-preview").first()).toHaveAttribute("open", "");
 
   await page.goto("/evals#eval-workbench");
+  await page.getByText("3 · Advanced eval workbench", { exact: false }).click();
+  await expect(page.locator(".eval-workbench-disclosure")).toHaveAttribute("open", "");
   await page.getByRole("button", { name: "Save case" }).click();
   await expect(page.getByRole("status")).toContainText(/saved/i);
   await page.getByRole("button", { name: "Run selected evals" }).click();

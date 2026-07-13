@@ -16,6 +16,19 @@
 | 09b Operator unlock recovery | Hosted production verified | [PR #14](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/14) · merge `9fe6de9` | lint, typecheck, 57 unit/integration tests, production build, Playwright 25 passed + 1 intentionally skipped duplicate mutation; [quality](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29241045971/job/86786911383), [browser](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29241045971/job/86787208499), and [production deployment](https://vercel.com/dailycart-control-tower/ai-delivery-evalops-control-tower-control-tower/3MaQkQa35oXaKfiodPRRVjFmwgfA) passed | The global KO control opens a keyboard-accessible operator panel on the canonical production cockpit, authenticates against `/api/operator/auth`, refreshes cockpit authorization after success, and explains protected-session 401 responses instead of presenting a dead start control or generic failure. The passcode remains deployment-only and is neither displayed nor stored by the page. |
 | 10 Final hosted workflow proof | Hosted production verified | [PR #24](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/24) · merge `21df6cb` · session `SESSION-17839738078453B830752D18B` | typecheck, lint, 65 unit/integration tests, production build, secret scan, focused Playwright 6 passed, full browser suite passed in PR and main | Workflow `WORKFLOW-1783973807845A1A17499B6CE` completed model-backed analysis, eight pre-approval agent runs, 18 agent-output evals, feature and release approvals, Linear DAI-56–DAI-61, Slack handoffs, GitHub PRs #22/#23, two Vercel previews, a measured preview failure/correction path, passing browser runs `29284346755` and `29284411942`, release, 100 bounded product events, and an incident-to-regression loop. Canonical production inspection after deployment confirmed that refresh preserves the visible operator-unlocked state and that non-agent outcome phases no longer fabricate an active agent. |
 
+## Operator modes and timing
+
+`/demo` is the authoritative, session-safe cockpit. The repository supports two documented walkthrough modes:
+
+- **Showcase:** one feature track and one preview, targeting 8–12 minutes. It uses the configured adapter mode: live provider records remain live on the hosted deployment, while credential-free local adapters remain labelled fallback.
+- **Full Verification:** two parallel feature tracks plus the measured failure, correction, and rerun, targeting 18–25 minutes. It uses the same configured adapter mode and is the complete acceptance-proof path.
+
+The execution profile does not determine provider liveness. `DEMO_MODE=synthetic` preserves privacy-safe company inputs; `INTEGRATION_MODE` controls adapter behavior, and each record must still prove its own source mode and external ID.
+
+Full Verification is intentionally asynchronous. Typical observed guidance is up to 15 seconds for worker start, 30–90 seconds for analysis, 30–90 seconds for provider synchronization, 1–3 minutes per preview, 1–3 minutes per preview evaluation, and 2–5 minutes for correction/rebuild/rerun. Feature and release approvals are human waits, not timeouts. The cockpit heartbeat, phase estimate, action error, and provider activity are the source of truth.
+
+Agent-output evaluation and preview-target evaluation are separate: the former checks role output grounding/provenance and the latter checks the exact built preview. A passing agent score does not release a failing preview, and neither gate replaces the human decision.
+
 ## Risks and release blockers
 
 - The session-safe cockpit and operator-unlock recovery are deployed. Production inspection confirmed the KO control, protected start state, operator dialog, passcode field, close control, and explicit deployment-only handling on the canonical `/demo` route.
@@ -26,6 +39,8 @@
 - Any failed provider write, preview check, model call, or deployment is a stop-ship blocker and will be recorded rather than replaced with a fabricated success.
 - Safe PostHog and Supabase dashboard URLs are not configured, so those two provider cards show an explicit unavailable state rather than fabricating a link. Their underlying event/state adapters remain separately verified.
 - The final proof session used the configured default Slack channel. Distinct delivery, approval, alert, and analytics channels remain a user-owned Slack configuration dependency rather than an application-code defect.
+- A provider health check is not an action receipt. The UI should only call an external operation live when the provider returns its record/link; otherwise it must show pending, unavailable, partial, or deterministic fallback.
+- The Google Online Boutique remains an optional production-like sidecar. The local DailyCart product and HTTP sidecar are the verified adapter target; this repository does not claim that Google's upstream multi-service deployment is already running.
 
 ## Assumptions
 

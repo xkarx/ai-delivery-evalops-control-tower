@@ -250,6 +250,8 @@ export const workflowActionSchema = z.object({
   sessionId: z.string().regex(/^SESSION-[A-Z0-9]+$/),
   workflowId: z.string().regex(/^WORKFLOW-[A-Z0-9]+$/),
   command: workflowCommandSchema,
+  executionMode: z.enum(["showcase", "full_verification"]).default("showcase"),
+  parentPhase: z.string().optional(),
   idempotencyKey: z.string(),
   status: z.enum(["queued", "running", "waiting_human", "succeeded", "failed"]),
   phase: z.string(),
@@ -262,6 +264,13 @@ export const workflowActionSchema = z.object({
   createdAt: timestampSchema,
   updatedAt: timestampSchema,
   heartbeatAt: timestampSchema,
+  executionLease: z.object({
+    token: z.string().min(8),
+    owner: z.string().min(2),
+    acquiredAt: timestampSchema,
+    heartbeatAt: timestampSchema,
+    expiresAt: timestampSchema
+  }).optional(),
   error: z.object({ code: z.string(), detail: z.string(), retryable: z.boolean() }).optional()
 });
 export type WorkflowAction = z.infer<typeof workflowActionSchema>;

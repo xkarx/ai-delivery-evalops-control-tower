@@ -1,8 +1,8 @@
 import type { WorkflowAction, WorkflowProgressStep } from "@dailycart/schemas";
 import { readArtifact, writeArtifact } from "./durable-artifacts";
-import { getAction, recordActionStep, updateAction } from "./workflow-actions";
+import { acquireExecutionLease, getAction, recordActionStep, releaseExecutionLease, updateAction } from "./workflow-actions";
 
-type Identity = Pick<WorkflowAction, "actionId" | "sessionId" | "workflowId" | "command"> & { rationale?: string };
+type Identity = Pick<WorkflowAction, "actionId" | "sessionId" | "workflowId" | "command"> & { rationale?: string; leaseOwner?: string; executionMode?: "showcase" | "full_verification" };
 
 async function callRoute(request: Request, path: string, init: RequestInit, identity: Identity): Promise<Record<string, unknown>> {
   const response = await fetch(new URL(path, request.url), {
@@ -14,6 +14,7 @@ async function callRoute(request: Request, path: string, init: RequestInit, iden
       "x-dailycart-session-id": identity.sessionId,
       "x-dailycart-workflow-id": identity.workflowId,
       "x-dailycart-action-id": identity.actionId,
+      "x-dailycart-execution-mode": identity.executionMode ?? "showcase",
       ...(init.headers as Record<string, string> | undefined)
     }
   });
@@ -34,7 +35,10 @@ async function completeStep(actionId: string, sessionId: string, input: { id: st
 }
 
 async function waitForPreviews(request: Request, identity: Identity): Promise<void> {
-  for (let attempt = 1; attempt <= 36; attempt += 1) {
+  const pollMs = 5_000;
+  const maxWaitMs = Math.max(pollMs, Number(process.env.WORKFLOW_PREVIEW_MAX_WAIT_SECONDS ?? 900) * 1_000);
+  const maxAttempts = Math.ceil(maxWaitMs / pollMs);
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     const payload = await callRoute(request, "/api/workflow/preview-status", {}, identity);
     const statuses = (payload.statuses ?? []) as Array<{ state?: string }>;
     if (statuses.length && statuses.every((item) => item.state === "READY")) {
@@ -42,15 +46,19 @@ async function waitForPreviews(request: Request, identity: Identity): Promise<vo
       return;
     }
     if (statuses.some((item) => ["ERROR", "CANCELED"].includes(item.state ?? ""))) throw new Error("PREVIEW_DEPLOYMENT_FAILED: A Vercel preview failed before evaluation.");
-    await updateAction(identity.actionId, { status: "running", phase: "waiting_vercel", progress: 68, message: `Waiting for Vercel previews (${attempt}/36).`, nextAction: "Browser evaluation starts when every preview is READY." }, identity.sessionId);
-    await new Promise((resolve) => setTimeout(resolve, 5_000));
+    if (statuses.some((item) => item.state === "TIMEOUT")) throw new Error("PREVIEW_READY_TIMEOUT: Vercel previews timed out; retry resumes polling without rebuilding.");
+    await updateAction(identity.actionId, { status: "running", phase: "waiting_vercel", progress: 68, message: `Waiting for Vercel previews (${attempt}/${maxAttempts}).`, nextAction: "Browser evaluation starts when every preview is READY." }, identity.sessionId);
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
   }
-  throw new Error("PREVIEW_READY_TIMEOUT: Vercel previews did not become READY within three minutes.");
+  throw new Error(`PREVIEW_READY_TIMEOUT: Vercel previews did not become READY within ${Math.round(maxWaitMs / 60_000)} minutes; retry resumes polling without rebuilding.`);
 }
 
 export async function executeWorkflowActionDirect(request: Request, identity: Identity): Promise<WorkflowAction> {
   const original = await getAction(identity.actionId, identity.sessionId);
   if (!original) throw new Error(`ACTION_NOT_FOUND: ${identity.actionId} does not exist.`);
+  const leaseOwner = identity.leaseOwner ?? `browser:${identity.actionId}`;
+  const leaseResult = await acquireExecutionLease(identity.actionId, identity.sessionId, leaseOwner);
+  if (!leaseResult.acquired || !leaseResult.lease) return leaseResult.action;
   await updateAction(identity.actionId, { status: "running", attempts: original.attempts + 1, phase: "starting", progress: 2, message: "Execution worker started.", nextAction: "Agent activity will appear here as each step completes." }, identity.sessionId);
   try {
     if (identity.command === "analyze") {
@@ -101,8 +109,10 @@ export async function executeWorkflowActionDirect(request: Request, identity: Id
         const corrected = await callRoute(request, "/api/workflow/preview-eval", { method: "POST", body: JSON.stringify({ rerun: true }) }, identity);
         if (!corrected.allPassed) throw new Error(`PREVIEW_CORRECTION_FAILED: ${String(corrected.detail ?? corrected.errorCode ?? "A critical browser check failed.")}`);
       }
-      await completeStep(identity.actionId, identity.sessionId, { id: "eval", label: "Preview evaluations passed", detail: "Both current preview commits passed the critical release checks.", progress: 100, phase: "awaiting_release_approval", agent: "EvalOps", skillId: "release-readiness" });
-      return updateAction(identity.actionId, { status: "waiting_human", phase: "awaiting_release_approval", progress: 100, message: "All preview checks passed. Human release approval is required.", nextAction: "Inspect both previews and their eval evidence, then approve the release.", error: undefined }, identity.sessionId);
+      const previewSubject = identity.executionMode === "showcase" ? "The current preview commit" : "Both current preview commits";
+      const previewObject = identity.executionMode === "showcase" ? "the preview and its eval evidence" : "both previews and their eval evidence";
+      await completeStep(identity.actionId, identity.sessionId, { id: "eval", label: "Preview evaluations passed", detail: `${previewSubject} passed the critical release checks.`, progress: 100, phase: "awaiting_release_approval", agent: "EvalOps", skillId: "release-readiness" });
+      return updateAction(identity.actionId, { status: "waiting_human", phase: "awaiting_release_approval", progress: 100, message: "All preview checks passed. Human release approval is required.", nextAction: `Inspect ${previewObject}, then approve the release.`, error: undefined }, identity.sessionId);
     }
 
     if (identity.command === "approve_release") {
@@ -126,7 +136,10 @@ export async function executeWorkflowActionDirect(request: Request, identity: Id
     throw new Error(`COMMAND_NOT_IMPLEMENTED: ${identity.command} is not available in the guided runner.`);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Unexpected workflow action failure.";
-    await updateAction(identity.actionId, { status: "failed", phase: "failed", message: "Workflow action failed.", nextAction: "Inspect the exact failure and retry this step.", error: { code: detail.split(":")[0] || "WORKFLOW_ACTION_FAILED", detail, retryable: true } }, identity.sessionId);
+    const timedOut = detail.startsWith("PREVIEW_READY_TIMEOUT:");
+    await updateAction(identity.actionId, { status: "failed", phase: timedOut ? "waiting_vercel" : "failed", message: timedOut ? "Vercel preview readiness timed out without marking the build failed." : "Workflow action failed.", nextAction: "Retry to resume polling from the existing preview deployments.", error: { code: detail.split(":")[0] || "WORKFLOW_ACTION_FAILED", detail, retryable: true } }, identity.sessionId);
     throw error;
+  } finally {
+    await releaseExecutionLease(identity.actionId, identity.sessionId, leaseOwner, leaseResult.lease.token).catch(() => undefined);
   }
 }

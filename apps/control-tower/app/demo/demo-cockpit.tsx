@@ -27,11 +27,13 @@ type AgentRun = {
   contextPackId?: string; citedEvidenceIds?: string[]; reasoningSummary?: string;
   latencyMs: number; costUsd: number; retries: number; traceId?: string; sourceMode?: string;
 };
+type RunMode = "showcase" | "full_verification";
 type TimelineItem = { id: string; at: string; kind: string; title: string; detail?: string; actor?: string; status?: string; provider?: string; links?: Array<{ label: string; url: string }> };
 type CockpitStatus = {
   started: boolean;
-  session: { sessionId: string; workflowId: string; status: string; createdAt: string } | null;
-  workflow?: { workflowId: string; phase: string; featureId?: string; featureTitle?: string };
+  session: { sessionId: string; workflowId: string; status: string; createdAt: string; executionMode?: RunMode } | null;
+  workflow?: { workflowId: string; phase: string; featureId?: string; featureTitle?: string; executionMode?: RunMode };
+  executionMode?: RunMode;
   activeStage: DemoStage;
   stages?: DemoStage[];
   phase: string;
@@ -96,6 +98,7 @@ export function DemoCockpit() {
   const [working, setWorking] = useState(false);
   const [notice, setNotice] = useState("");
   const [confirmNewSession, setConfirmNewSession] = useState(false);
+  const [runMode, setRunMode] = useState<RunMode>("showcase");
   const workerRequests = useRef(new Set<string>());
 
   const refresh = useCallback(async () => {
@@ -153,14 +156,14 @@ export function DemoCockpit() {
     }
     setWorking(true); setNotice("");
     try {
-      const response = await fetch("/api/demo/sessions", { method: "POST" });
+      const response = await fetch("/api/demo/sessions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ executionMode: runMode }) });
       const payload = await response.json() as { ok?: boolean; session?: { sessionId: string }; detail?: string; message?: string; code?: string };
       if (!response.ok || !payload.ok) {
         if (payload.code === "OPERATOR_AUTH_REQUIRED") openOperatorAccess();
         throw new Error(payload.detail ?? payload.message ?? "A new demo session could not be created.");
       }
       setConfirmNewSession(false);
-      setNotice(`New session ${payload.session?.sessionId} is ready.`);
+      setNotice(`New ${runMode === "showcase" ? "showcase" : "full verification"} session ${payload.session?.sessionId} is ready. Target duration: ${runMode === "showcase" ? "8–12" : "18–25"} minutes.`);
       await refresh();
     } catch (error) { setNotice(error instanceof Error ? error.message : "Session creation failed."); }
     finally { setWorking(false); }
@@ -183,9 +186,25 @@ export function DemoCockpit() {
 
   const activeIndex = Math.max(0, stages.findIndex((stage) => stage.id === status?.activeStage));
   const current = stages[activeIndex] ?? stages[0]!;
-  const phase = phaseCopy[status?.phase ?? "not_started"] ?? { title: status?.phase?.replaceAll("_", " ") ?? "Loading", detail: status?.activeAction?.message ?? "Loading session state." };
+  const executionMode = status?.executionMode ?? status?.session?.executionMode ?? status?.workflow?.executionMode ?? runMode;
+  const phaseBase = phaseCopy[status?.phase ?? "not_started"] ?? { title: status?.phase?.replaceAll("_", " ") ?? "Loading", detail: status?.activeAction?.message ?? "Loading session state." };
+  const phase = status?.phase === "building_preview"
+    ? { title: executionMode === "showcase" ? "Building the product change" : "Building two product changes", detail: "GitHub branches, commits, PRs, and Vercel previews are being created." }
+    : status?.phase === "waiting_vercel"
+      ? { title: executionMode === "showcase" ? "Waiting for the Vercel preview" : "Waiting for Vercel previews", detail: `Evaluation begins only after ${executionMode === "showcase" ? "the exact deployment is" : "both exact deployments are"} READY.` }
+      : phaseBase;
   const busy = working || ["queued", "running"].includes(status?.activeAction?.status ?? "");
   const primary = status?.availableActions?.[0];
+  const currentProviders = useMemo(() => (status?.providerActivity ?? []).filter((item) => item.stage === current.id), [current.id, status?.providerActivity]);
+  const stageState = status?.activeAction?.status === "failed" || status?.phase === "failed"
+    ? "Failed — retry the failed step"
+    : status?.phase === "released"
+      ? "Completed — release is live"
+      : busy
+        ? "Running now — this updates automatically"
+        : primary
+          ? "Action required"
+          : "Waiting for the next workflow event";
   const groupedProviders = useMemo(() => {
     const result = new Map<string, ProviderActivity[]>();
     for (const item of status?.providerActivity ?? []) {
@@ -203,6 +222,7 @@ export function DemoCockpit() {
         <p className="eyebrow">Live delivery cockpit</p>
         <h1>Turn a customer problem into a measured release</h1>
         <p>DailyCart demonstrates an AI-assisted product-delivery loop: agents cite synthetic company evidence, humans approve consequential decisions, and live providers produce inspectable engineering artifacts.</p>
+        <fieldset className="demo-mode-selector"><legend>Run profile</legend><label className={runMode === "showcase" ? "selected" : ""}><input type="radio" name="run-mode" value="showcase" checked={runMode === "showcase"} onChange={() => setRunMode("showcase")} /><span><b>Showcase</b><small>One feature · target 8–12 minutes</small></span></label><label className={runMode === "full_verification" ? "selected" : ""}><input type="radio" name="run-mode" value="full_verification" checked={runMode === "full_verification"} onChange={() => setRunMode("full_verification")} /><span><b>Full verification</b><small>Two features and correction path · target 18–25 minutes</small></span></label></fieldset>
       </div>
       <button className="button secondary" onClick={() => void startNewSession()} disabled={working}><Plus size={15} /> {status?.operator?.required && !status.operator.authorized ? "Unlock to start" : "Start new demo"}</button>
     </header>
@@ -231,11 +251,11 @@ export function DemoCockpit() {
 
       <section className={`live-stage panel ${status?.activeAction?.status ?? "idle"}`}>
         <div className="live-stage-head">
-          <div><span className="stage-number">Stage {activeIndex + 1} of {stages.length}</span><h2>{phase.title}</h2><p>{status?.activeAction?.message ?? phase.detail}</p></div>
+          <div><span className="stage-number">Stage {activeIndex + 1} of {stages.length}</span><h2>{phase.title}</h2><p>{status?.activeAction?.message ?? phase.detail}</p><span className={`stage-state ${status?.phase === "failed" ? "failed" : status?.phase === "released" ? "complete" : busy ? "running" : primary ? "waiting" : "idle"}`}>{stageState}</span></div>
           {primary ? <button className="button primary" onClick={() => void execute(primary.command)} disabled={busy || !primary.enabled}>{busy ? <Loader2 size={15} className="spin" /> : primary.command === "retry" ? <RotateCcw size={15} /> : <Play size={15} />}{busy ? "Working…" : primary.label}</button> : status?.phase === "released" ? <span className="released-badge"><CheckCircle2 size={15} /> Released</span> : null}
         </div>
         <div className="cockpit-progress"><i style={{ width: `${status?.progress ?? 0}%` }} /></div>
-        <div className="stage-telemetry"><span>{status?.progress ?? 0}% complete</span><span>Elapsed {displayDuration(status?.activeAction?.createdAt)}</span><span>Phase: {status?.phase?.replaceAll("_", " ")}</span>{status?.activeAction && <details className="technical-details"><summary>Technical details</summary><a href={`/api/workflow/actions/${status.activeAction.actionId}`} target="_blank" rel="noreferrer">View raw action record <ExternalLink size={10} /></a></details>}</div>
+        <div className="stage-telemetry"><span>{status?.progress ?? 0}% complete</span><span>Elapsed {displayDuration(status?.activeAction?.createdAt)}</span><span>Phase: {status?.phase?.replaceAll("_", " ")}</span></div>
         {notice && <p className="cockpit-notice" role="status">{notice}</p>}
         {status?.activeAction?.error && <div className="cockpit-error"><AlertTriangle size={17} /><div><b>{status.activeAction.error.code}</b><p>{status.activeAction.error.detail}</p></div></div>}
         <div className="now-grid">
@@ -243,6 +263,11 @@ export function DemoCockpit() {
           <div><small>Running now</small><b>{status?.phaseSummary?.running ?? (busy ? phase.title : "Waiting for operator")}</b></div>
           <div><small>Next</small><b>{status?.phaseSummary?.next ?? current.description}</b></div>
         </div>
+        <section className="stage-provider-proof" aria-label={`${current.title} provider proof`}>
+          <div><p className="eyebrow">Stage proof</p><h3>What this stage changed</h3><p>Provider links are shown here before technical records so the delivery result is easy to inspect.</p></div>
+          {currentProviders.length ? <div className="stage-provider-links">{currentProviders.map((item) => { const url = item.artifactUrl ?? item.dashboardUrl; return <article key={`${item.provider}-${item.kind}-${item.externalId ?? item.label}`} className={item.status}><span>{item.provider.slice(0, 2).toUpperCase()}</span><div><small>{item.provider} · {item.kind}</small><b>{item.label}</b>{url ? <a href={url} target="_blank" rel="noreferrer">Open exact record <ExternalLink size={10} /></a> : <em>{item.status === "unavailable" ? "Provider not configured" : "Waiting for provider record…"}</em>}</div></article>; })}</div> : <p className="empty-copy">No provider record is required for this stage yet. The record will appear here when the stage executes.</p>}
+        </section>
+        {status?.activeAction && <details className="technical-details"><summary>Technical details</summary><a href={`/api/workflow/actions/${status.activeAction.actionId}`} target="_blank" rel="noreferrer">View raw action record <ExternalLink size={10} /></a></details>}
       </section>
 
       <div className="cockpit-main-grid">
@@ -282,6 +307,7 @@ export function DemoCockpit() {
       {status?.completionSummary && <section className="completion-report panel">
         <header><div><p className="eyebrow">Delivery report</p><h2>What this session delivered</h2><p>The complete release story remains linked to the session after refresh.</p></div><CheckCircle2 size={24} /></header>
         <div className="completion-metrics"><div><small>Agents</small><b>{status.completionSummary.agents.length}</b></div><div><small>Human decisions</small><b>{status.completionSummary.decisions.length}</b></div><div><small>Builds</small><b>{status.completionSummary.builds.length}</b></div><div><small>Measured cost</small><b>${status.completionSummary.telemetry.totalCostUsd.toFixed(3)}</b></div></div>
+        {status.completionSummary.builds.length ? <div className="product-comparison"><div><p className="eyebrow">Product proof</p><h3>Baseline → preview → released</h3><p>Each available link is tied to the commit that was evaluated. A baseline or production URL is shown only when the provider returned one.</p></div><div className="product-comparison-links">{status.completionSummary.builds.map((build) => { const evaluation = status.completionSummary?.evals.find((item) => item.featureId === build.featureId); return <article key={build.featureId}><b>{build.featureId}</b><span className="comparison-path"><span className="comparison-missing">Baseline unavailable</span><ArrowRight size={12} /><a href={build.previewUrl} target="_blank" rel="noreferrer">Preview</a>{evaluation?.targetUrl && evaluation.targetUrl !== build.previewUrl && <><ArrowRight size={12} /><a href={evaluation.targetUrl} target="_blank" rel="noreferrer">Evaluated target</a></>}<ArrowRight size={12} /><span className={evaluation?.passed ? "comparison-live" : "comparison-missing"}>{evaluation?.passed ? "Released" : "Release gated"}</span></span><small>Commit {build.commitSha.slice(0, 7)} · <a href={build.pullRequestUrl} target="_blank" rel="noreferrer">GitHub PR</a></small></article>; })}</div></div> : null}
         <div className="completion-actions"><Link className="button primary" href="/runs/summary">Open full delivery report <ArrowRight size={14} /></Link><Link className="button secondary" href="/analytics">Measure product outcomes</Link><Link className="button secondary" href="/lineage">Trace end to end</Link></div>
       </section>}
     </>}

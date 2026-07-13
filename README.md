@@ -10,6 +10,19 @@ The hosted application is configured for live provider adapters. Browsing is rea
 
 The local equivalent is available at `http://localhost:3000` after starting the app, but the hosted link above is the canonical demo URL.
 
+### Start at the demo cockpit
+
+Open [`/demo`](https://ai-delivery-evalops-control-tower-c.vercel.app/demo) first. It is the session-safe control surface for the whole story: one signed session, one current phase, one next action, one chronological event stream, and provider links grouped by the stage that caused them. Start a new session before a fresh walkthrough; the previous session is archived and its external records are not deleted.
+
+There are two runbook modes. They are operating modes, not a second application or a hidden “make it live” switch:
+
+- **Showcase mode** — one feature track, one preview, and the shortest complete story (target 8–12 minutes). It uses the currently configured adapters: hosted live integrations can remain live, while a credential-free local run remains an explicitly labelled deterministic fallback.
+- **Full Verification mode** — two parallel feature tracks plus a genuine failure, correction, and rerun (target 18–25 minutes). It also uses the currently configured adapters and is intended for complete technical proof.
+
+Run profile and provider mode are independent. `DEMO_MODE=synthetic` keeps company inputs privacy-safe; `INTEGRATION_MODE=live` enables configured external actions. Neither run profile fabricates a provider success when an adapter is unavailable.
+
+The cockpit may pause for a human feature or release decision, or wait for a provider. A “working” state is not proof of completion: follow the heartbeat, phase label, exact error, and external record link.
+
 ## What the product demonstrates
 
 DailyCart is designed to teach and demonstrate how an AI-enabled delivery organization can work as one evidence-linked system:
@@ -47,16 +60,18 @@ The product is not a chat window pretending to be a delivery organization. It is
 
 ## The end-to-end demo
 
-1. Open **Company data** and inspect a context collection or evidence record.
-2. Open **Overview** and follow the Demo Guide. Run the workflow from company context.
+1. Open **/demo**, unlock the operator, choose Showcase or Full Verification, and start a clean session.
+2. Open **Company data** from the stage rail and inspect a context collection or evidence record.
 3. Review the two ranked feature opportunities and the evidence behind each recommendation.
-4. Read the specialist review summaries, then approve the feature tracks.
+4. Read the specialist review summaries, then approve the proposed feature scope.
 5. Inspect the delivery roadmap, ownership, dependencies, and readiness checks.
-6. Build the two product previews. Each track records its branch, commit, pull request, checks, and preview URL.
-7. Run preview evaluations. A critical accessibility regression intentionally blocks the first campaign; the corrected campaign passes.
-8. Approve the release, deploy both tracks, and sync delivery records.
+6. Build the product preview(s). Each track records its branch, commit, pull request, checks, and preview URL.
+7. Run preview evaluations. Full Verification includes a critical accessibility regression, correction, and passing rerun; Showcase takes the shorter single-track path.
+8. Approve the release, deploy the approved scope, and sync delivery records.
 9. Follow the identifiers across **Agent runs**, **Eval campaigns**, **Human review**, **Deployments**, **Integrations**, **Product**, and **Analytics**.
 10. Use **Replay run** to archive the workflow artifacts and safely reset the scenario for another demonstration.
+
+Preview evaluation and agent-output evaluation are different gates. Agent-output evaluation checks whether a role's structured answer is grounded, scoped, and complete. Preview evaluation runs browser/accessibility checks against the exact feature commit and preview URL. A passing agent answer does not make a broken preview releasable, and a passing preview does not waive human approval.
 
 ```mermaid
 sequenceDiagram
@@ -135,6 +150,8 @@ corepack pnpm dev
 
 Open `http://localhost:3000`. This mode requires no credentials and still executes the workflow, persistence contracts, evaluators, approval pauses, lineage, and replay behavior with deterministic provider adapters.
 
+`corepack pnpm demo` itself is a deterministic artifact generator for CI and quick checks. For the interactive, session-scoped flow with visible waits and human gates, open `http://localhost:3000/demo` after the server starts.
+
 ## Connected mode and access control
 
 For a deployment with provider side effects:
@@ -147,6 +164,10 @@ For a deployment with provider side effects:
 6. Unlock the hosted session from the Demo Guide before running workflows, traffic, replay, or deployment actions.
 
 Provider keys remain server-side. Anonymous visitors can inspect the product without spending shared model credits or creating external records.
+
+### What “live” means
+
+Live is intentionally mixed: the customer/company corpus is still synthetic and privacy-safe, while the delivery side effects can be real. The Integrations page is the authority for each provider's mode, read health, write capability, latest action, timestamp, and link. Linear/Slack/GitHub/Vercel/Langfuse/Inngest/PostHog/Supabase links only prove the action represented by that link; a healthy read probe alone does not prove a write succeeded. Release and deployment remain gated by a human decision.
 
 ## Repository guide
 

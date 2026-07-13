@@ -32,7 +32,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
     return NextResponse.json({ ok: true, reused: true, action }, { status: 202 });
   }
   try {
-    const result = await executeWorkflowActionDirect(request, { actionId: action.actionId, sessionId: action.sessionId, workflowId: action.workflowId, command: action.command });
+    const result = await executeWorkflowActionDirect(request, { actionId: action.actionId, sessionId: action.sessionId, workflowId: action.workflowId, command: action.command, executionMode: action.executionMode });
     return NextResponse.json({ ok: true, action: result });
   } catch (error) {
     return NextResponse.json({ ok: false, code: "WORKFLOW_EXECUTION_FAILED", message: "Workflow execution failed.", detail: error instanceof Error ? error.message : "Unexpected workflow failure." }, { status: 500 });

@@ -4,7 +4,7 @@ import { requireOperatorOrWorkflowService } from "@/lib/operator-auth";
 import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { createWorkflowAction, latestAction, newWorkflowId, readActions, updateAction } from "@/lib/workflow-actions";
 import { inngest } from "@/lib/inngest/client";
-import { createDemoSession, demoSessionCookie, encodeSessionCookie, getDemoSession, requestSessionId } from "@/lib/demo-session";
+import { createDemoSession, demoSessionCookie, encodeSessionCookie, executionModeSchema, getDemoSession, requestSessionId } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,10 +16,10 @@ function validateCommand(command: string, phase: string | undefined, latestStatu
   if (command === "approve_feature" && phase !== "awaiting_feature_approval") throw new Error("Feature approval is only available at the feature-approval gate.");
   if (command === "approve_release" && phase !== "awaiting_release_approval") throw new Error("Release approval is only available after both current preview evaluations pass.");
   if (command === "retry" && latestStatus !== "failed") throw new Error("Retry is only available after a recorded workflow failure.");
-  if (command === "declare_incident" && phase !== "released") throw new Error("An incident can be declared only after this session has a production release.");
+  if (command === "declare_incident" && !["released", "product_outcomes"].includes(phase ?? "")) throw new Error("An incident can be declared only after this session has a production release.");
 }
 
-async function localRoute(request: Request, path: string, init: RequestInit = {}, identity?: { sessionId: string; workflowId: string; actionId: string }): Promise<Record<string, unknown>> {
+async function localRoute(request: Request, path: string, init: RequestInit = {}, identity?: { sessionId: string; workflowId: string; actionId: string; executionMode?: "showcase" | "full_verification" }): Promise<Record<string, unknown>> {
   const response = await fetch(new URL(path, request.url), { ...init, headers: { "content-type": "application/json", ...(identity ? { "x-dailycart-session-id": identity.sessionId, "x-dailycart-workflow-id": identity.workflowId, "x-dailycart-action-id": identity.actionId } : {}), ...(init.headers as Record<string, string> | undefined), cookie: request.headers.get("cookie") ?? "" } });
   const payload = await response.json().catch(() => ({})) as Record<string, unknown>;
   if (!response.ok || payload.ok === false) throw new Error(String(payload.detail ?? payload.message ?? `${path} failed.`));
@@ -27,15 +27,15 @@ async function localRoute(request: Request, path: string, init: RequestInit = {}
 }
 
 async function executeDeterministicAction(request: Request, actionId: string, sessionId: string, workflowId: string, command: "analyze" | "approve_feature" | "approve_release" | "retry" | "declare_incident"): Promise<void> {
-  const identity = { sessionId, workflowId, actionId };
+  const identity = { sessionId, workflowId, actionId, executionMode: (await getDemoSession(sessionId))?.executionMode };
   await updateAction(actionId, { status: "running", attempts: 1, phase: "running", progress: 10, message: "Executing deterministic workflow contracts.", nextAction: "Follow the execution timeline." }, sessionId);
   if (command === "analyze") {
-    await localRoute(request, "/api/workflow/run", { method: "POST" }, identity);
+  await localRoute(request, "/api/workflow/run", { method: "POST", headers: { "x-dailycart-execution-mode": identity.executionMode ?? "showcase" } }, identity);
     await updateAction(actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Approve the selected feature tracks." }, sessionId);
     return;
   }
   if (command === "approve_feature" || command === "retry") {
-    await localRoute(request, "/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true" } }, identity);
+    await localRoute(request, "/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true", "x-dailycart-execution-mode": identity.executionMode ?? "showcase" } }, identity);
     await localRoute(request, "/api/workflow/sync", { method: "POST" }, identity);
     await localRoute(request, "/api/workflow/preview", { method: "POST", body: JSON.stringify({ reconcile: true }) }, identity);
     const evaluation = await localRoute(request, "/api/workflow/preview-eval", { method: "POST", body: JSON.stringify({ rerun: true }) }, identity);
@@ -61,11 +61,11 @@ export async function POST(request: Request): Promise<Response> {
   const denied = await requireOperatorOrWorkflowService(request);
   if (denied) return denied;
   try {
-    const body = await request.json().catch(() => ({})) as { command?: string; sessionId?: string; featureId?: string; rationale?: string };
+    const body = await request.json().catch(() => ({})) as { command?: string; sessionId?: string; featureId?: string; rationale?: string; executionMode?: string };
     const command = workflowCommandSchema.parse(body.command ?? "analyze");
     let sessionId = requestSessionId(request);
     let createdSession = false;
-    if (!sessionId) { sessionId = (await createDemoSession()).sessionId; createdSession = true; }
+    if (!sessionId) { sessionId = (await createDemoSession(executionModeSchema.parse(body.executionMode ?? "showcase"))).sessionId; createdSession = true; }
     if (body.sessionId && body.sessionId !== sessionId) throw new Error("The requested workflow session does not match this browser session.");
     const workflow = await readArtifact<StoredWorkflow>("workflow", sessionId);
     const demoSession = await getDemoSession(sessionId);
@@ -80,13 +80,14 @@ export async function POST(request: Request): Promise<Response> {
     // The action record is authoritative while resumable work is active or
     // paused at a human gate. The workflow aggregate can lag behind it during
     // serverless persistence, especially after a refresh.
-    const authoritativePhase = active?.phase ?? workflow?.workflow?.phase;
+    const authoritativePhase = active?.parentPhase ?? active?.phase ?? workflow?.workflow?.phase;
     validateCommand(command, authoritativePhase, active?.status);
     const revision = (workflow?.workflow?.revision ?? 0) + (command === "retry" ? (active?.attempts ?? 0) + 1 : 0);
-    const { action, reused } = await createWorkflowAction({ command, sessionId, workflowId, revision, featureId: body.featureId ?? workflow?.featureId });
+    const executionMode = demoSession?.executionMode ?? executionModeSchema.parse(body.executionMode ?? "showcase");
+    const { action, reused } = await createWorkflowAction({ command, sessionId, workflowId, revision, featureId: body.featureId ?? workflow?.featureId, executionMode, parentPhase: authoritativePhase });
     await writeArtifact("workflow", { ...(workflow ?? {}), sessionId, workflowInstanceId: workflowId, activeActionId: action.actionId }, sessionId);
     if (!reused) {
-      if (process.env.INTEGRATION_MODE === "live") await inngest.send({ id: action.actionId, name: "dailycart/workflow.action.requested", data: { actionId: action.actionId, sessionId, workflowId, command, rationale: body.rationale } });
+      if (process.env.INTEGRATION_MODE === "live") await inngest.send({ id: action.actionId, name: "dailycart/workflow.action.requested", data: { actionId: action.actionId, sessionId, workflowId, command, rationale: body.rationale, executionMode } });
       else {
         await executeDeterministicAction(request, action.actionId, sessionId, workflowId, command);
         const completedWorkflow = await readArtifact<StoredWorkflow>("workflow", sessionId);
