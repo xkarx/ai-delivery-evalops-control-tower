@@ -11,15 +11,20 @@ This report records observed production evidence. It does not treat configured c
 | Record | Observed value |
 |---|---|
 | Baseline tag | `v1-pre-guided-recovery-20260712` at `2e45e3c` |
-| Recovery commit | `2d5c0f5371528369bb68da916246321fea7c028a` |
-| Vercel deployment | `dpl_6X5niTRYrKQiGXyCCjAyH5P46ktY` · READY |
-| Deployment URL | `https://ai-delivery-evalops-control-tower-control-tower-eszh9czw5.vercel.app` |
+| Recovery commits | `2d5c0f5371528369bb68da916246321fea7c028a`, `48213a8a41f352a58b8e6409c4b19eeb0d3ee867`, `b844ec8c997efbf74441b78360aec7def4016441` |
+| Vercel deployment | `dpl_ABGj6jNkGs5QVsuCMhSTMcypG1bm` · READY |
+| Deployment URL | `https://ai-delivery-evalops-control-tower-control-tower-ji65mom3w.vercel.app` |
 | Canonical route check | 14/14 application routes returned HTTP 200 |
 | Existing preview bypass | HTTP 200 DailyCart product shell; Vercel login HTML was not returned |
 | Current durable phase | `awaiting_feature_approval` |
 | Available action | `approve_feature` |
+| Recovered action | `ACTION-846FDD6CE74E` · one attempt · `waiting_human` |
+| Active session | `SESSION-1783897727709` |
+| Active workflow | `WORKFLOW-1783897744823044D` |
+| Visible execution stages | Context Retrieval, Research, Support Insight, Analytics, PM, UX, Engineering Feasibility, EvalOps |
+| Refresh proof | Canonical `/runs` restored the same action, 100% progress, stage history, recommendations, and approval CTA after a full reload |
 
-The recovery build is deployed, but the current workflow has not crossed its human feature gate. Therefore this report does not claim a new post-recovery Linear write, Slack message, Langfuse trace, second branch, preview evaluation, correction, or release approval. Those records must use the new session/workflow/action IDs and will be appended only after the operator explicitly approves the current feature tracks.
+The previously stuck zero-attempt action was repaired in place. It completed opportunity analysis and stopped at the required human feature gate. Therefore this report does not claim a new post-recovery Linear write, Slack message, Langfuse trace, second branch, preview evaluation, correction, or release approval. Those records will be appended only after the operator explicitly approves the current feature tracks.
 
 ## Production workflow
 
