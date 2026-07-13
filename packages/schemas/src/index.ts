@@ -237,6 +237,9 @@ export const workflowProgressStepSchema = z.object({
   agent: z.string().optional(),
   skillId: z.string().optional(),
   provider: z.string().optional(),
+  outputSummary: z.string().optional(),
+  relatedRunIds: z.array(z.string()).optional(),
+  links: z.array(z.object({ label: z.string(), url: z.string().url(), kind: z.enum(["artifact", "dashboard", "evidence"]).default("artifact") })).optional(),
   startedAt: timestampSchema.optional(),
   completedAt: timestampSchema.optional()
 });
@@ -262,6 +265,56 @@ export const workflowActionSchema = z.object({
   error: z.object({ code: z.string(), detail: z.string(), retryable: z.boolean() }).optional()
 });
 export type WorkflowAction = z.infer<typeof workflowActionSchema>;
+
+export const providerActivitySchema = z.object({
+  provider: z.string(),
+  kind: z.string(),
+  label: z.string(),
+  externalId: z.string().optional(),
+  status: z.enum(["pending", "running", "succeeded", "failed", "unavailable"]),
+  artifactUrl: z.string().url().optional(),
+  dashboardUrl: z.string().url().optional(),
+  startedAt: timestampSchema.optional(),
+  completedAt: timestampSchema.optional(),
+  error: z.string().optional(),
+  sourceMode: sourceModeSchema.optional()
+});
+export type ProviderActivity = z.infer<typeof providerActivitySchema>;
+
+export const workflowPresentationStepSchema = z.enum([
+  "company_context", "live_agent_analysis", "ranked_opportunities", "feature_approval",
+  "delivery_planning", "builds", "eval_campaign", "release_approval", "deployment",
+  "delivery_report", "product_outcomes", "incident_learning", "lineage"
+]);
+export type WorkflowPresentationStep = z.infer<typeof workflowPresentationStepSchema>;
+
+export const workflowPresentationSchema = z.object({
+  sessionId: z.string(),
+  currentStep: workflowPresentationStepSchema,
+  completedSteps: z.array(workflowPresentationStepSchema),
+  nextStep: workflowPresentationStepSchema.optional(),
+  autoFollow: z.boolean(),
+  pausedReason: z.string().optional(),
+  executionAheadBy: z.number().int().nonnegative(),
+  updatedAt: timestampSchema
+});
+export type WorkflowPresentation = z.infer<typeof workflowPresentationSchema>;
+
+export const workflowCompletionSummarySchema = z.object({
+  sessionId: z.string(),
+  workflowId: z.string(),
+  startedAt: timestampSchema.optional(),
+  completedAt: timestampSchema.optional(),
+  durationMs: z.number().nonnegative(),
+  agents: z.array(z.object({ runId: z.string(), role: z.string(), skillId: z.string().optional(), status: z.string(), latencyMs: z.number(), costUsd: z.number() })),
+  decisions: z.array(z.object({ id: z.string(), stage: z.string(), status: z.string(), rationale: z.string().optional() })),
+  builds: z.array(z.object({ featureId: z.string(), commitSha: z.string(), previewUrl: z.string().url(), pullRequestUrl: z.string().url() })),
+  evals: z.array(z.object({ featureId: z.string(), score: z.number(), passed: z.boolean(), targetUrl: z.string().url() })),
+  providerActions: z.array(providerActivitySchema),
+  telemetry: z.object({ totalCostUsd: z.number(), totalLatencyMs: z.number(), retries: z.number().int().nonnegative(), tokens: z.number().int().nonnegative().optional() }),
+  warnings: z.array(z.string())
+});
+export type WorkflowCompletionSummary = z.infer<typeof workflowCompletionSummarySchema>;
 
 export const previewDeploymentStatusSchema = z.object({
   featureId: z.string().regex(/^FEAT-\d{4,}$/),

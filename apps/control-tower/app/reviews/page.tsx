@@ -4,6 +4,7 @@ import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { ReviewDecision } from "./review-decision";
+import { ApprovalPacket } from "./approval-packet";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export default async function ReviewsPage() {
       <i aria-hidden="true" />
       <div id="release-gate"><span>Release gate</span><b>Preview, checks, and critical eval results</b><small>Approves what reaches production.</small></div>
     </section>
+    <ApprovalPacket />
     <div className="review-layout">
       <section className="review-queue">
         {pending.map((approval) => {
