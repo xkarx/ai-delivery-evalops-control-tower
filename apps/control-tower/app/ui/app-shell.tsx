@@ -46,6 +46,13 @@ const nav = [
 export function AppShell({ children, runtimeMode }: { children: React.ReactNode; runtimeMode: RuntimeMode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const pauseJourney = () => {
+    void fetch("/api/workflow/presentation", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ command: "pause", reason: "manual navigation" })
+    });
+  };
 
   return (
     <div className="shell">
@@ -67,7 +74,7 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
           {nav.map(({ href, label, icon: Icon }) => {
             const active = href === "/" ? pathname === href : pathname.startsWith(href);
             return (
-              <Link key={href} href={href} className={active ? "nav-link active" : "nav-link"} onClick={() => setOpen(false)}>
+              <Link key={href} href={href} className={active ? "nav-link active" : "nav-link"} onClick={() => { setOpen(false); pauseJourney(); }}>
                 <Icon size={17} /><span>{label}</span>
               </Link>
             );

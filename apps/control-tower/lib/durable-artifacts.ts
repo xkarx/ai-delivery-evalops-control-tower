@@ -15,6 +15,7 @@ export type ArtifactKey =
   | "productEvents"
   | "actionReceipts"
   | "workflowActions"
+  | "workflowPresentations"
   | "structuredRecords";
 
 const definitions: Record<ArtifactKey, { id: string; file: string; title: string }> = {
@@ -31,6 +32,7 @@ const definitions: Record<ArtifactKey, { id: string; file: string; title: string
   productEvents: { id: "EVENTS-9001", file: "product-events.json", title: "Product events" },
   actionReceipts: { id: "ACTIONS-9001", file: "action-receipts.json", title: "Operator action receipts" },
   workflowActions: { id: "WORKFLOWACTIONS-9001", file: "workflow-actions.json", title: "Durable workflow actions" },
+  workflowPresentations: { id: "PRESENTATIONS-9001", file: "workflow-presentations.json", title: "Guided workflow presentation state" },
   structuredRecords: { id: "RECORDS-9001", file: "structured-records.json", title: "Durable workflow records" }
 };
 

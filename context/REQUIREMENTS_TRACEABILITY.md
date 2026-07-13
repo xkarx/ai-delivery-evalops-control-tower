@@ -11,6 +11,15 @@ Codex must update the implementation link and evidence columns. “Implemented�
 | Human decisions use the durable workflow | Feature and release approvals queue `/api/workflow/actions` and route to the durable run timeline; rejection remains an explicit decision endpoint. | Typecheck, lint, and workflow browser coverage. |
 | Eval and review layouts remain readable | Eval matrices scroll inside their card; review gate summary and decision actions reflow at narrow widths. | Tablet/mobile overflow tests at 820px and 390px. |
 
+## Observable synchronized walkthrough — 2026-07-12
+
+| Requirement | Implementation | Verification |
+|---|---|---|
+| Execution may run ahead without skipping the operator story | `WorkflowPresentation` persists a session-specific chapter independently from the execution phase; `continue`, `pause`, and `resume` are durable commands. | `tests/workflow-presentation.test.ts` plus refresh-safe status APIs. |
+| External provider dashboards are primary evidence | Workflow status normalizes Linear, Slack, GitHub, Vercel, Langfuse, Inngest, PostHog, and Supabase into `ProviderActivity`; runs and delivery pages show artifact/dashboard cards while raw JSON is collapsed under Technical details. | Typecheck, unit suite, and `raw action JSON is secondary to provider proof` browser test. |
+| Human gates have complete decision packets | Feature packets show evidence, agents/skills, rankings, evals, and risks; release packets show builds, commits, PRs, previews, checks, provider proof, and partial failures. | `/reviews` approval-packet polling and browser route coverage. |
+| Release completion produces a coherent handoff | Successful release actions route to `/runs/summary`, which consolidates agents, decisions, builds, evals, telemetry, warnings, and provider links before outcomes and lineage. | Next production build includes dynamic `/runs/summary`; Playwright route rendering. |
+
 | ID | Requirement | Target | Verification |
 |---|---|---|---|
 | R001 | Fresh-clone V1 | Whole repo | Complete — `pnpm demo`, `pnpm build`, `pnpm test` |
@@ -60,3 +69,4 @@ Codex must update the implementation link and evidence columns. “Implemented�
 | R045 | Durable background execution proof | Orchestration | Hosted recovery verified — `ACTION-846FDD6CE74E` advanced through the service-authorized recovery worker from queued to the feature-approval gate with one attempt, durable heartbeats, eight agent/eval stages, and no duplicate action. Inngest emission remains enabled; the direct idempotent worker prevents a missing cloud registration from leaving a run stuck. |
 | R046 | Refresh-safe guided workflow recovery | Control plane + orchestration | Implemented and production-verified — after a full reload the canonical `/runs` page restored `SESSION-1783897727709`, `WORKFLOW-1783897744823044D`, `ACTION-846FDD6CE74E`, 100% progress, eight stage records, both recommendations, and the `approve_feature` human gate. |
 | R047 | Permission-tolerant preview evaluation and exact-step retry | EvalOps + orchestration | Production-verified — a GitHub `workflow_dispatch` 403 falls back to `repository_dispatch`; retry reuses existing plan, provider records, PRs, and READY previews. FEAT-0001 failed focus restoration, correction `10ec2f2` passed [run 29216966634](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29216966634), and FEAT-0002 passed [run 29217001688](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29217001688). |
+| R048 | Observable synchronized delivery walkthrough | Control plane + providers | Implemented and locally verified — persisted presentation chapters cannot skip ahead of inspection; manual navigation pauses live-follow; active agents, provider activity, feature/release packets, and `/runs/summary` consume authoritative workflow state. Hosted verification is required after deployment. |

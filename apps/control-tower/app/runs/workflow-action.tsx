@@ -1,8 +1,9 @@
 "use client";
 
-import { AlertTriangle, Check, Clock3, ExternalLink, Loader2, Play, RotateCcw } from "lucide-react";
+import { AlertTriangle, Check, Clock3, ExternalLink, Loader2, Play, RotateCcw, Wrench } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { AvailableWorkflowAction, WorkflowAction, WorkflowCommand } from "@dailycart/schemas";
+import type { AvailableWorkflowAction, ProviderActivity, WorkflowAction, WorkflowCommand, WorkflowPresentation } from "@dailycart/schemas";
 
 type Status = {
   started: boolean; sessionId?: string; workflowId?: string; phase: string; nextAction: string;
@@ -12,6 +13,8 @@ type Status = {
   previewEvaluations?: Array<{ featureId: string; targetUrl: string; passed: boolean; score: number; checks: Array<{ name: string; passed: boolean; detail: string }> }>;
   previewAllPassed?: boolean; previewError?: { code: string; detail?: string };
   providerRecords?: { ticketRecords?: Array<{ identifier: string; url: string }>; notification?: { url: string }; trace?: { url: string }; workflowEvent?: { url: string }; errors?: string[] };
+  providerActivity?: ProviderActivity[]; presentation?: WorkflowPresentation;
+  activeAgent?: { role: string; skillId?: string; skillVersion?: string; runId?: string; task: string; evidenceIds?: string[]; reasoningSummary?: string; model?: string; latencyMs: number; costUsd: number; status: string; evaluations?: Array<{ criterion: string; score: number; passed: boolean; rationale: string; mode: string }> };
 };
 
 const phaseLabels: Record<string, string> = {
@@ -35,6 +38,7 @@ function age(iso?: string, now = Date.now()): string {
 }
 
 export function WorkflowAction() {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>();
   const [requesting, setRequesting] = useState(false);
   const [notice, setNotice] = useState("");
@@ -70,6 +74,13 @@ export function WorkflowAction() {
     if ((action.status === "queued" && heartbeatAge > 12_000) || (action.status === "running" && heartbeatAge > (providerPhase ? 360_000 : 90_000))) startRecoveryWorker(action.actionId);
   }, [now, startRecoveryWorker, status?.activeAction]);
 
+  useEffect(() => {
+    const action = status?.activeAction;
+    if (status?.phase !== "released" || action?.command !== "approve_release" || action.status !== "succeeded") return;
+    const timer = window.setTimeout(() => router.push("/runs/summary"), 1_200);
+    return () => window.clearTimeout(timer);
+  }, [router, status?.activeAction, status?.phase]);
+
   async function execute(command: WorkflowCommand) {
     setRequesting(true); setNotice("");
     try {
@@ -101,16 +112,18 @@ export function WorkflowAction() {
       <span>Elapsed {age(action.createdAt, now).replace(" ago", "")}</span>
       <span>Last update {age(action.heartbeatAt, now)}</span>
       <span>{phaseEstimate[action.phase] ?? "Timing depends on the active provider"}</span>
-      <a href={actionLink || `/api/workflow/actions/${action.actionId}`} target="_blank" rel="noreferrer">Open action record <ExternalLink size={11} /></a>
     </div>}
     {stalled && <div className="guided-warning" role="status"><Loader2 size={15} className="spin" /><div><b>Execution worker has not reported progress</b><p>The recovery worker is being started automatically. If it cannot start, this will change to a specific failure instead of waiting indefinitely.</p></div></div>}
     {action?.status === "failed" && action.error && <div className="guided-error" role="alert"><AlertTriangle size={15} /><div><b>{action.error.code}</b><p>{action.error.detail}</p></div></div>}
-    {notice && <small className="guided-notice" role="status">{notice} {actionLink && <a href={actionLink} target="_blank" rel="noreferrer">Track this action <ExternalLink size={10} /></a>}</small>}
+    {notice && <small className="guided-notice" role="status">{notice}</small>}
+    {status?.activeAgent && <article className="live-agent-activity" id="agent-activity"><span className={status.activeAgent.status === "running" ? "running" : "complete"}>{status.activeAgent.status === "running" ? <Loader2 size={14} className="spin" /> : <Check size={14} />}</span><div><small>Active agent</small><b>{status.activeAgent.role} · {status.activeAgent.skillId ?? "workflow coordination"}</b><p>{status.activeAgent.task}</p>{status.activeAgent.reasoningSummary && <blockquote>{status.activeAgent.reasoningSummary}</blockquote>}<div>{status.activeAgent.evidenceIds?.slice(0, 5).map((id) => <a key={id} href={`/lineage?focus=${id}`}>{id}</a>)}<span>{status.activeAgent.model ?? "deterministic contract"}</span><span>{(status.activeAgent.latencyMs / 1000).toFixed(1)}s</span><span>${status.activeAgent.costUsd.toFixed(3)}</span></div>{status.activeAgent.runId && <a className="view-agent-link" href={`#run-${status.activeAgent.runId}`}>View active agent and evaluations</a>}</div></article>}
     {action?.status === "running" && !action.steps.some((step) => step.status === "running") ? <div className="guided-timeline"><article className="running"><span><Loader2 size={12} className="spin" /></span><div><b>{phaseLabels[action.phase] ?? "Workflow step running"}</b><p>{action.message}</p><small>Live heartbeat · {age(action.heartbeatAt, now)}</small></div></article></div> : null}
-    {action?.steps?.length ? <div className="guided-timeline">{action.steps.map((step) => <article key={step.id} className={step.status}><span>{step.status === "succeeded" ? <Check size={12} /> : <Loader2 size={12} className={step.status === "running" ? "spin" : ""} />}</span><div><b>{step.label}</b><p>{step.detail}</p><small>{[step.agent, step.skillId, step.provider].filter(Boolean).join(" · ")}</small></div></article>)}</div> : null}
+    {action?.steps?.length ? <div className="guided-timeline">{action.steps.map((step) => <article key={step.id} className={step.status}><span>{step.status === "succeeded" ? <Check size={12} /> : <Loader2 size={12} className={step.status === "running" ? "spin" : ""} />}</span><div><b>{step.label}</b><p>{step.detail}</p>{step.outputSummary && <blockquote>{step.outputSummary}</blockquote>}<small>{[step.agent, step.skillId, step.provider].filter(Boolean).join(" · ")}</small>{step.links?.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label} <ExternalLink size={10} /></a>)}</div></article>)}</div> : null}
     {status?.recommendations?.length ? <div className="workflow-recommendations"><b>PM-ranked feature tracks</b>{status.recommendations.map((item, index) => <article key={item.id}><span>{index + 1}</span><div><strong>{item.title}</strong><small>{item.id} · {item.score}/100 · {Math.round(item.confidence * 100)}% confidence</small><p>{item.problem}</p></div></article>)}</div> : null}
     {status?.previewError && <div className="guided-error"><AlertTriangle size={15} /><div><b>{status.previewError.code}</b><p>{status.previewError.detail}</p></div></div>}
     {status?.previews?.length ? <div className="external-sync-links"><b>Current product builds</b>{status.previews.map((build) => <div key={build.featureId}><span>{build.featureId} · {build.commitSha.slice(0, 7)}</span><a href={build.deploymentUrl} target="_blank" rel="noreferrer">Preview <ExternalLink size={10} /></a><a href={build.pullRequestUrl} target="_blank" rel="noreferrer">PR <ExternalLink size={10} /></a></div>)}</div> : null}
     {status?.previewEvaluations?.length ? <div className="preview-eval-detail"><b>Preview evaluation evidence</b>{status.previewEvaluations.map((evaluation) => <article key={evaluation.targetUrl}><strong>{evaluation.featureId} · {evaluation.score}/100 · {evaluation.passed ? "passed" : "blocked"}</strong>{evaluation.checks.map((check) => <p key={check.name} className={check.passed ? "passed" : "failed"}>{check.passed ? "✓" : "×"} {check.name}: {check.detail}</p>)}</article>)}</div> : null}
+    {status?.providerActivity?.length ? <section className="provider-activity" id="provider-activity"><div className="section-title"><div><p className="eyebrow">External proof</p><h2>Provider activity</h2></div></div><div className="provider-activity-grid">{status.providerActivity.map((item) => { const url = item.artifactUrl ?? item.dashboardUrl; return <article key={`${item.provider}-${item.kind}-${item.externalId ?? item.label}`} className={item.status}><span className="provider-monogram">{item.provider.slice(0, 2).toUpperCase()}</span><div><small>{item.provider} · {item.kind}</small><b>{item.label}</b><p>{item.status === "unavailable" ? item.error : item.status === "running" ? "Provider action is still running." : "External record is available."}</p>{url ? <a href={url} target="_blank" rel="noreferrer">Open {item.artifactUrl ? "record" : "dashboard"} <ExternalLink size={10} /></a> : <span className="provider-pending">{item.status === "unavailable" ? "Dashboard URL not configured" : "Creating external record…"}</span>}</div></article>; })}</div></section> : null}
+    {action && <details className="technical-details"><summary><Wrench size={12} /> Technical details</summary><p>Use the raw action record only for debugging or API inspection.</p><a href={actionLink || `/api/workflow/actions/${action.actionId}`} target="_blank" rel="noreferrer">View raw action JSON <ExternalLink size={10} /></a></details>}
   </section>;
 }

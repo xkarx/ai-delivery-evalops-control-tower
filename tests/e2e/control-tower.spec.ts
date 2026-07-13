@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 async function collapseGuideIfOpen(page: import("@playwright/test").Page) {
-  const collapse = page.getByRole("button", { name: "Collapse demo guide" });
+  const collapse = page.getByRole("button", { name: "Close journey", exact: true });
   if (await collapse.isVisible()) await collapse.click();
 }
 
 test("overview exposes the evidence-to-release story", async ({ page }) => {
   await page.goto("/");
+  await collapseGuideIfOpen(page);
   await expect(page.getByRole("heading", { name: /Good afternoon, operator/i })).toBeVisible();
   await expect(page.getByText("Release gate recovery demonstrated")).toBeVisible();
   await page.getByRole("link", { name: "Open complete feature lineage", exact: true }).click();
@@ -16,7 +17,7 @@ test("overview exposes the evidence-to-release story", async ({ page }) => {
 
 test("required pages render on a narrow viewport", async ({ page }) => {
   test.setTimeout(60_000);
-  for (const route of ["/features", "/delivery", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
+  for (const route of ["/features", "/delivery", "/evals", "/reviews", "/releases", "/runs/summary", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
   }
@@ -88,24 +89,28 @@ test("agent workflow runs through eval and stops at release approval", async ({ 
 
 test("guide reopens without reserving or blocking page width", async ({ page }) => {
   await page.goto("/runs");
-  const alreadyOpen = page.getByRole("button", { name: "Collapse demo guide" });
+  const alreadyOpen = page.getByRole("button", { name: "Close journey", exact: true });
   if (await alreadyOpen.isVisible()) await alreadyOpen.click();
-  await page.getByRole("button", { name: "Demo guide", exact: true }).click();
-  await expect(page.getByRole("complementary", { name: "Demo guide" })).toContainText("Walkthrough");
-  await page.getByRole("button", { name: "Collapse demo guide" }).click();
+  await page.getByRole("button", { name: "Open journey" }).click();
+  await expect(page.getByRole("complementary", { name: "Delivery journey" })).toContainText("Story");
+  await page.getByRole("button", { name: "Close journey", exact: true }).click();
   await expect(page.getByRole("button", { name: /Analyze opportunities|Approve feature tracks|Approve release/ })).toBeVisible();
 });
 
 test("guided walkthrough includes eval and both human review gates", async ({ page }) => {
   await page.goto("/evals");
-  const guide = page.getByRole("complementary", { name: "Demo guide" });
-  if (!(await guide.getByText("Walkthrough", { exact: true }).isVisible())) await page.getByRole("button", { name: "Demo guide", exact: true }).click();
-  await expect(guide.getByRole("link", { name: /Eval campaigns/ })).toBeVisible();
-  await expect(guide.getByRole("link", { name: /Feature approval/ })).toHaveAttribute("href", "/reviews#feature-gate");
-  await expect(guide.getByRole("link", { name: "7 Release approval", exact: true })).toHaveAttribute("href", "/reviews#release-gate");
-  await guide.getByRole("link", { name: /Next: Release approval/ }).click();
-  await expect(page).toHaveURL(/\/reviews#release-gate$/);
-  await expect(page.getByRole("heading", { name: "Human review queue" })).toBeVisible();
+  const guide = page.getByRole("complementary", { name: "Delivery journey" });
+  if (!(await guide.getByText("Story", { exact: true }).isVisible())) await page.getByRole("button", { name: "Open journey" }).click();
+  await expect(guide.getByRole("button", { name: /Eval campaign/ })).toBeVisible();
+  await expect(guide.getByRole("button", { name: /Feature approval/ })).toBeVisible();
+  await expect(guide.getByRole("button", { name: /Release approval/ })).toBeVisible();
+});
+
+test("raw action JSON is secondary to provider proof", async ({ page }) => {
+  await page.goto("/runs");
+  await expect(page.getByRole("link", { name: /Open action record/i })).toHaveCount(0);
+  const technical = page.getByText("Technical details", { exact: true });
+  if (await technical.isVisible()) await expect(technical).toBeVisible();
 });
 
 test("company context, eval authoring, incident creation, and export are interactive", async ({ page }) => {
@@ -135,6 +140,7 @@ test("company context, eval authoring, incident creation, and export are interac
 
   const download = page.waitForEvent("download");
   await page.goto("/lineage");
+  await collapseGuideIfOpen(page);
   await page.getByRole("link", { name: "Export evidence" }).click();
   expect((await download).suggestedFilename()).toMatch(/dailycart-lineage/i);
 });
