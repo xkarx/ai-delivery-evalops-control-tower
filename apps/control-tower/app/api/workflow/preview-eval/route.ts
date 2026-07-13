@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { DeliveryWorkflow, type WorkflowSnapshot } from "@dailycart/workflow";
+import { agentRunSchema, assertDemoState, evalCampaignSchema, type DemoState } from "@dailycart/schemas";
 import { requireOperatorAccess } from "@/lib/operator-auth";
-import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { updateAction } from "@/lib/workflow-actions";
 import { requestSessionId } from "@/lib/demo-session";
+import { loadDemoState } from "@/lib/load-demo-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +15,31 @@ type PreviewBuild = { featureId: string; deploymentUrl: string; sourceMode: stri
 type PreviewEval = { featureId: string; targetUrl: string; passed: boolean; score: number; checks: Array<{ name: string; passed: boolean; detail: string }>; sourceMode: string; evaluatedAt: string; githubRunUrl?: string };
 
 type GitHubRun = { id: number; name?: string; display_title?: string; status?: string; conclusion?: string | null; html_url: string; created_at: string };
+
+type StoredWorkflow = {
+  sessionId?: string;
+  workflowInstanceId?: string;
+  phase: string;
+  sourceMode: "simulated" | "live";
+  featureId: string;
+  ticketIds: string[];
+  blockedCampaignId: string;
+  passedCampaignId: string;
+  releaseApprovalId: string;
+  evidenceIds?: string[];
+  featureBatchId?: string;
+  workflow: WorkflowSnapshot;
+  featureTracks?: Array<{
+    featureId: string;
+    featureTitle: string;
+    ticketIds: string[];
+    blockedCampaignId: string;
+    passedCampaignId: string;
+    releaseApprovalId: string;
+    status: string;
+  }>;
+  [key: string]: unknown;
+};
 
 class GitHubRequestError extends Error {
   constructor(readonly status: number, detail: string) { super(detail); }
@@ -85,6 +113,143 @@ function previewRequestHeaders(): HeadersInit {
   return oidcToken ? { "x-vercel-trusted-oidc-idp-token": oidcToken } : {};
 }
 
+function runIdForCampaign(campaignId: string): string {
+  return `RUN-${campaignId.replace(/\D/g, "")}`;
+}
+
+function resultIdForCampaign(campaignId: string, index: number): string {
+  return `EVALCASE-${Number(campaignId.replace(/\D/g, "")) * 10 + index + 1}`;
+}
+
+function appendById<T extends { id: string }>(current: T[], additions: T[]): T[] {
+  const records = new Map(current.map((item) => [item.id, item]));
+  for (const item of additions) records.set(item.id, item);
+  return [...records.values()];
+}
+
+async function persistMeasuredGate(sessionId: string, evaluations: PreviewEval[], allPassed: boolean): Promise<void> {
+  const stored = await readArtifact<StoredWorkflow>("workflow", sessionId);
+  if (!stored) throw new Error("The preview evaluations are not attached to an active delivery workflow.");
+  if (stored.sessionId && stored.sessionId !== sessionId) throw new Error("The preview evaluations belong to a different demo session.");
+  if (!stored.evidenceIds?.length) throw new Error("DATA_INTEGRITY_FAILED: Preview evaluation is missing the workflow evidence provenance.");
+
+  const now = new Date().toISOString();
+  const campaignId = allPassed ? stored.passedCampaignId : stored.blockedCampaignId;
+  if (!campaignId) throw new Error("The workflow is missing its measured evaluation campaign identifier.");
+  const runId = runIdForCampaign(campaignId);
+  const score = Math.round(evaluations.reduce((total, evaluation) => total + evaluation.score, 0) / Math.max(evaluations.length, 1));
+  const sourceMode = evaluations.every((evaluation) => evaluation.sourceMode === "live") ? "live" as const : "simulated" as const;
+  const campaign = evalCampaignSchema.parse({
+    id: campaignId,
+    featureId: stored.featureId,
+    version: allPassed ? 2 : 1,
+    status: allPassed ? "passed" : "blocked",
+    threshold: 85,
+    weightedScore: score,
+    results: evaluations.map((evaluation, index) => ({
+      caseId: resultIdForCampaign(campaignId, index),
+      grader: "github-preview-browser",
+      score: evaluation.score,
+      passed: evaluation.passed,
+      rationale: `${evaluation.featureId} at ${evaluation.targetUrl}: ${evaluation.checks.map((check) => `${check.passed ? "pass" : "fail"} ${check.name} (${check.detail})`).join("; ")}`,
+      measuredAt: evaluation.evaluatedAt,
+      durationMs: 0
+    })),
+    failureCategories: allPassed ? [] : ["preview-browser-regression"],
+    requiredApprovalPresent: false,
+    releaseAllowed: allPassed,
+    runId,
+    sourceMode
+  });
+  const evalRun = agentRunSchema.parse({
+    id: runId,
+    agent: "eval",
+    status: allPassed ? "succeeded" : "blocked",
+    startedAt: evaluations[0]?.evaluatedAt ?? now,
+    finishedAt: now,
+    featureId: stored.featureId,
+    ticketIds: stored.ticketIds,
+    traceId: `trace-preview-eval-${campaignId.toLowerCase()}`,
+    skillId: "release-readiness",
+    skillVersion: "1.0.0",
+    contextPackId: "1.0.0",
+    featureBatchId: stored.featureBatchId,
+    citedEvidenceIds: stored.evidenceIds ?? [],
+    reasoningSummary: allPassed
+      ? "The exact current preview URLs and commit SHAs passed the remote browser and release-policy checks. Human release approval is now required."
+      : "At least one exact current preview URL or commit failed a release-blocking remote browser check. Release remains blocked until a corrected preview passes.",
+    toolCalls: evaluations.map((evaluation) => ({
+      name: "preview-target-browser-evaluation",
+      provider: "github",
+      status: evaluation.passed ? "succeeded" as const : "failed" as const,
+      detail: `${evaluation.featureId} scored ${evaluation.score}/100 against ${evaluation.targetUrl}.`,
+      url: evaluation.githubRunUrl
+    })),
+    costUsd: 0,
+    latencyMs: 0,
+    retries: 0,
+    steps: evaluations.map((evaluation) => ({
+      name: `Evaluate ${evaluation.featureId} preview`,
+      status: evaluation.passed ? "succeeded" as const : "blocked" as const,
+      durationMs: 0,
+      detail: `${evaluation.score}/100 for commit-targeted browser evaluation at ${evaluation.targetUrl}.`
+    })),
+    sourceMode
+  });
+
+  const workflow = DeliveryWorkflow.hydrate(stored.workflow);
+  let snapshot = workflow.snapshot();
+  if (allPassed) {
+    if (snapshot.phase === "blocked") snapshot = workflow.rerunAfterCorrection("engineering-agent", "Corrected preview commit is ready for measured browser reevaluation");
+    if (snapshot.phase === "evaluation") snapshot = workflow.recordEvalGate({
+      campaignId,
+      releaseAllowed: true,
+      reason: "Both current preview commits passed the measured GitHub browser evaluation",
+      actor: "eval-agent",
+      releaseApprovalId: stored.releaseApprovalId
+    });
+  } else if (snapshot.phase === "evaluation") {
+    snapshot = workflow.recordEvalGate({
+      campaignId,
+      releaseAllowed: false,
+      reason: "A current preview commit failed a measured GitHub browser evaluation",
+      actor: "eval-agent"
+    });
+  }
+
+  const state = await loadDemoState(sessionId);
+  const releaseApproval = snapshot.pendingApproval?.approval;
+  const next: DemoState = {
+    ...state,
+    campaigns: appendById(state.campaigns, [campaign]),
+    runs: appendById(state.runs, [evalRun]),
+    approvals: releaseApproval ? appendById(state.approvals, [releaseApproval]) : state.approvals,
+    features: state.features.map((feature) => {
+      const evaluation = evaluations.find((item) => item.featureId === feature.id);
+      return evaluation ? { ...feature, status: evaluation.passed ? "in_delivery" as const : "blocked" as const } : feature;
+    }),
+    activity: [
+      {
+        at: now,
+        type: "eval",
+        title: allPassed ? "Measured preview campaign passed" : "Measured preview campaign blocked release",
+        detail: `${campaign.id} scored ${campaign.weightedScore}/100 across ${evaluations.length} current preview target(s).`,
+        entityId: campaign.id
+      },
+      ...state.activity.filter((item) => item.entityId !== campaign.id)
+    ]
+  };
+  const tracks = stored.featureTracks?.map((track) => {
+    const evaluation = evaluations.find((item) => item.featureId === track.featureId);
+    return { ...track, status: evaluation?.passed ? "ready_for_release" : "blocked" };
+  });
+  await writeArtifact("demoState", assertDemoState(next), sessionId);
+  await writeArtifact("workflow", { ...stored, phase: snapshot.phase, workflow: snapshot, featureTracks: tracks }, sessionId);
+  await persistStructuredRecord("eval_campaigns", campaign.id, { ...campaign, sessionId, workflowId: stored.workflowInstanceId, previewTargets: evaluations }, sessionId);
+  await persistStructuredRecord("workflow_runs", evalRun.id, { ...evalRun, sessionId, workflowId: stored.workflowInstanceId }, sessionId);
+  if (releaseApproval) await persistStructuredRecord("approvals", releaseApproval.id, { ...releaseApproval, sessionId, workflowId: stored.workflowInstanceId }, sessionId);
+}
+
 export async function POST(request: Request) {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
@@ -131,8 +296,9 @@ export async function POST(request: Request) {
       }
       evaluations.push({ featureId: build.featureId, targetUrl: build.deploymentUrl, passed: checks.every((check) => check.passed), score: Math.round((checks.filter((check) => check.passed).length / checks.length) * 100), checks, sourceMode: build.sourceMode, evaluatedAt: new Date().toISOString(), githubRunUrl });
     }
-    await writeArtifact("workflowPreviewEval", { sessionId, workflowId: raw?.workflowId, evaluations, allPassed: evaluations.every((evaluation) => evaluation.passed), correctionPending: false, errorCode, errorDetail }, sessionId);
     const allPassed = evaluations.every((evaluation) => evaluation.passed);
+    await writeArtifact("workflowPreviewEval", { sessionId, workflowId: raw?.workflowId, evaluations, allPassed, correctionPending: !allPassed && !errorCode, errorCode, errorDetail }, sessionId);
+    if (!errorCode) await persistMeasuredGate(sessionId, evaluations, allPassed);
     return NextResponse.json({ ok: true, evaluations, allPassed, blocked: !allPassed, errorCode, detail: errorDetail }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ ok: false, message: "Preview evaluation failed.", detail: error instanceof Error ? error.message : "Preview evaluation failed." }, { status: 502 });

@@ -132,12 +132,12 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
             <Link className="system-status" href="/integrations"><i /> Verify providers</Link>
             <div className="operator-access">
               <button
-                className={`avatar ${operatorState === "authorized" ? "authorized" : ""}`}
+                className={`operator-trigger ${operatorState === "authorized" ? "authorized" : ""}`}
                 aria-label="Demo operator"
                 aria-expanded={operatorOpen}
                 aria-controls="operator-access-panel"
                 onClick={() => setOperatorOpen((value) => !value)}
-              >KO</button>
+              >{operatorState === "authorized" ? <ShieldCheck size={15} /> : <LockKeyhole size={15} />}<span>{operatorState === "authorized" ? "Operator unlocked" : "Operator access"}</span></button>
               {operatorOpen && <section id="operator-access-panel" className="operator-popover" role="dialog" aria-label="Operator access">
                 <header>
                   <span><LockKeyhole size={16} /></span>
