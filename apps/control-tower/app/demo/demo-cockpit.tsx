@@ -107,16 +107,37 @@ export function DemoCockpit() {
     const timer = window.setInterval(() => { void refresh(); }, 2_000);
     const events = new EventSource("/api/workflow/events");
     events.addEventListener("workflow", () => void refresh());
-    return () => { window.clearInterval(timer); events.close(); };
+    const operatorAuthorized = () => {
+      setNotice("Live actions are unlocked. Start the guided demo when ready.");
+      void refresh();
+    };
+    window.addEventListener("dailycart:operator-auth", operatorAuthorized);
+    return () => {
+      window.clearInterval(timer);
+      events.close();
+      window.removeEventListener("dailycart:operator-auth", operatorAuthorized);
+    };
   }, [refresh]);
 
+  function openOperatorAccess() {
+    setNotice("Enter the operator passcode in the access panel to unlock live actions.");
+    window.dispatchEvent(new CustomEvent("dailycart:open-operator"));
+  }
+
   async function startNewSession() {
+    if (status?.operator?.required && !status.operator.authorized) {
+      openOperatorAccess();
+      return;
+    }
     if (status?.session && !window.confirm("Archive this demo session and start a clean one? Existing external records will remain in audit history.")) return;
     setWorking(true); setNotice("");
     try {
       const response = await fetch("/api/demo/sessions", { method: "POST" });
-      const payload = await response.json() as { ok?: boolean; session?: { sessionId: string }; detail?: string };
-      if (!response.ok || !payload.ok) throw new Error(payload.detail ?? "A new demo session could not be created.");
+      const payload = await response.json() as { ok?: boolean; session?: { sessionId: string }; detail?: string; message?: string; code?: string };
+      if (!response.ok || !payload.ok) {
+        if (payload.code === "OPERATOR_AUTH_REQUIRED") openOperatorAccess();
+        throw new Error(payload.detail ?? payload.message ?? "A new demo session could not be created.");
+      }
       setNotice(`New session ${payload.session?.sessionId} is ready.`);
       await refresh();
     } catch (error) { setNotice(error instanceof Error ? error.message : "Session creation failed."); }
@@ -158,7 +179,7 @@ export function DemoCockpit() {
         <h1>Turn a customer problem into a measured release</h1>
         <p>DailyCart demonstrates an AI-assisted product-delivery loop: agents cite synthetic company evidence, humans approve consequential decisions, and live providers produce inspectable engineering artifacts.</p>
       </div>
-      <button className="button secondary" onClick={() => void startNewSession()} disabled={working}><Plus size={15} /> Start new demo</button>
+      <button className="button secondary" onClick={() => void startNewSession()} disabled={working}><Plus size={15} /> {status?.operator?.required && !status.operator.authorized ? "Unlock to start" : "Start new demo"}</button>
     </header>
 
     <section className="cockpit-boundary" aria-label="Demo boundary">
@@ -170,7 +191,7 @@ export function DemoCockpit() {
 
     {!status?.session ? <section className="cockpit-empty panel">
       <FileSearch size={28} /><h2>Start a clean, isolated demonstration</h2><p>This creates one signed session shared by refreshes and tabs. Previous sessions remain archived and cannot leak into this run.</p>
-      <button className="button primary" onClick={() => void startNewSession()} disabled={working}>{working ? <Loader2 className="spin" size={15} /> : <Play size={15} />} Start guided demo</button>
+      <button className="button primary" onClick={() => void startNewSession()} disabled={working}>{working ? <Loader2 className="spin" size={15} /> : status?.operator?.required && !status.operator.authorized ? <ShieldCheck size={15} /> : <Play size={15} />} {status?.operator?.required && !status.operator.authorized ? "Unlock operator access" : "Start guided demo"}</button>
       {notice && <p role="status">{notice}</p>}
     </section> : <>
       <nav className="stage-rail" aria-label="Delivery stages">
