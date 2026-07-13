@@ -10,6 +10,7 @@ function action(input: Partial<WorkflowAction> = {}): WorkflowAction {
     workflowId: "WORKFLOW-TEST",
     idempotencyKey: "SESSION-TEST:analyze:0",
     command: "analyze",
+    executionMode: "showcase",
     status: "queued",
     phase: "queued",
     progress: 0,
