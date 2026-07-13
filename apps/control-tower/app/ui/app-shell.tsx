@@ -53,17 +53,33 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
   const [operatorMessage, setOperatorMessage] = useState("");
 
   useEffect(() => {
+    let active = true;
+    const hydrateOperator = async () => {
+      if (runtimeMode !== "live") return;
+      try {
+        const response = await fetch("/api/operator/auth", { cache: "no-store" });
+        const payload = await response.json() as { authorized?: boolean };
+        if (active && response.ok) setOperatorState(payload.authorized ? "authorized" : "idle");
+      } catch {
+        if (active) setOperatorState("idle");
+      }
+    };
     const openOperator = () => setOperatorOpen(true);
+    const refreshOperator = () => void hydrateOperator();
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOperatorOpen(false);
     };
+    void hydrateOperator();
     window.addEventListener("dailycart:open-operator", openOperator);
+    window.addEventListener("dailycart:operator-auth", refreshOperator);
     window.addEventListener("keydown", closeOnEscape);
     return () => {
+      active = false;
       window.removeEventListener("dailycart:open-operator", openOperator);
+      window.removeEventListener("dailycart:operator-auth", refreshOperator);
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, []);
+  }, [runtimeMode]);
 
   async function unlockOperator(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
