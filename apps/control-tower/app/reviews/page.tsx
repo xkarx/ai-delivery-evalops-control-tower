@@ -18,6 +18,11 @@ export default async function ReviewsPage() {
       <article className="metric-card"><span className="metric-icon violet"><Scale size={19} /></span><div><p>Agent eval gate</p><strong>{data.campaigns.at(-1)?.weightedScore ?? 0}</strong><small>Current measured score</small></div></article>
       <article className="metric-card"><span className="metric-icon blue"><MessageSquareText size={19} /></span><div><p>Decision boundary</p><strong>Human</strong><small>No automatic release</small></div></article>
     </section>
+    <section className="panel review-story" aria-label="Human decision gates">
+      <div id="feature-gate"><span>Feature gate</span><b>Evidence, specialist reviews, and agent evals</b><small>Approves what enters delivery.</small></div>
+      <i aria-hidden="true" />
+      <div id="release-gate"><span>Release gate</span><b>Preview, checks, and critical eval results</b><small>Approves what reaches production.</small></div>
+    </section>
     <div className="review-layout">
       <section className="review-queue">
         {pending.map((approval) => {

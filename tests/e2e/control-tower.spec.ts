@@ -91,9 +91,21 @@ test("guide reopens without reserving or blocking page width", async ({ page }) 
   const alreadyOpen = page.getByRole("button", { name: "Collapse demo guide" });
   if (await alreadyOpen.isVisible()) await alreadyOpen.click();
   await page.getByRole("button", { name: "Demo guide", exact: true }).click();
-  await expect(page.getByRole("complementary", { name: "Demo guide" })).toContainText("What happens next");
+  await expect(page.getByRole("complementary", { name: "Demo guide" })).toContainText("Walkthrough");
   await page.getByRole("button", { name: "Collapse demo guide" }).click();
   await expect(page.getByRole("button", { name: /Analyze opportunities|Approve feature tracks|Approve release/ })).toBeVisible();
+});
+
+test("guided walkthrough includes eval and both human review gates", async ({ page }) => {
+  await page.goto("/evals");
+  const guide = page.getByRole("complementary", { name: "Demo guide" });
+  if (!(await guide.getByText("Walkthrough", { exact: true }).isVisible())) await page.getByRole("button", { name: "Demo guide", exact: true }).click();
+  await expect(guide.getByRole("link", { name: /Eval campaigns/ })).toBeVisible();
+  await expect(guide.getByRole("link", { name: /Feature approval/ })).toHaveAttribute("href", "/reviews#feature-gate");
+  await expect(guide.getByRole("link", { name: "7 Release approval", exact: true })).toHaveAttribute("href", "/reviews#release-gate");
+  await guide.getByRole("link", { name: /Next: Release approval/ }).click();
+  await expect(page).toHaveURL(/\/reviews#release-gate$/);
+  await expect(page.getByRole("heading", { name: "Human review queue" })).toBeVisible();
 });
 
 test("company context, eval authoring, incident creation, and export are interactive", async ({ page }) => {

@@ -10,11 +10,18 @@ export function ReviewDecision({ approvalId, stage }: { approvalId: string; stag
     if (!rationale.trim()) { setMessage("A decision rationale is required."); return; }
     setWorking(true); setMessage("");
     try {
-      const endpoint = status === "rejected" ? "/api/workflow/reject" : stage === "feature" ? "/api/workflow/approve-feature" : "/api/workflow/approve";
-      const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ approvalId, reviewer: "operator", rationale }) });
-      const payload = await response.json() as { ok?: boolean; message?: string; detail?: string };
+      const durableCommand = stage === "feature" ? "approve_feature" : "approve_release";
+      const endpoint = status === "rejected" ? "/api/workflow/reject" : "/api/workflow/actions";
+      const body = status === "rejected" ? { approvalId, reviewer: "operator", rationale } : { command: durableCommand, rationale };
+      const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+      const payload = await response.json() as { ok?: boolean; message?: string; detail?: string; actionId?: string };
       if (!response.ok || !payload.ok) throw new Error(payload.detail ?? payload.message ?? "Decision failed.");
-      setMessage(`${approvalId} ${status}.`); router.refresh();
+      if (status === "approved" && payload.actionId) {
+        setMessage(`${approvalId} approved. ${payload.actionId} is now running.`);
+        router.push(`/runs?action=${payload.actionId}`);
+      } else {
+        setMessage(`${approvalId} ${status}.`); router.refresh();
+      }
     } catch (error) { setMessage(error instanceof Error ? error.message : "Decision failed."); }
     finally { setWorking(false); }
   }
