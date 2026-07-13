@@ -113,7 +113,7 @@ export const executeWorkflowAction = inngest.createFunction(
         await step.run("analyze-opportunities", () => callRoute("/api/workflow/run", { method: "POST" }, identity));
         await bindActionToWorkflow(data);
         await progress(data.actionId, { id: "agents", label: "Specialist agents evaluated opportunities", detail: "PM ranking, UX review, engineering feasibility, and agent-output evals completed.", progress: 100, phase: "awaiting_feature_approval", agent: "PM + UX + feasibility", skillId: "feature-prioritization" });
-        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Review the evidence and approve the selected feature tracks." });
+        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Review the evidence and approve the selected feature tracks.", error: undefined });
       }
       if (data.command === "approve_feature" || data.command === "retry") {
         if (data.command === "approve_feature") {
@@ -143,14 +143,14 @@ export const executeWorkflowAction = inngest.createFunction(
           if (!corrected.allPassed) throw new Error(`Corrected preview evaluation failed: ${String(corrected.detail ?? corrected.errorCode ?? "critical check failed")}`);
         }
         await progress(data.actionId, { id: "eval", label: "Preview evaluations passed", detail: "Both current preview commits passed critical release checks.", progress: 100, phase: "awaiting_release_approval", agent: "EvalOps", skillId: "release-readiness" });
-        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_release_approval", progress: 100, message: "All preview checks passed. Human release approval is required.", nextAction: "Inspect the previews and eval evidence, then approve the release." });
+        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_release_approval", progress: 100, message: "All preview checks passed. Human release approval is required.", nextAction: "Inspect the previews and eval evidence, then approve the release.", error: undefined });
       }
       if (data.command === "approve_release") {
         await step.run("approve-release", () => callRoute("/api/workflow/approve", { method: "POST", body: JSON.stringify({ reviewer: "operator", rationale: data.rationale ?? "Approved after current previews and critical evaluations passed." }) }, identity));
         await progress(data.actionId, { id: "release-approved", label: "Human release approval recorded", detail: "The immutable release gate is approved; production promotion is starting.", progress: 35, phase: "deploying", agent: "operator" });
         await step.run("deploy-release", () => callRoute("/api/workflow/deploy", { method: "POST" }, identity));
         await progress(data.actionId, { id: "deployed", label: "Production release completed", detail: "GitHub, Vercel, Linear, and Slack release records were updated.", progress: 100, phase: "released", agent: "Release", skillId: "release-readiness", provider: "vercel" });
-        return updateAction(data.actionId, { status: "succeeded", phase: "released", progress: 100, message: "The approved release is live and ready for product analytics.", nextAction: "Run bounded product traffic and observe outcomes." });
+        return updateAction(data.actionId, { status: "succeeded", phase: "released", progress: 100, message: "The approved release is live and ready for product analytics.", nextAction: "Run bounded product traffic and observe outcomes.", error: undefined });
       }
       throw new Error(`Command ${data.command} is not implemented by the guided runner.`);
     } catch (error) {

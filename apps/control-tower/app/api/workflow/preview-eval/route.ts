@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { updateAction } from "@/lib/workflow-actions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,11 +32,17 @@ async function githubRequest<T>(path: string, init: RequestInit = {}): Promise<T
   return (response.status === 204 ? {} : await response.json()) as T;
 }
 
-async function runPreviewBrowserEval(build: PreviewBuild): Promise<{ passed: boolean; detail: string; url?: string }> {
+async function heartbeat(actionId: string | undefined, patch: { phase: string; progress: number; message: string; nextAction: string }): Promise<void> {
+  if (!actionId) return;
+  await updateAction(actionId, { status: "running", ...patch }).catch(() => undefined);
+}
+
+async function runPreviewBrowserEval(build: PreviewBuild, actionId?: string): Promise<{ passed: boolean; detail: string; url?: string }> {
   const workflow = process.env.GITHUB_PREVIEW_EVAL_WORKFLOW || "preview-eval.yml";
   const ref = process.env.GITHUB_DEFAULT_BRANCH || "main";
   const startedAt = Date.now();
   let event = "workflow_dispatch";
+  await heartbeat(actionId, { phase: "preview_evaluating", progress: 76, message: `Starting GitHub browser evaluation for ${build.featureId}.`, nextAction: "The workflow will display the exact browser result when the GitHub run completes." });
   try {
     await githubRequest(`/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
       method: "POST",
@@ -52,6 +59,7 @@ async function runPreviewBrowserEval(build: PreviewBuild): Promise<{ passed: boo
   let run: GitHubRun | undefined;
   const shortSha = build.commitSha.slice(0, 7);
   for (let attempt = 0; attempt < 24 && !run; attempt += 1) {
+    await heartbeat(actionId, { phase: "preview_evaluating", progress: 77, message: `Waiting for GitHub to register the ${build.featureId} browser run.`, nextAction: "No operator action is required." });
     await new Promise((resolve) => setTimeout(resolve, 2_500));
     const payload = await githubRequest<{ workflow_runs?: GitHubRun[] }>(`/actions/workflows/${encodeURIComponent(workflow)}/runs?event=${event}&branch=${encodeURIComponent(ref)}&per_page=30`);
     run = payload.workflow_runs?.find((candidate) => Date.parse(candidate.created_at) >= startedAt - 10_000 && `${candidate.name ?? ""} ${candidate.display_title ?? ""}`.includes(build.featureId) && `${candidate.name ?? ""} ${candidate.display_title ?? ""}`.includes(shortSha));
@@ -59,7 +67,11 @@ async function runPreviewBrowserEval(build: PreviewBuild): Promise<{ passed: boo
   if (!run) throw new Error(`GitHub did not expose the ${build.featureId} preview-eval run after dispatch.`);
   for (let attempt = 0; attempt < 48; attempt += 1) {
     const current = await githubRequest<GitHubRun>(`/actions/runs/${run.id}`);
-    if (current.status === "completed") return { passed: current.conclusion === "success", detail: `GitHub preview browser evaluation ${current.conclusion ?? "completed"} for ${build.commitSha}.`, url: current.html_url };
+    if (current.status === "completed") {
+      await heartbeat(actionId, { phase: "preview_evaluating", progress: 79, message: `${build.featureId} browser evaluation ${current.conclusion ?? "completed"}.`, nextAction: current.conclusion === "success" ? "The next preview track will be evaluated automatically." : "The measured failure will trigger an engineering correction." });
+      return { passed: current.conclusion === "success", detail: `GitHub preview browser evaluation ${current.conclusion ?? "completed"} for ${build.commitSha}.`, url: current.html_url };
+    }
+    await heartbeat(actionId, { phase: "preview_evaluating", progress: 78, message: `GitHub browser evaluation is ${current.status ?? "running"} for ${build.featureId} (${attempt + 1}/48).`, nextAction: "No operator action is required." });
     await new Promise((resolve) => setTimeout(resolve, 5_000));
   }
   throw new Error(`GitHub preview evaluation timed out for ${build.featureId}.`);
@@ -81,6 +93,7 @@ export async function POST(request: Request) {
     const builds: PreviewBuild[] = raw.builds ?? (raw.featureId && raw.deploymentUrl ? [{ featureId: raw.featureId, deploymentUrl: raw.deploymentUrl, sourceMode: raw.sourceMode ?? "mocked", commitSha: "legacy-missing" }] : []);
     if (!builds.length) throw new Error("Build product previews before running preview evaluations.");
     const body = await request.json().catch(() => ({})) as { rerun?: boolean };
+    const actionId = request.headers.get("x-dailycart-action-id") ?? undefined;
     const existing = body.rerun ? undefined : await readArtifact<{ evaluations?: PreviewEval[]; correctionPending?: boolean }>("workflowPreviewEval");
     const evaluations: PreviewEval[] = [];
     let errorCode: string | undefined;
@@ -101,7 +114,7 @@ export async function POST(request: Request) {
         checks.push({ name: "feature shell rendered", passed: response.ok && !protectedLogin && /DailyCart|checkout/i.test(html), detail: protectedLogin ? "The response was Vercel login HTML, not the DailyCart product." : "Preview HTML contains the product shell." });
         checks.push({ name: "feature commit targeted", passed: Boolean(build.commitSha), detail: build.commitSha ? `Evaluated commit ${build.commitSha}.` : "The preview did not expose its tested commit." });
         if (!protectedLogin) {
-          const browser = await runPreviewBrowserEval(build);
+          const browser = await runPreviewBrowserEval(build, actionId);
           checks.push({ name: "preview-target browser acceptance", passed: browser.passed, detail: browser.url ? `${browser.detail} ${browser.url}` : browser.detail });
         } else {
           checks.push({ name: "preview-target browser acceptance", passed: false, detail: "Browser evaluation was not dispatched because preview authentication failed." });
