@@ -75,13 +75,20 @@ export async function executeWorkflowActionDirect(request: Request, identity: Id
     }
 
     if (identity.command === "approve_feature" || identity.command === "retry") {
-      await callRoute(request, "/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true" } }, identity);
-      await bindAction(identity);
-      await completeStep(identity.actionId, { id: "planning", label: "Delivery plan created", detail: "Approved scope was decomposed into workstreams, dependencies, owners, risks, and readiness checks.", progress: 28, phase: "planning", agent: "TPM", skillId: "implementation-planning" });
-      await callRoute(request, "/api/workflow/sync", { method: "POST" }, identity);
-      await completeStep(identity.actionId, { id: "providers", label: "Delivery records synchronized", detail: "Linear, Slack, Langfuse, Supabase, and Inngest references were recorded.", progress: 42, phase: "provider_sync", provider: "provider adapters" });
-      await callRoute(request, "/api/workflow/preview", { method: "POST", body: JSON.stringify({ reconcile: true }) }, identity);
-      await completeStep(identity.actionId, { id: "build", label: "Parallel product builds started", detail: "Feature branches, commits, pull requests, and preview deployments were created or reused.", progress: 62, phase: "building_preview", agent: "Engineering", skillId: "code-implementation" });
+      if (identity.command === "approve_feature") {
+        await callRoute(request, "/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true" } }, identity);
+        await bindAction(identity);
+        await completeStep(identity.actionId, { id: "planning", label: "Delivery plan created", detail: "Approved scope was decomposed into workstreams, dependencies, owners, risks, and readiness checks.", progress: 28, phase: "planning", agent: "TPM", skillId: "implementation-planning" });
+        await callRoute(request, "/api/workflow/sync", { method: "POST" }, identity);
+        await completeStep(identity.actionId, { id: "providers", label: "Delivery records synchronized", detail: "Linear, Slack, Langfuse, Supabase, and Inngest references were recorded.", progress: 42, phase: "provider_sync", provider: "provider adapters" });
+        await callRoute(request, "/api/workflow/preview", { method: "POST", body: JSON.stringify({ reconcile: true }) }, identity);
+        await completeStep(identity.actionId, { id: "build", label: "Parallel product builds started", detail: "Feature branches, commits, pull requests, and preview deployments were created or reused.", progress: 62, phase: "building_preview", agent: "Engineering", skillId: "code-implementation" });
+      } else {
+        const existingPreview = await readArtifact<{ builds?: unknown[] }>("workflowPreview");
+        if (!existingPreview?.builds?.length) throw new Error("RETRY_STATE_MISSING: Existing preview builds were not found; start feature delivery again.");
+        await bindAction(identity);
+        await completeStep(identity.actionId, { id: "resume", label: "Resumed failed preview evaluation", detail: "Reusing the approved plan, provider records, pull requests, and READY Vercel previews without duplicating earlier work.", progress: 62, phase: "preview_ready", agent: "EvalOps", skillId: "release-readiness" });
+      }
       await waitForPreviews(request, identity);
       const evaluation = await callRoute(request, "/api/workflow/preview-eval", { method: "POST", body: JSON.stringify({ rerun: true }) }, identity);
       if (!evaluation.allPassed) {

@@ -11,6 +11,10 @@ type PreviewEval = { featureId: string; targetUrl: string; passed: boolean; scor
 
 type GitHubRun = { id: number; name?: string; display_title?: string; status?: string; conclusion?: string | null; html_url: string; created_at: string };
 
+class GitHubRequestError extends Error {
+  constructor(readonly status: number, detail: string) { super(detail); }
+}
+
 async function githubRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const repository = process.env.GITHUB_DEFAULT_REPOSITORY;
   const token = process.env.GITHUB_TOKEN;
@@ -20,7 +24,10 @@ async function githubRequest<T>(path: string, init: RequestInit = {}): Promise<T
     cache: "no-store",
     headers: { authorization: `Bearer ${token}`, accept: "application/vnd.github+json", "content-type": "application/json", "x-github-api-version": "2022-11-28", ...(init.headers as Record<string, string> | undefined) }
   });
-  if (!response.ok) throw new Error(`GitHub preview evaluation returned HTTP ${response.status}.`);
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({})) as { message?: string };
+    throw new GitHubRequestError(response.status, `GitHub preview evaluation returned HTTP ${response.status}: ${payload.message ?? "request rejected"}.`);
+  }
   return (response.status === 204 ? {} : await response.json()) as T;
 }
 
@@ -28,15 +35,25 @@ async function runPreviewBrowserEval(build: PreviewBuild): Promise<{ passed: boo
   const workflow = process.env.GITHUB_PREVIEW_EVAL_WORKFLOW || "preview-eval.yml";
   const ref = process.env.GITHUB_DEFAULT_BRANCH || "main";
   const startedAt = Date.now();
-  await githubRequest(`/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
-    method: "POST",
-    body: JSON.stringify({ ref, inputs: { preview_url: build.deploymentUrl, feature_id: build.featureId, commit_sha: build.commitSha } })
-  });
+  let event = "workflow_dispatch";
+  try {
+    await githubRequest(`/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
+      method: "POST",
+      body: JSON.stringify({ ref, inputs: { preview_url: build.deploymentUrl, feature_id: build.featureId, commit_sha: build.commitSha } })
+    });
+  } catch (error) {
+    if (!(error instanceof GitHubRequestError) || error.status !== 403) throw error;
+    event = "repository_dispatch";
+    await githubRequest("/dispatches", {
+      method: "POST",
+      body: JSON.stringify({ event_type: "dailycart-preview-eval", client_payload: { preview_url: build.deploymentUrl, feature_id: build.featureId, commit_sha: build.commitSha } })
+    });
+  }
   let run: GitHubRun | undefined;
   const shortSha = build.commitSha.slice(0, 7);
   for (let attempt = 0; attempt < 24 && !run; attempt += 1) {
     await new Promise((resolve) => setTimeout(resolve, 2_500));
-    const payload = await githubRequest<{ workflow_runs?: GitHubRun[] }>(`/actions/workflows/${encodeURIComponent(workflow)}/runs?event=workflow_dispatch&branch=${encodeURIComponent(ref)}&per_page=30`);
+    const payload = await githubRequest<{ workflow_runs?: GitHubRun[] }>(`/actions/workflows/${encodeURIComponent(workflow)}/runs?event=${event}&branch=${encodeURIComponent(ref)}&per_page=30`);
     run = payload.workflow_runs?.find((candidate) => Date.parse(candidate.created_at) >= startedAt - 10_000 && `${candidate.name ?? ""} ${candidate.display_title ?? ""}`.includes(build.featureId) && `${candidate.name ?? ""} ${candidate.display_title ?? ""}`.includes(shortSha));
   }
   if (!run) throw new Error(`GitHub did not expose the ${build.featureId} preview-eval run after dispatch.`);

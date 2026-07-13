@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { workflowCommandSchema } from "@dailycart/schemas";
-import { requireOperatorAccess } from "@/lib/operator-auth";
+import { requireOperatorOrWorkflowService } from "@/lib/operator-auth";
 import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { createWorkflowAction, latestAction, newSessionId, newWorkflowId, readActions, updateAction } from "@/lib/workflow-actions";
 import { inngest } from "@/lib/inngest/client";
@@ -44,7 +44,7 @@ async function executeDeterministicAction(request: Request, actionId: string, se
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = await requireOperatorAccess();
+  const denied = await requireOperatorOrWorkflowService(request);
   if (denied) return denied;
   try {
     const body = await request.json().catch(() => ({})) as { command?: string; sessionId?: string; rationale?: string };

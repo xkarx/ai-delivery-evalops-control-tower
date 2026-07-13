@@ -1,5 +1,5 @@
 name: Preview target evaluation
-run-name: Preview eval ${{ inputs.feature_id }} · ${{ inputs.commit_sha }}
+run-name: Preview eval ${{ inputs.feature_id || github.event.client_payload.feature_id }} · ${{ inputs.commit_sha || github.event.client_payload.commit_sha }}
 
 on:
   workflow_dispatch:
@@ -16,6 +16,8 @@ on:
         description: Exact preview commit
         required: true
         type: string
+  repository_dispatch:
+    types: [dailycart-preview-eval]
 
 permissions:
   contents: read
@@ -25,12 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
-      PREVIEW_BASE_URL: ${{ inputs.preview_url }}
+      PREVIEW_BASE_URL: ${{ inputs.preview_url || github.event.client_payload.preview_url }}
+      PREVIEW_COMMIT_SHA: ${{ inputs.commit_sha || github.event.client_payload.commit_sha }}
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.commit_sha }}
+          ref: ${{ env.PREVIEW_COMMIT_SHA }}
       - uses: pnpm/action-setup@v4
         with:
           version: 11.7.0

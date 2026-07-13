@@ -116,13 +116,20 @@ export const executeWorkflowAction = inngest.createFunction(
         return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Review the evidence and approve the selected feature tracks." });
       }
       if (data.command === "approve_feature" || data.command === "retry") {
-        await step.run("approve-feature-and-plan", () => callRoute("/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true" } }, identity));
-        await bindActionToWorkflow(data);
-        await progress(data.actionId, { id: "planning", label: "Delivery plan created", detail: "Approved scope was organized into workstreams, dependencies, owners, and readiness checks.", progress: 28, phase: "planning", agent: "TPM", skillId: "implementation-planning" });
-        await step.run("sync-providers", () => callRoute("/api/workflow/sync", { method: "POST" }, identity));
-        await progress(data.actionId, { id: "providers", label: "Delivery records synchronized", detail: "Linear, Slack, Langfuse, Supabase, and Inngest records are linked.", progress: 42, phase: "provider_sync", provider: "provider adapters" });
-        await step.run("build-previews", () => callRoute("/api/workflow/preview", { method: "POST", body: JSON.stringify({ reconcile: true }) }, identity));
-        await progress(data.actionId, { id: "build", label: "Parallel product builds started", detail: "Feature branches, commits, pull requests, and Vercel preview deployments were created or reused.", progress: 62, phase: "building_preview", agent: "Engineering", skillId: "code-implementation" });
+        if (data.command === "approve_feature") {
+          await step.run("approve-feature-and-plan", () => callRoute("/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true" } }, identity));
+          await bindActionToWorkflow(data);
+          await progress(data.actionId, { id: "planning", label: "Delivery plan created", detail: "Approved scope was organized into workstreams, dependencies, owners, and readiness checks.", progress: 28, phase: "planning", agent: "TPM", skillId: "implementation-planning" });
+          await step.run("sync-providers", () => callRoute("/api/workflow/sync", { method: "POST" }, identity));
+          await progress(data.actionId, { id: "providers", label: "Delivery records synchronized", detail: "Linear, Slack, Langfuse, Supabase, and Inngest records are linked.", progress: 42, phase: "provider_sync", provider: "provider adapters" });
+          await step.run("build-previews", () => callRoute("/api/workflow/preview", { method: "POST", body: JSON.stringify({ reconcile: true }) }, identity));
+          await progress(data.actionId, { id: "build", label: "Parallel product builds started", detail: "Feature branches, commits, pull requests, and Vercel preview deployments were created or reused.", progress: 62, phase: "building_preview", agent: "Engineering", skillId: "code-implementation" });
+        } else {
+          const existingPreview = await readArtifact<{ builds?: unknown[] }>("workflowPreview");
+          if (!existingPreview?.builds?.length) throw new Error("RETRY_STATE_MISSING: Existing preview builds were not found; start feature delivery again.");
+          await bindActionToWorkflow(data);
+          await progress(data.actionId, { id: "resume", label: "Resumed failed preview evaluation", detail: "Reusing approved planning, provider records, pull requests, and READY previews.", progress: 62, phase: "preview_ready", agent: "EvalOps", skillId: "release-readiness" });
+        }
         await step.run("wait-for-previews", () => waitForPreviewReadiness(data.actionId, data));
         const evaluation = await step.run("evaluate-previews", () => callRoute("/api/workflow/preview-eval", { method: "POST", body: JSON.stringify({ rerun: true }) }, identity));
         const allPassed = Boolean(evaluation.allPassed);
