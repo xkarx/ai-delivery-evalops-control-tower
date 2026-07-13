@@ -178,7 +178,7 @@ export async function GET(request: Request): Promise<Response> {
     const relatedRun = runningStep?.relatedRunIds?.map((id) => runs.find((run) => run.id === id)).find(Boolean);
     const matchingRun = runningStep && !relatedRun
       ? [...runs].sort((a, b) => (b.finishedAt ?? b.startedAt ?? "").localeCompare(a.finishedAt ?? a.startedAt ?? ""))
-        .find((run) => run.agent === runningStep.agent && (!runningStep.skillId || run.skillId === runningStep.skillId))
+        .find((run) => runningStep.skillId ? run.skillId === runningStep.skillId : run.agent === runningStep.agent)
       : undefined;
     const latestRun = relatedRun ?? matchingRun ?? (!runningStep
       ? [...runs].sort((a, b) => (b.finishedAt ?? b.startedAt ?? "").localeCompare(a.finishedAt ?? a.startedAt ?? ""))[0]
@@ -201,14 +201,15 @@ export async function GET(request: Request): Promise<Response> {
       !run.contextPackId ? `${run.id} is missing its context-pack ID.` : undefined,
       !run.citedEvidenceIds?.length ? `${run.id} is missing cited evidence.` : undefined
     ].filter((item): item is string => Boolean(item)))];
-    const activeAgent = runningStep || latestRun ? {
-      role: runningStep?.agent ?? latestRun?.agent ?? "operator",
+    const agentVisiblePhases = new Set(["analyzing", "awaiting_feature_approval", "planning", "building", "waiting_vercel", "preview_evaluating", "correcting_preview", "awaiting_release_approval"]);
+    const activeAgent = latestRun && agentVisiblePhases.has(phase) ? {
+      role: latestRun.agent,
       runId: latestRun?.id,
-      skillId: runningStep?.skillId ?? latestRun?.skillId,
+      skillId: latestRun.skillId,
       skillVersion: latestRun?.skillVersion,
       contextPackId: latestRun?.contextPackId,
       evidenceIds: latestRun?.citedEvidenceIds ?? [],
-      task: runningStep?.label ?? activeAction?.message ?? "Inspecting session state",
+      task: runningStep?.label ?? latestRun.reasoningSummary ?? "Inspecting session state",
       reasoningSummary: latestRun?.reasoningSummary,
       toolCalls: latestRun?.toolCalls ?? [],
       model: latestRun ? (stored?.agentReasoning?.[latestRun.agent]?.model
@@ -217,8 +218,8 @@ export async function GET(request: Request): Promise<Response> {
       latencyMs: latestRun?.latencyMs ?? 0,
       costUsd: latestRun?.costUsd ?? 0,
       retries: latestRun?.retries ?? 0,
-      status: runningStep?.status ?? latestRun?.status ?? "running",
-      evaluations: latestRun ? agentEvals.filter((item) => item.runId === latestRun.id) : []
+      status: runningStep?.status ?? latestRun.status,
+      evaluations: agentEvals.filter((item) => item.runId === latestRun.id)
     } : undefined;
 
     const allPassed = Boolean(previewEval?.allPassed);
