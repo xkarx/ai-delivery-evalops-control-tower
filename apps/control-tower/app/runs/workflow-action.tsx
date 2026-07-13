@@ -4,6 +4,7 @@ import { AlertTriangle, Check, Clock3, ExternalLink, Loader2, Play, RotateCcw, W
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AvailableWorkflowAction, ProviderActivity, WorkflowAction, WorkflowCommand, WorkflowPresentation } from "@dailycart/schemas";
+import { shouldRecoverWorkflowAction } from "@/lib/workflow-recovery";
 
 type Status = {
   started: boolean; sessionId?: string; workflowId?: string; phase: string; nextAction: string;
@@ -69,9 +70,7 @@ export function WorkflowAction() {
     const action = status?.activeAction;
     if (!action) return;
     setActionLink(`/api/workflow/actions/${action.actionId}`);
-    const heartbeatAge = now - Date.parse(action.heartbeatAt);
-    const providerPhase = ["waiting_vercel", "preview_evaluating", "correcting_preview", "building_preview"].includes(action.phase);
-    if ((action.status === "queued" && heartbeatAge > 12_000) || (action.status === "running" && heartbeatAge > (providerPhase ? 360_000 : 90_000))) startRecoveryWorker(action.actionId);
+    if (shouldRecoverWorkflowAction(action, now)) startRecoveryWorker(action.actionId);
   }, [now, startRecoveryWorker, status?.activeAction]);
 
   useEffect(() => {
@@ -97,9 +96,7 @@ export function WorkflowAction() {
   const busy = requesting || action?.status === "queued" || action?.status === "running";
   const available = status?.availableActions?.[0] ?? (!status?.started ? { command: "analyze" as const, label: "Analyze opportunities", enabled: true } : undefined);
   const icon = busy ? <Loader2 size={15} className="spin" /> : available?.command === "retry" ? <RotateCcw size={15} /> : status?.phase === "released" ? <Check size={15} /> : <Play size={15} />;
-  const heartbeatAge = action ? now - Date.parse(action.heartbeatAt) : 0;
-  const providerPhase = Boolean(action && ["waiting_vercel", "preview_evaluating", "correcting_preview", "building_preview"].includes(action.phase));
-  const stalled = Boolean(action && ((action.status === "queued" && heartbeatAge > 15_000) || (action.status === "running" && heartbeatAge > (providerPhase ? 360_000 : 90_000))));
+  const stalled = shouldRecoverWorkflowAction(action, now);
 
   return <section className={`guided-execution ${action?.status ?? "idle"}`} aria-label="Guided workflow execution">
     <div className="guided-execution-head">

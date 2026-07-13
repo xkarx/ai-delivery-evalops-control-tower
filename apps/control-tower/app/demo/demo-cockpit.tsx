@@ -17,8 +17,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DemoStage, ProviderActivity, WorkflowAction, WorkflowCommand } from "@dailycart/schemas";
+import { shouldRecoverWorkflowAction } from "@/lib/workflow-recovery";
 
 type AgentEval = { criterion: string; score: number; passed: boolean; rationale: string; mode: string };
 type AgentRun = {
@@ -94,6 +95,7 @@ export function DemoCockpit() {
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [notice, setNotice] = useState("");
+  const workerRequests = useRef(new Set<string>());
 
   const refresh = useCallback(async () => {
     const response = await fetch("/api/workflow/status", { cache: "no-store" });
@@ -118,6 +120,20 @@ export function DemoCockpit() {
       window.removeEventListener("dailycart:operator-auth", operatorAuthorized);
     };
   }, [refresh]);
+
+  const startRecoveryWorker = useCallback((actionId: string) => {
+    if (workerRequests.current.has(actionId)) return;
+    workerRequests.current.add(actionId);
+    setNotice("The hosted execution worker did not start on time. Recovery has started automatically for this same action.");
+    void fetch(`/api/workflow/actions/${actionId}`, { method: "POST" }).catch(() => undefined).finally(() => {
+      workerRequests.current.delete(actionId);
+    });
+  }, []);
+
+  useEffect(() => {
+    const action = status?.activeAction;
+    if (shouldRecoverWorkflowAction(action)) startRecoveryWorker(action!.actionId);
+  }, [startRecoveryWorker, status?.activeAction]);
 
   function openOperatorAccess() {
     setNotice("Enter the operator passcode in the access panel to unlock live actions.");
