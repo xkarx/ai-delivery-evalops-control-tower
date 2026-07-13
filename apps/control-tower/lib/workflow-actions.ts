@@ -9,19 +9,19 @@ export function newSessionId(): string { return `SESSION-${Date.now()}${token().
 export function newWorkflowId(): string { return `WORKFLOW-${Date.now()}${token().slice(0, 12)}`; }
 export function newActionId(): string { return `ACTION-${token()}`; }
 
-export async function readActions(): Promise<ActionStore> { return await readArtifact<ActionStore>("workflowActions") ?? {}; }
-export async function getAction(actionId: string): Promise<WorkflowAction | undefined> { return (await readActions())[actionId]; }
+export async function readActions(sessionId: string): Promise<ActionStore> { return await readArtifact<ActionStore>("workflowActions", sessionId) ?? {}; }
+export async function getAction(actionId: string, sessionId: string): Promise<WorkflowAction | undefined> { return (await readActions(sessionId))[actionId]; }
 
 export async function saveAction(action: WorkflowAction): Promise<WorkflowAction> {
-  const store = await readActions();
+  const store = await readActions(action.sessionId);
   store[action.actionId] = workflowActionSchema.parse(action);
-  await writeArtifact("workflowActions", store);
+  await writeArtifact("workflowActions", store, action.sessionId);
   return store[action.actionId]!;
 }
 
-export async function createWorkflowAction(input: { command: WorkflowCommand; sessionId: string; workflowId: string; revision: number }): Promise<{ action: WorkflowAction; reused: boolean }> {
-  const store = await readActions();
-  const idempotencyKey = `${input.sessionId}:${input.command}:${input.revision}`;
+export async function createWorkflowAction(input: { command: WorkflowCommand; sessionId: string; workflowId: string; revision: number; featureId?: string }): Promise<{ action: WorkflowAction; reused: boolean }> {
+  const store = await readActions(input.sessionId);
+  const idempotencyKey = `${input.sessionId}:${input.command}:${input.featureId ?? "workflow"}:${input.revision}`;
   const existing = Object.values(store).find((item) => item.idempotencyKey === idempotencyKey && ["queued", "running", "waiting_human", "succeeded"].includes(item.status));
   if (existing) return { action: existing, reused: true };
   const now = new Date().toISOString();
@@ -31,22 +31,22 @@ export async function createWorkflowAction(input: { command: WorkflowCommand; se
     nextAction: "Follow the live execution timeline.", attempts: 0, steps: [], externalRefs: [], createdAt: now, updatedAt: now, heartbeatAt: now
   });
   store[action.actionId] = action;
-  await writeArtifact("workflowActions", store);
+  await writeArtifact("workflowActions", store, input.sessionId);
   return { action, reused: false };
 }
 
-export async function updateAction(actionId: string, patch: Partial<Omit<WorkflowAction, "actionId" | "sessionId" | "workflowId" | "command" | "idempotencyKey" | "createdAt">>): Promise<WorkflowAction> {
-  const current = await getAction(actionId);
+export async function updateAction(actionId: string, patch: Partial<Omit<WorkflowAction, "actionId" | "sessionId" | "workflowId" | "command" | "idempotencyKey" | "createdAt">>, sessionId: string): Promise<WorkflowAction> {
+  const current = await getAction(actionId, sessionId);
   if (!current) throw new Error(`Workflow action ${actionId} was not found.`);
   const now = new Date().toISOString();
   return saveAction({ ...current, ...patch, actionId: current.actionId, sessionId: current.sessionId, workflowId: current.workflowId, command: current.command, idempotencyKey: current.idempotencyKey, createdAt: current.createdAt, updatedAt: now, heartbeatAt: now });
 }
 
-export async function recordActionStep(actionId: string, step: WorkflowProgressStep, patch: Partial<WorkflowAction> = {}): Promise<WorkflowAction> {
-  const current = await getAction(actionId);
+export async function recordActionStep(actionId: string, step: WorkflowProgressStep, patch: Partial<WorkflowAction> = {}, sessionId: string): Promise<WorkflowAction> {
+  const current = await getAction(actionId, sessionId);
   if (!current) throw new Error(`Workflow action ${actionId} was not found.`);
   const steps = [...current.steps.filter((item) => item.id !== step.id), step];
-  return updateAction(actionId, { ...patch, steps });
+  return updateAction(actionId, { ...patch, steps }, sessionId);
 }
 
 export function latestAction(store: ActionStore, sessionId?: string): WorkflowAction | undefined {

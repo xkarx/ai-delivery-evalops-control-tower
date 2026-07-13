@@ -4,6 +4,7 @@ import { ConnectorError, createConnectorSuite } from "@dailycart/connectors";
 import { NextResponse } from "next/server";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { requestSessionId } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,12 +51,15 @@ function implementTrack(source: string, featureId: string, index: number): strin
 export async function POST(request: Request): Promise<Response> {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
+  const sessionId = requestSessionId(request);
+  if (!sessionId) return NextResponse.json({ ok: false, message: "An active demo session is required." }, { status: 409 });
   const root = path.resolve(process.cwd(), "../..");
   try {
     const body = await request.json().catch(() => ({})) as { correctBlocked?: boolean; refreshBranches?: boolean; reconcile?: boolean };
-    const persisted = await readArtifact<{ sessionId?: string; workflowId?: string; builds?: PreviewBuild[]; featureId?: string }>("workflowPreview");
-    const workflow = await readArtifact<{ sessionId?: string; workflowInstanceId?: string; featureId: string; featureTitle?: string; featureTracks?: Array<{ featureId: string; featureTitle: string }>; workflow?: { phase?: string } }>("workflow");
+    const persisted = await readArtifact<{ sessionId?: string; workflowId?: string; builds?: PreviewBuild[]; featureId?: string }>("workflowPreview", sessionId);
+    const workflow = await readArtifact<{ sessionId?: string; workflowInstanceId?: string; featureId: string; featureTitle?: string; featureTracks?: Array<{ featureId: string; featureTitle: string }>; workflow?: { phase?: string } }>("workflow", sessionId);
     if (!workflow) throw new Error("Run and approve the feature workflow before building previews.");
+    if (workflow.sessionId && workflow.sessionId !== sessionId) throw new Error("The workflow belongs to a different demo session.");
     const existing = persisted && (!persisted.sessionId || persisted.sessionId === workflow.sessionId) ? persisted : undefined;
     if (workflow.workflow?.phase === "awaiting_feature_approval") throw new Error("Human feature approval is required before GitHub or Vercel preview writes.");
     const tracks = workflow.featureTracks?.length ? workflow.featureTracks : [{ featureId: workflow.featureId, featureTitle: workflow.featureTitle ?? workflow.featureId }];
@@ -69,8 +73,8 @@ export async function POST(request: Request): Promise<Response> {
         const deployment = await suite.deployment.deploy({ id: build.deploymentId, featureId: build.featureId, environment: "preview", commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: build.branch });
         builds.push({ ...build, commitSha, commitUrl: process.env.GITHUB_DEFAULT_REPOSITORY ? `https://github.com/${process.env.GITHUB_DEFAULT_REPOSITORY}/commit/${commitSha}` : build.commitUrl, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, externalDeploymentId: deployment.externalId, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
       }
-      await writeArtifact("workflowPreview", { sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId, builds, refreshedAt: new Date().toISOString() });
-      await writeArtifact("workflowPreviewEval", { evaluations: [], correctionPending: true });
+      await writeArtifact("workflowPreview", { sessionId, workflowId: workflow.workflowInstanceId, builds, refreshedAt: new Date().toISOString() }, sessionId);
+      await writeArtifact("workflowPreviewEval", { sessionId, workflowId: workflow.workflowInstanceId, evaluations: [], correctionPending: true }, sessionId);
       return NextResponse.json({ ok: true, refreshed: true, builds, build: builds[0] });
     }
     if (body.correctBlocked && existing?.builds?.length) {
@@ -84,8 +88,8 @@ export async function POST(request: Request): Promise<Response> {
       const deployment = await suite.deployment.deploy({ id: `DEP-${String(correctionNumber).padStart(4, "0")}`, featureId: blocked.featureId, environment: "preview", commitSha: commit.commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: blocked.branch });
       const correctedBuild: PreviewBuild = { ...blocked, commitSha: commit.commitSha, commitUrl: commit.url, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, externalDeploymentId: deployment.externalId, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() };
       const builds = [correctedBuild, ...existing.builds.slice(1)];
-      await writeArtifact("workflowPreview", { sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId, builds, correctedFrom: blocked.commitSha });
-      await writeArtifact("workflowPreviewEval", { evaluations: [], correctionPending: true });
+      await writeArtifact("workflowPreview", { sessionId, workflowId: workflow.workflowInstanceId, builds, correctedFrom: blocked.commitSha }, sessionId);
+      await writeArtifact("workflowPreviewEval", { sessionId, workflowId: workflow.workflowInstanceId, evaluations: [], correctionPending: true }, sessionId);
       return NextResponse.json({ ok: true, corrected: true, builds, build: correctedBuild });
     }
     const source = await productSource(root, productPath);
@@ -101,7 +105,7 @@ export async function POST(request: Request): Promise<Response> {
       const deployment = await suite.deployment.deploy({ id: `DEP-${String(9000 + Number(track.featureId.replace(/\D/g, "") || "1")).padStart(4, "0")}`, featureId: track.featureId, environment: "preview", commitSha: commit.commitSha, repository: process.env.GITHUB_DEFAULT_REPOSITORY, ref: branch });
       builds.push({ featureId: track.featureId, featureTitle: track.featureTitle, branch, commitSha: commit.commitSha, commitUrl: commit.url, pullRequestId: pullRequest.externalId, pullRequestUrl: pullRequest.url, deploymentUrl: deployment.deployment.url, deploymentId: deployment.deployment.id, externalDeploymentId: deployment.externalId, sourceMode: deployment.sourceMode, createdAt: new Date().toISOString() });
     }
-    await writeArtifact("workflowPreview", { sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId, builds });
+    await writeArtifact("workflowPreview", { sessionId, workflowId: workflow.workflowInstanceId, builds }, sessionId);
     return NextResponse.json({ ok: true, builds, build: builds[0] });
   } catch (error) {
     const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : error instanceof Error ? error.message : "Preview build failed.";

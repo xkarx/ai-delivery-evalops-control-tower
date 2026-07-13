@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readArtifact } from "@/lib/durable-artifacts";
+import { requestSessionId } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,9 @@ export async function POST(request: Request): Promise<Response> {
   if (!question) return NextResponse.json({ ok: false, message: "Ask a question about the current workflow." }, { status: 400 });
   let phase = "not_started";
   try {
-    const stored = await readArtifact<{ workflow?: { phase?: string } }>("workflow");
+    const sessionId = requestSessionId(request);
+    if (!sessionId) return NextResponse.json({ ok: false, message: "An active demo session is required." }, { status: 409 });
+    const stored = await readArtifact<{ workflow?: { phase?: string } }>("workflow", sessionId);
     phase = stored?.workflow?.phase ?? phase;
   } catch { /* The answer remains useful before the first run. */ }
   const lower = question.toLowerCase();

@@ -53,3 +53,21 @@ export const fallbackDemoState: DemoState = {
     { at: "2026-07-10T16:22:00.000Z", type: "approval", title: "Feature approved", detail: "Human decision DEC-0001 recorded", entityId: "DEC-0001" }
   ]
 };
+
+/** A clean live-session seed. Legacy fixture runs and canned release evidence stay in the sample scenario. */
+export function createSessionDemoState(): DemoState {
+  return {
+    ...structuredClone(fallbackDemoState),
+    generatedAt: new Date().toISOString(),
+    features: fallbackDemoState.features.map((feature) => ({ ...feature, status: "candidate" as const })),
+    decisions: [],
+    tickets: [],
+    approvals: [],
+    runs: [],
+    campaigns: [],
+    deployments: [],
+    incidents: [],
+    lineage: [],
+    activity: []
+  };
+}

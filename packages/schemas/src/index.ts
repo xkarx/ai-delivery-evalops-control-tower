@@ -270,6 +270,13 @@ export const providerActivitySchema = z.object({
   provider: z.string(),
   kind: z.string(),
   label: z.string(),
+  stage: z.string().optional(),
+  featureId: z.string().optional(),
+  ticketId: z.string().optional(),
+  agent: z.string().optional(),
+  skillId: z.string().optional(),
+  actionId: z.string().optional(),
+  relatedRunIds: z.array(z.string()).optional(),
   externalId: z.string().optional(),
   status: z.enum(["pending", "running", "succeeded", "failed", "unavailable"]),
   artifactUrl: z.string().url().optional(),
@@ -280,6 +287,22 @@ export const providerActivitySchema = z.object({
   sourceMode: sourceModeSchema.optional()
 });
 export type ProviderActivity = z.infer<typeof providerActivitySchema>;
+
+export const demoStageSchema = z.enum([
+  "problem_context", "agent_analysis", "ranked_opportunities", "feature_approval",
+  "plan_build", "preview_evals", "release_approval", "deployment_report", "outcomes_learning"
+]);
+export type DemoStage = z.infer<typeof demoStageSchema>;
+
+export const demoSessionSchema = z.object({
+  sessionId: z.string().regex(/^SESSION-[A-Z0-9]+$/),
+  workflowId: z.string().regex(/^WORKFLOW-[A-Z0-9]+$/),
+  status: z.enum(["active", "archived"]),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema,
+  archivedAt: timestampSchema.optional()
+});
+export type DemoSession = z.infer<typeof demoSessionSchema>;
 
 export const workflowPresentationStepSchema = z.enum([
   "company_context", "live_agent_analysis", "ranked_opportunities", "feature_approval",

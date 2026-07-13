@@ -3,6 +3,7 @@ import { createSampleProductAdapter } from "@dailycart/sample-product";
 import { NextResponse } from "next/server";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { requestSessionId } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,11 +27,13 @@ export async function POST(request: Request) {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
   try {
+    const sessionId = requestSessionId(request);
+    if (!sessionId) return NextResponse.json({ ok: false, message: "Start or resume a signed demo session before generating outcomes." }, { status: 409 });
     const payload = await request.json().catch(() => ({}));
     const config = { ...defaultConfig, ...(payload ?? {}), costControls: { ...defaultConfig.costControls, ...(payload?.costControls ?? {}) } };
     const result = await createSampleProductAdapter({ env: process.env }).startTraffic(config);
-    const currentEvents = await readArtifact<unknown[]>("productEvents") ?? [];
-    await writeArtifact("productEvents", [...currentEvents, ...result.events].slice(-10_000));
+    const currentEvents = await readArtifact<unknown[]>("productEvents", sessionId) ?? [];
+    await writeArtifact("productEvents", [...currentEvents, ...result.events].slice(-10_000), sessionId);
     return NextResponse.json({ ok: true, run: { runId: result.runId, eventCount: result.events.length, users: result.effectiveUserCount, funnel: result.funnel, sourceMode: result.sourceMode, capped: result.capped, stopReason: result.stopReason, exposureCount: result.exposureCount, failureCount: result.failureCount } });
   } catch (error) {
     const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "The traffic provider returned an unexpected error.";

@@ -5,6 +5,8 @@ import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { TicketAction } from "./ticket-action";
 import { AnalyzeAction } from "./analyze-action";
+import { serverSessionId } from "@/lib/demo-session";
+import { SessionStageBanner } from "@/app/ui/session-stage-banner";
 
 const columns = [
   { key: "candidate", title: "Discovery", hint: "Evidence being synthesized" },
@@ -13,10 +15,12 @@ const columns = [
 ] as const;
 
 export default async function FeaturesPage() {
-  const data = await loadDemoState();
+  const sessionId = await serverSessionId();
+  const data = await loadDemoState(sessionId);
   return (
     <div className="page-container">
       <PageHeading eyebrow="Portfolio" title="Feature portfolio" description="Evidence-weighted opportunities moving through approval, delivery, evaluation, and outcomes." actions={<AnalyzeAction />} />
+      <SessionStageBanner stage="ranked_opportunities" />
       <div className="portfolio-source"><span className="source-label">Synthetic company inputs · executed workflow records</span></div>
       <section className="portfolio-summary">
         <div><span>Portfolio confidence</span><b>81%</b><div className="progress"><i style={{ width: "81%" }} /></div></div>

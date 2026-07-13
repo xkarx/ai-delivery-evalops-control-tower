@@ -4,9 +4,12 @@ import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { LineageActions } from "./lineage-actions";
+import { serverSessionId } from "@/lib/demo-session";
+import { SessionStageBanner } from "@/app/ui/session-stage-banner";
 
 export default async function LineagePage() {
-  const data = await loadDemoState();
+  const sessionId = await serverSessionId();
+  const data = await loadDemoState(sessionId);
   const feature = data.features.find((item) => item.id === "FEAT-0001") ?? data.features[0]!;
   const decision = data.decisions.find((item) => item.featureId === feature.id);
   const tickets = data.tickets.filter((item) => item.featureId === feature.id);
@@ -29,6 +32,7 @@ export default async function LineagePage() {
   return (
     <div className="page-container">
       <PageHeading eyebrow="Audit trail" title="Feature lineage" description="Every claim, decision, run, gate, release, and outcome linked by stable identifiers." actions={<LineageActions />} />
+      <SessionStageBanner stage="outcomes_learning" />
       <div className="lineage-header panel"><div><span className="mono-id">{feature.id}</span><h2>{feature.title}</h2><p>Selected from ranked opportunities using {feature.evidenceIds.length} cited evidence records.</p></div><div><StatusPill status={feature.status} /><span className="source-label">{stageRows.length} recorded stages</span></div></div>
       <div className="lineage-layout">
         <section className="panel lineage-timeline">

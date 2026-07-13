@@ -80,41 +80,52 @@ async function writeStorageObject<T>(file: string, value: T): Promise<void> {
   if (!response.ok) throw new Error(`Supabase durable write failed with HTTP ${response.status}: ${(await response.text()).slice(0, 180)}`);
 }
 
-function localFile(key: ArtifactKey): string {
-  return path.resolve(process.cwd(), "../..", "artifacts", definitions[key].file);
+function safeScope(scope?: string): string | undefined {
+  if (!scope) return undefined;
+  if (!/^SESSION-[A-Z0-9]+$/.test(scope)) throw new Error("Invalid durable artifact session scope.");
+  return scope;
 }
 
-export async function readArtifact<T>(key: ArtifactKey): Promise<T | undefined> {
-  const definition = definitions[key];
+function objectFile(key: ArtifactKey, scope?: string): string {
+  const session = safeScope(scope);
+  return session ? `sessions/${session}/${definitions[key].file}` : definitions[key].file;
+}
+
+function localFile(key: ArtifactKey, scope?: string): string {
+  const session = safeScope(scope);
+  return path.resolve(process.cwd(), "../..", "artifacts", ...(session ? ["sessions", session] : []), definitions[key].file);
+}
+
+export async function readArtifact<T>(key: ArtifactKey, scope?: string): Promise<T | undefined> {
   if (livePersistence()) {
-    const payload = await readStorageObject<{ value?: T; cleared?: boolean }>(definition.file);
+    const payload = await readStorageObject<{ value?: T; cleared?: boolean }>(objectFile(key, scope));
     return payload?.cleared ? undefined : payload?.value;
   }
   try {
-    return JSON.parse(await readFile(localFile(key), "utf8")) as T;
+    return JSON.parse(await readFile(localFile(key, scope), "utf8")) as T;
   } catch {
     return undefined;
   }
 }
 
-export async function writeArtifact<T>(key: ArtifactKey, value: T): Promise<void> {
+export async function writeArtifact<T>(key: ArtifactKey, value: T, scope?: string): Promise<void> {
   const definition = definitions[key];
   if (livePersistence()) {
-    await writeStorageObject(definition.file, { id: definition.id, title: definition.title, value, updatedAt: new Date().toISOString() });
+    await writeStorageObject(objectFile(key, scope), { id: definition.id, title: definition.title, sessionId: safeScope(scope), value, updatedAt: new Date().toISOString() });
     return;
   }
-  const file = localFile(key);
+  const file = localFile(key, scope);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-export async function clearArtifact(key: ArtifactKey): Promise<void> {
+export async function clearArtifact(key: ArtifactKey, scope?: string): Promise<void> {
   const definition = definitions[key];
   if (livePersistence()) {
-    await writeStorageObject(definition.file, { id: definition.id, title: definition.title, cleared: true, clearedAt: new Date().toISOString() });
+    await writeStorageObject(objectFile(key, scope), { id: definition.id, title: definition.title, sessionId: safeScope(scope), cleared: true, clearedAt: new Date().toISOString() });
     return;
   }
-  await rm(localFile(key), { force: true });
+  await rm(localFile(key, scope), { force: true });
 }
 
 export async function clearWorkflowArtifacts(): Promise<void> {
@@ -124,10 +135,10 @@ export async function clearWorkflowArtifacts(): Promise<void> {
   ].map((key) => clearArtifact(key as ArtifactKey)));
 }
 
-export async function appendArtifact<T>(key: ArtifactKey, item: T, limit = 500): Promise<T[]> {
-  const current = await readArtifact<T[]>(key) ?? [];
+export async function appendArtifact<T>(key: ArtifactKey, item: T, limit = 500, scope?: string): Promise<T[]> {
+  const current = await readArtifact<T[]>(key, scope) ?? [];
   const next = [...current, item].slice(-limit);
-  await writeArtifact(key, next);
+  await writeArtifact(key, next, scope);
   return next;
 }
 
@@ -147,12 +158,12 @@ export interface ActionReceipt {
 }
 
 export async function recordActionReceipt(receipt: ActionReceipt): Promise<ActionReceipt> {
-  await appendArtifact("actionReceipts", receipt, 100);
+  await appendArtifact("actionReceipts", receipt, 100, receipt.sessionId);
   return receipt;
 }
 
-export async function persistStructuredRecord(collection: string, id: string, value: unknown): Promise<void> {
-  const current = await readArtifact<Record<string, { collection: string; id: string; value: unknown; updatedAt: string }>>("structuredRecords") ?? {};
+export async function persistStructuredRecord(collection: string, id: string, value: unknown, scope?: string): Promise<void> {
+  const current = await readArtifact<Record<string, { collection: string; id: string; value: unknown; updatedAt: string }>>("structuredRecords", scope) ?? {};
   current[`${collection}:${id}`] = { collection, id, value, updatedAt: new Date().toISOString() };
-  await writeArtifact("structuredRecords", current);
+  await writeArtifact("structuredRecords", current, scope);
 }
