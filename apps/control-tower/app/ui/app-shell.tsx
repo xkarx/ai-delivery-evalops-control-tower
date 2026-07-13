@@ -10,6 +10,8 @@ import {
   GitBranch,
   HeartPulse,
   Layers3,
+  Loader2,
+  LockKeyhole,
   Menu,
   Network,
   Rocket,
@@ -22,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { RuntimeMode } from "@/lib/runtime-mode";
 
 const nav = [
@@ -45,6 +47,50 @@ const nav = [
 export function AppShell({ children, runtimeMode }: { children: React.ReactNode; runtimeMode: RuntimeMode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [operatorOpen, setOperatorOpen] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [operatorState, setOperatorState] = useState<"idle" | "submitting" | "authorized" | "error">("idle");
+  const [operatorMessage, setOperatorMessage] = useState("");
+
+  useEffect(() => {
+    const openOperator = () => setOperatorOpen(true);
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOperatorOpen(false);
+    };
+    window.addEventListener("dailycart:open-operator", openOperator);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("dailycart:open-operator", openOperator);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  async function unlockOperator(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (runtimeMode !== "live") {
+      setOperatorState("authorized");
+      setOperatorMessage("Deterministic demo actions are already available.");
+      return;
+    }
+    setOperatorState("submitting");
+    setOperatorMessage("");
+    try {
+      const response = await fetch("/api/operator/auth", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ passcode })
+      });
+      const payload = await response.json() as { ok?: boolean; message?: string };
+      if (!response.ok || !payload.ok) throw new Error(payload.message ?? "Operator access could not be unlocked.");
+      setOperatorState("authorized");
+      setOperatorMessage(payload.message ?? "Live actions unlocked for this browser session.");
+      setPasscode("");
+      window.dispatchEvent(new CustomEvent("dailycart:operator-auth"));
+    } catch (error) {
+      setOperatorState("error");
+      setOperatorMessage(error instanceof Error ? error.message : "Operator access could not be unlocked.");
+    }
+  }
 
   return (
     <div className="shell">
@@ -84,7 +130,42 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
           <div className="environment"><Boxes size={15} /><span>DailyCart / V1 scenario</span><b>{runtimeMode === "live" ? "SYNTHETIC INPUTS · LIVE DELIVERY" : "DETERMINISTIC DEMO"}</b></div>
           <div className="top-actions">
             <Link className="system-status" href="/integrations"><i /> Verify providers</Link>
-            <button className="avatar" aria-label="Demo operator">KO</button>
+            <div className="operator-access">
+              <button
+                className={`avatar ${operatorState === "authorized" ? "authorized" : ""}`}
+                aria-label="Demo operator"
+                aria-expanded={operatorOpen}
+                aria-controls="operator-access-panel"
+                onClick={() => setOperatorOpen((value) => !value)}
+              >KO</button>
+              {operatorOpen && <section id="operator-access-panel" className="operator-popover" role="dialog" aria-label="Operator access">
+                <header>
+                  <span><LockKeyhole size={16} /></span>
+                  <div><b>Operator access</b><small>Protects live provider writes and model credits.</small></div>
+                  <button className="icon-button" type="button" onClick={() => setOperatorOpen(false)} aria-label="Close operator access"><X size={16} /></button>
+                </header>
+                <form onSubmit={unlockOperator}>
+                  <label htmlFor="operator-passcode">Operator passcode</label>
+                  <input
+                    id="operator-passcode"
+                    type="password"
+                    value={passcode}
+                    onChange={(event) => setPasscode(event.target.value)}
+                    autoComplete="current-password"
+                    placeholder="Enter deployment passcode"
+                    disabled={operatorState === "submitting" || operatorState === "authorized"}
+                    required={runtimeMode === "live"}
+                    autoFocus
+                  />
+                  <button className="button primary" type="submit" disabled={operatorState === "submitting" || operatorState === "authorized"}>
+                    {operatorState === "submitting" && <Loader2 className="spin" size={14} />}
+                    {operatorState === "authorized" ? "Unlocked" : operatorState === "submitting" ? "Unlocking…" : "Unlock live actions"}
+                  </button>
+                </form>
+                {operatorMessage && <p className={operatorState === "error" ? "error" : "success"} role="status">{operatorMessage}</p>}
+                <small className="operator-privacy">The passcode is sent only to this deployment and is never displayed or stored in the page.</small>
+              </section>}
+            </div>
           </div>
         </header>
         <main>{children}</main>

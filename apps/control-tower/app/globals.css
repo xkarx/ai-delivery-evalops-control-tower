@@ -53,7 +53,11 @@ button { color: inherit; }
 .environment b { max-width:min(42vw,260px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .top-actions { display: flex; align-items: center; gap: 18px; }
 .system-status { display: flex; align-items: center; gap: 8px; color: #61687b; font-size: 11px; }
-.avatar { width: 31px; height: 31px; border: 0; border-radius: 50%; background: #272d43; color: #fff; font-size: 10px; font-weight: 700; }
+.avatar { width: 31px; height: 31px; border: 0; border-radius: 50%; background: #272d43; color: #fff; font-size: 10px; font-weight: 700; cursor:pointer; }
+.avatar.authorized { background:#0f766e; box-shadow:0 0 0 4px #0f766e18; }
+.operator-access { position:relative; }
+.operator-popover { position:absolute; z-index:80; top:42px; right:0; width:min(350px,calc(100vw - 28px)); padding:16px; color:var(--ink); background:#fff; border:1px solid #cfdcd9; border-radius:12px; box-shadow:0 18px 50px #17201e24; }
+.operator-popover header { display:grid; grid-template-columns:auto 1fr auto; gap:9px; align-items:start; }.operator-popover header > span { width:32px; height:32px; display:grid; place-items:center; color:#0f766e; background:#e5f3f0; border-radius:8px; }.operator-popover header b,.operator-popover header small { display:block; }.operator-popover header b { font-size:13px; }.operator-popover header small { margin-top:2px; color:var(--muted); font-size:9px; line-height:1.35; }.operator-popover form { display:grid; gap:7px; margin-top:14px; }.operator-popover label { color:#52645f; font-size:9px; font-weight:800; }.operator-popover input { width:100%; min-width:0; height:38px; padding:0 10px; border:1px solid var(--line-strong); border-radius:8px; outline:0; }.operator-popover input:focus { border-color:#54b8ab; box-shadow:0 0 0 3px #0f766e18; }.operator-popover form .button { width:100%; }.operator-popover > p { margin:10px 0 0; padding:8px 9px; border-radius:7px; font-size:9px; line-height:1.4; }.operator-popover > p.success { color:#176f4d; background:#e8f7f1; }.operator-popover > p.error { color:#a92c3f; background:#fff0f2; }.operator-privacy { display:block; margin-top:10px; color:#7c8985; font-size:8px; line-height:1.4; }
 .icon-button { display: grid; place-items: center; border: 0; background: transparent; }
 .mobile-only { display: none; }
 

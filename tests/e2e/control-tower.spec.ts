@@ -20,6 +20,19 @@ test("the root route opens the authoritative demo cockpit", async ({ page }) => 
   await expect(page.getByText("Executed delivery actions", { exact: true })).toBeVisible();
 });
 
+test("operator access can be opened from the global header", async ({ page }) => {
+  await page.goto("/demo");
+  const operator = page.getByRole("button", { name: "Demo operator" });
+  await expect(operator).toBeVisible();
+  await operator.click();
+  await expect(operator).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("dialog", { name: "Operator access" })).toBeVisible();
+  await expect(page.getByLabel("Operator passcode")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Unlock live actions" })).toBeVisible();
+  await page.getByRole("button", { name: "Close operator access" }).click();
+  await expect(operator).toHaveAttribute("aria-expanded", "false");
+});
+
 test("required pages render on a narrow viewport", async ({ page }) => {
   test.setTimeout(60_000);
   for (const route of ["/features", "/delivery", "/evals", "/reviews", "/releases", "/runs/summary", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
