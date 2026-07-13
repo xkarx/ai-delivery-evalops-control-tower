@@ -10,8 +10,8 @@ describe("durable workflow identity", () => {
     expect(sessions.size).toBe(100);
     expect(workflows.size).toBe(100);
     expect(actions.size).toBe(100);
-    expect([...sessions].every((id) => /^SESSION-\d+[A-Z0-9]{4}$/.test(id))).toBe(true);
-    expect([...workflows].every((id) => /^WORKFLOW-\d+[A-Z0-9]{4}$/.test(id))).toBe(true);
+    expect([...sessions].every((id) => /^SESSION-\d+[A-Z0-9]{12}$/.test(id))).toBe(true);
+    expect([...workflows].every((id) => /^WORKFLOW-\d+[A-Z0-9]{12}$/.test(id))).toBe(true);
     expect([...actions].every((id) => /^ACTION-[A-Z0-9]{12}$/.test(id))).toBe(true);
   });
 });

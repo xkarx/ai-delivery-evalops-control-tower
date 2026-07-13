@@ -5,8 +5,8 @@ import { readArtifact, writeArtifact } from "./durable-artifacts";
 type ActionStore = Record<string, WorkflowAction>;
 
 function token(): string { return randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase(); }
-export function newSessionId(): string { return `SESSION-${Date.now()}${token().slice(0, 4)}`; }
-export function newWorkflowId(): string { return `WORKFLOW-${Date.now()}${token().slice(0, 4)}`; }
+export function newSessionId(): string { return `SESSION-${Date.now()}${token().slice(0, 12)}`; }
+export function newWorkflowId(): string { return `WORKFLOW-${Date.now()}${token().slice(0, 12)}`; }
 export function newActionId(): string { return `ACTION-${token()}`; }
 
 export async function readActions(): Promise<ActionStore> { return await readArtifact<ActionStore>("workflowActions") ?? {}; }
