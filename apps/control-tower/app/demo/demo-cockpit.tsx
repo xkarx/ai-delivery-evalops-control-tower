@@ -95,6 +95,7 @@ export function DemoCockpit() {
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [notice, setNotice] = useState("");
+  const [confirmNewSession, setConfirmNewSession] = useState(false);
   const workerRequests = useRef(new Set<string>());
 
   const refresh = useCallback(async () => {
@@ -145,7 +146,11 @@ export function DemoCockpit() {
       openOperatorAccess();
       return;
     }
-    if (status?.session && !window.confirm("Archive this demo session and start a clean one? Existing external records will remain in audit history.")) return;
+    if (status?.session && !confirmNewSession) {
+      setConfirmNewSession(true);
+      setNotice("Confirm below to archive this session and create a clean one. Existing provider records stay in audit history.");
+      return;
+    }
     setWorking(true); setNotice("");
     try {
       const response = await fetch("/api/demo/sessions", { method: "POST" });
@@ -154,6 +159,7 @@ export function DemoCockpit() {
         if (payload.code === "OPERATOR_AUTH_REQUIRED") openOperatorAccess();
         throw new Error(payload.detail ?? payload.message ?? "A new demo session could not be created.");
       }
+      setConfirmNewSession(false);
       setNotice(`New session ${payload.session?.sessionId} is ready.`);
       await refresh();
     } catch (error) { setNotice(error instanceof Error ? error.message : "Session creation failed."); }
@@ -164,8 +170,11 @@ export function DemoCockpit() {
     setWorking(true); setNotice("");
     try {
       const response = await fetch("/api/workflow/actions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ command, sessionId: status?.session?.sessionId }) });
-      const payload = await response.json() as { ok?: boolean; reused?: boolean; actionId?: string; detail?: string; message?: string };
-      if (!response.ok || !payload.ok) throw new Error(payload.detail ?? payload.message ?? "The action could not be started.");
+      const payload = await response.json() as { ok?: boolean; reused?: boolean; actionId?: string; detail?: string; message?: string; code?: string };
+      if (!response.ok || !payload.ok) {
+        if (payload.code === "OPERATOR_AUTH_REQUIRED") openOperatorAccess();
+        throw new Error(payload.detail ?? payload.message ?? "The action could not be started.");
+      }
       setNotice(payload.reused ? `Continuing ${payload.actionId}; no duplicate provider records were created.` : `${payload.actionId} started.`);
       await refresh();
     } catch (error) { setNotice(error instanceof Error ? error.message : "The action failed."); }
@@ -210,6 +219,10 @@ export function DemoCockpit() {
       <button className="button primary" onClick={() => void startNewSession()} disabled={working}>{working ? <Loader2 className="spin" size={15} /> : status?.operator?.required && !status.operator.authorized ? <ShieldCheck size={15} /> : <Play size={15} />} {status?.operator?.required && !status.operator.authorized ? "Unlock operator access" : "Start guided demo"}</button>
       {notice && <p role="status">{notice}</p>}
     </section> : <>
+      {confirmNewSession && <section className="new-session-confirm panel" role="dialog" aria-modal="false" aria-labelledby="new-session-title">
+        <div><h2 id="new-session-title">Start a clean demo?</h2><p>The current session will be archived. Live provider records remain available as audit evidence.</p></div>
+        <div><button className="button secondary" onClick={() => { setConfirmNewSession(false); setNotice(""); }}>Keep current session</button><button className="button primary" onClick={() => void startNewSession()} disabled={working}>{working ? <Loader2 className="spin" size={15} /> : <Plus size={15} />} Archive and start</button></div>
+      </section>}
       <nav className="stage-rail" aria-label="Delivery stages">
         {stages.map((stage, index) => <Link key={stage.id} href={stage.href} className={index === activeIndex ? "active" : index < activeIndex ? "complete" : "upcoming"}>
           <span>{index < activeIndex ? <Check size={13} /> : stage.short}</span><div><b>{stage.title}</b><small>{index === activeIndex ? "Live now" : index < activeIndex ? "Completed" : "Upcoming"}</small></div>

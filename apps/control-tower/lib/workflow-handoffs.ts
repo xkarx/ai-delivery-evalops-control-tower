@@ -40,17 +40,7 @@ export function buildWorkflowHandoffs(input: WorkflowHandoffInput): AgentHandoff
     {
       id: `${input.workflowId}:engineering`, workflowId: input.workflowId, persona: "Engineering agents", role: "Parallel implementation",
       task: `Implement the API and customer-experience workstreams for ${input.featureId}.`, evidenceIds: input.ticketIds,
-      result: `Completed ${input.engineeringRunIds.length} independent engineering runs.`, nextAction: "Submit the correction candidate to EvalOps.", status: "succeeded", sourceMode
-    },
-    {
-      id: `${input.workflowId}:eval`, workflowId: input.workflowId, persona: "Eval agent", role: "Evaluation and release gate",
-      task: "Run deterministic and semantic checks against the delivery candidate.", evidenceIds: [input.blockedCampaignId, input.passedCampaignId],
-      result: `${input.blockedCampaignId} blocked on a critical regression; ${input.passedCampaignId} passed after correction.`, nextAction: `Request human approval ${input.releaseApprovalId}.`, status: "waiting_approval", sourceMode
-    },
-    {
-      id: `${input.workflowId}:release`, workflowId: input.workflowId, persona: "Release agent", role: "Release manager",
-      task: "Prepare production release while preserving the human approval boundary.", evidenceIds: [input.passedCampaignId, input.releaseApprovalId],
-      result: "Release is eligible but has not been deployed without approval.", nextAction: `Await reviewer decision on ${input.releaseApprovalId}.`, status: "waiting_approval", sourceMode
+      result: `Completed ${input.engineeringRunIds.length} independent engineering runs.`, nextAction: "Wait for both current previews, then run the measured browser evaluations.", status: "succeeded", sourceMode
     }
   ];
 }

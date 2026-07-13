@@ -175,8 +175,14 @@ export async function GET(request: Request): Promise<Response> {
     const agentEvals = reviews?.agentEvals ?? [];
     const activities = providerActivities({ sync, builds, evaluations, action: activeAction, stage });
     const runningStep = activeAction?.steps.find((step) => step.status === "running") ?? activeAction?.steps.findLast((step) => step.status === "succeeded");
-    const latestRun = runningStep?.relatedRunIds?.map((id) => runs.find((run) => run.id === id)).find(Boolean)
-      ?? [...runs].sort((a, b) => (b.finishedAt ?? b.startedAt ?? "").localeCompare(a.finishedAt ?? a.startedAt ?? ""))[0];
+    const relatedRun = runningStep?.relatedRunIds?.map((id) => runs.find((run) => run.id === id)).find(Boolean);
+    const matchingRun = runningStep && !relatedRun
+      ? [...runs].sort((a, b) => (b.finishedAt ?? b.startedAt ?? "").localeCompare(a.finishedAt ?? a.startedAt ?? ""))
+        .find((run) => run.agent === runningStep.agent && (!runningStep.skillId || run.skillId === runningStep.skillId))
+      : undefined;
+    const latestRun = relatedRun ?? matchingRun ?? (!runningStep
+      ? [...runs].sort((a, b) => (b.finishedAt ?? b.startedAt ?? "").localeCompare(a.finishedAt ?? a.startedAt ?? ""))[0]
+      : undefined);
     const provenanceWarnings = runs.flatMap((run) => [
       !run.skillId || !run.skillVersion ? `${run.id} is missing an executable skill/version.` : undefined,
       !run.contextPackId ? `${run.id} is missing its context-pack ID.` : undefined,

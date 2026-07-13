@@ -2,9 +2,9 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { analyzeProductEvidence, annotateAgentRun, createImplementationBrief, createPlanningAndDeliveryLineage, createTpmPlan, executeIndependentEngineeringWorkstreams, loadCompanyContextPack, runEngineeringFeasibilityReview, runLiveAgentReasoning, runUxReview } from "@dailycart/agents";
 import { ConnectorError, createConnectorSuite, postAgentHandoffFanout, postAgentHandoffThread, type AgentHandoffFanoutResult, type AgentHandoffThreadResult } from "@dailycart/connectors";
-import { createSemanticJudge, EvidenceGroundingGrader, RequiredFieldsGrader, runCriticalFailureRecoveryDemo } from "@dailycart/evals";
+import { createSemanticJudge, EvidenceGroundingGrader, RequiredFieldsGrader } from "@dailycart/evals";
 import { DeliveryWorkflow } from "@dailycart/workflow";
-import { agentRunSchema, assertDemoState, decisionSchema, evalCaseSchema, type AgentRun, type DemoState } from "@dailycart/schemas";
+import { assertDemoState, decisionSchema, evalCaseSchema, type AgentRun, type DemoState } from "@dailycart/schemas";
 import { NextResponse } from "next/server";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
@@ -209,27 +209,6 @@ export async function POST(request: Request) {
     const allAgentEvals = [...agentEvals, ...planningAgentEvals];
     const workstreamRaw = await executeIndependentEngineeringWorkstreams(recommended, plan.tickets, { runStartOrdinal: ids.engineeringStart });
     const workstreams = workstreamRaw.map((record) => ({ ...record, run: annotateAgentRun(record.run, { skillId: "code-implementation", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds }) }));
-    const recovery = await runCriticalFailureRecoveryDemo();
-    const failedCampaign = { ...recovery.failed.campaign, id: ids.blockedCampaign, runId: ids.evalBlockedRun, featureId: recommended.id, sourceMode: "simulated" as const };
-    const passedCampaign = { ...recovery.corrected.campaign, id: ids.passedCampaign, runId: ids.evalPassedRun, featureId: recommended.id, sourceMode: "simulated" as const };
-
-    const evalRuns = [
-      agentRunSchema.parse({
-        id: ids.evalBlockedRun, agent: "eval", status: "failed", startedAt: now, finishedAt: now,
-        featureId: recommended.id, ticketIds: plan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: `trace-${ids.evalBlockedRun.toLowerCase()}`,
-        costUsd: 0, latencyMs: 12, retries: 0,
-        steps: [{ name: "critical-regression", status: "failed", durationMs: 12, detail: `Blocked by ${failedCampaign.results.find((result) => !result.passed)?.caseId ?? "critical case"}` }],
-        sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds
-      }),
-      agentRunSchema.parse({
-        id: ids.evalPassedRun, agent: "eval", status: "succeeded", startedAt: now, finishedAt: now,
-        featureId: recommended.id, ticketIds: plan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: `trace-${ids.evalPassedRun.toLowerCase()}`,
-        costUsd: 0, latencyMs: 12, retries: 0,
-        steps: [{ name: "corrected-regression", status: "succeeded", durationMs: 12, detail: `Passed ${passedCampaign.weightedScore}/100 after correction` }],
-        sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds
-      })
-    ];
-
     const secondaryCandidate = pmRaw.opportunities[1];
     const secondary = secondaryCandidate ? { ...secondaryCandidate, status: "approved" as const, sourceMode: "simulated" as const } : undefined;
     const secondaryBrief = secondary ? createImplementationBrief(secondary, { briefOrdinal: 2, now }) : undefined;
@@ -247,23 +226,13 @@ export async function POST(request: Request) {
     const secondaryPlan = secondaryPlanRaw ? { ...secondaryPlanRaw, run: annotateAgentRun(secondaryPlanRaw.run, { skillId: "implementation-planning", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary!.evidenceIds }) } : undefined;
     const secondaryWorkstreamRaw = secondary && secondaryPlan ? await executeIndependentEngineeringWorkstreams(secondary, secondaryPlan.tickets, { runStartOrdinal: ids.secondaryEngineeringStart }) : [];
     const secondaryWorkstreams = secondaryWorkstreamRaw.map((record) => ({ ...record, run: annotateAgentRun(record.run, { skillId: "code-implementation", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary?.evidenceIds }) }));
-    const secondaryRecovery = secondary ? await runCriticalFailureRecoveryDemo() : undefined;
-    const secondaryFailedCampaign = secondaryRecovery && secondary ? { ...secondaryRecovery.failed.campaign, id: ids.secondaryBlockedCampaign, featureId: secondary.id, runId: ids.secondaryEvalBlockedRun, sourceMode: "simulated" as const } : undefined;
-    const secondaryPassedCampaign = secondaryRecovery && secondary ? { ...secondaryRecovery.corrected.campaign, id: ids.secondaryPassedCampaign, featureId: secondary.id, runId: ids.secondaryEvalPassedRun, sourceMode: "simulated" as const } : undefined;
-    const secondaryEvalRuns = secondary && secondaryPlan && secondaryFailedCampaign && secondaryPassedCampaign ? [
-      agentRunSchema.parse({ id: ids.secondaryEvalBlockedRun, agent: "eval", status: "failed", startedAt: now, finishedAt: now, featureId: secondary.id, ticketIds: secondaryPlan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: `trace-${ids.secondaryEvalBlockedRun.toLowerCase()}`, costUsd: 0, latencyMs: 12, retries: 0, steps: [{ name: "critical-regression", status: "failed", durationMs: 12, detail: `Blocked by ${secondaryFailedCampaign.results.find((result) => !result.passed)?.caseId ?? "critical case"}` }], sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary.evidenceIds }),
-      agentRunSchema.parse({ id: ids.secondaryEvalPassedRun, agent: "eval", status: "succeeded", startedAt: now, finishedAt: now, featureId: secondary.id, ticketIds: secondaryPlan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: `trace-${ids.secondaryEvalPassedRun.toLowerCase()}`, costUsd: 0, latencyMs: 12, retries: 0, steps: [{ name: "corrected-regression", status: "succeeded", durationMs: 12, detail: `Passed ${secondaryPassedCampaign.weightedScore}/100 after correction` }], sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary.evidenceIds })
-    ] : [];
-    if (secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan) await persistAgentRecords(sessionId, secondary, [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run), ...secondaryEvalRuns], []);
+    if (secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan) await persistAgentRecords(sessionId, secondary, [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run)], []);
 
     const workflow = DeliveryWorkflow.start({ id: ids.project, featureId: recommended.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
     workflow.requestFeatureApproval(ids.featureApproval, "pm-agent");
     workflow.resumeWithHumanDecision({ approvalId: ids.featureApproval, status: "approved", reviewer: "product-council", rationale: "Evidence-backed scope approved for delivery.", decisionId: ids.decision, resolvedAt: now });
     workflow.completePlanning(plan.tickets.map((ticket) => ticket.id), "tpm-agent");
     workflow.completeDelivery(workstreams.map((record) => record.run.id), "engineering-agent");
-    workflow.recordEvalGate({ campaignId: failedCampaign.id, releaseAllowed: false, reason: "Critical regression reproduced; release blocked.", actor: "eval-agent" });
-    workflow.rerunAfterCorrection("engineering-agent", "Correction completed; rerun the blocked campaign.");
-    workflow.recordEvalGate({ campaignId: passedCampaign.id, releaseAllowed: true, reason: "Corrected campaign passed; human release approval required.", actor: "eval-agent", releaseApprovalId: ids.releaseApproval });
     const workflowSnapshot = workflow.snapshot();
 
     const data = await loadDemoState(sessionId);
@@ -277,20 +246,12 @@ export async function POST(request: Request) {
       tickets: appendUnique(data.tickets.filter((ticket) => ![...plan.tickets, ...(secondaryPlan?.tickets ?? [])].some((nextTicket) => nextTicket.id === ticket.id)), [...plan.tickets, ...(secondaryPlan?.tickets ?? [])]),
       approvals: appendUnique(data.approvals, [
         { id: ids.featureApproval, featureId: recommended.id, stage: "feature", status: "approved", requestedAt: now, resolvedAt: now, reviewer: "product-council", rationale: "Evidence-backed scope approved for delivery.", sourceMode: "simulated" },
-        { id: ids.releaseApproval, featureId: recommended.id, stage: "release", status: "pending", requestedAt: now, sourceMode: "simulated" },
-        ...(secondary ? [{ id: ids.secondaryFeatureApproval, featureId: secondary.id, stage: "feature" as const, status: "approved" as const, requestedAt: now, resolvedAt: now, reviewer: "product-council", rationale: "Second evidence-ranked feature track approved for parallel delivery.", sourceMode: "simulated" as const }, { id: ids.secondaryReleaseApproval, featureId: secondary.id, stage: "release" as const, status: "pending" as const, requestedAt: now, sourceMode: "simulated" as const }] : [])
+        ...(secondary ? [{ id: ids.secondaryFeatureApproval, featureId: secondary.id, stage: "feature" as const, status: "approved" as const, requestedAt: now, resolvedAt: now, reviewer: "product-council", rationale: "Second evidence-ranked feature track approved for parallel delivery.", sourceMode: "simulated" as const }] : [])
       ]),
-      runs: appendUnique(data.runs, [pm.run, uxReview.run, feasibilityReview.run, plan.run, ...workstreams.map((record) => record.run), ...evalRuns, ...(secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan ? [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run), ...secondaryEvalRuns] : [])]),
-      campaigns: appendUnique(data.campaigns.filter((campaign) => ![failedCampaign.id, passedCampaign.id, ...(secondaryFailedCampaign ? [secondaryFailedCampaign.id] : []), ...(secondaryPassedCampaign ? [secondaryPassedCampaign.id] : [])].includes(campaign.id)), [
-        failedCampaign,
-        passedCampaign,
-        ...(secondaryFailedCampaign && secondaryPassedCampaign ? [{ ...secondaryFailedCampaign }, { ...secondaryPassedCampaign }] : [])
-      ]),
+      runs: appendUnique(data.runs, [pm.run, uxReview.run, feasibilityReview.run, plan.run, ...workstreams.map((record) => record.run), ...(secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan ? [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run)] : [])]),
       lineage: appendUnique(data.lineage, [...createPlanningAndDeliveryLineage({ evidenceIds: recommended.evidenceIds, featureId: recommended.id, decisionId: decision.id, prdId: plan.implementationBrief.id, tickets: plan.tickets, workstreams, createdAt: now }), ...(secondary && secondaryPlan && secondaryUxAnnotated && secondaryFeasibilityAnnotated ? createPlanningAndDeliveryLineage({ evidenceIds: secondary.evidenceIds, featureId: secondary.id, decisionId: ids.secondaryDecision, prdId: secondaryPlan.implementationBrief.id, tickets: secondaryPlan.tickets, workstreams: secondaryWorkstreams, createdAt: now }) : [])]),
       activity: [
-        { at: now, type: "workflow", title: "Workflow paused for release approval", detail: `${recommended.title} passed corrected evals and is waiting for a human release decision.`, entityId: ids.releaseApproval },
-        { at: now, type: "eval", title: "Corrected campaign passed", detail: `${passedCampaign.id} scored ${passedCampaign.weightedScore} / 100 after the blocked run was corrected.`, entityId: passedCampaign.id },
-        { at: now, type: "workflow", title: "Critical eval blocked release", detail: `${failedCampaign.id} blocked release until the correction was rerun.`, entityId: failedCampaign.id },
+        { at: now, type: "workflow", title: "Delivery candidate prepared", detail: `${recommended.title} is entering real preview deployment and browser evaluation.`, entityId: recommended.id },
         ...data.activity
       ]
     };
@@ -307,8 +268,8 @@ export async function POST(request: Request) {
       featureTitle: recommended.title,
       ticketIds: plan.tickets.map((ticket) => ticket.id),
       engineeringRunIds: workstreams.map((record) => record.run.id),
-      blockedCampaignId: failedCampaign.id,
-      passedCampaignId: passedCampaign.id,
+      blockedCampaignId: ids.blockedCampaign,
+      passedCampaignId: ids.passedCampaign,
       releaseApprovalId: ids.releaseApproval,
       evidenceIds: recommended.evidenceIds,
       workflow: workflowSnapshot,
@@ -317,12 +278,12 @@ export async function POST(request: Request) {
       featureBatchId,
       recommendations: pmRaw.opportunities.slice(0, 2),
       featureTracks: [
-        { featureId: recommended.id, featureTitle: recommended.title, prdId: plan.implementationBrief.id, ticketIds: plan.tickets.map((ticket) => ticket.id), engineeringRunIds: workstreams.map((record) => record.run.id), blockedCampaignId: failedCampaign.id, passedCampaignId: passedCampaign.id, featureApprovalId: ids.featureApproval, releaseApprovalId: ids.releaseApproval, status: "ready_to_release" },
-        ...(secondary && secondaryPlan && secondaryFailedCampaign && secondaryPassedCampaign ? [{ featureId: secondary.id, featureTitle: secondary.title, prdId: secondaryPlan.implementationBrief.id, ticketIds: secondaryPlan.tickets.map((ticket) => ticket.id), engineeringRunIds: secondaryWorkstreams.map((record) => record.run.id), blockedCampaignId: secondaryFailedCampaign.id, passedCampaignId: secondaryPassedCampaign.id, featureApprovalId: ids.secondaryFeatureApproval, releaseApprovalId: ids.secondaryReleaseApproval, status: "ready_to_release" }] : [])
+        { featureId: recommended.id, featureTitle: recommended.title, prdId: plan.implementationBrief.id, ticketIds: plan.tickets.map((ticket) => ticket.id), engineeringRunIds: workstreams.map((record) => record.run.id), blockedCampaignId: ids.blockedCampaign, passedCampaignId: ids.passedCampaign, featureApprovalId: ids.featureApproval, releaseApprovalId: ids.releaseApproval, status: "in_evaluation" },
+        ...(secondary && secondaryPlan ? [{ featureId: secondary.id, featureTitle: secondary.title, prdId: secondaryPlan.implementationBrief.id, ticketIds: secondaryPlan.tickets.map((ticket) => ticket.id), engineeringRunIds: secondaryWorkstreams.map((record) => record.run.id), blockedCampaignId: ids.secondaryBlockedCampaign, passedCampaignId: ids.secondaryPassedCampaign, featureApprovalId: ids.secondaryFeatureApproval, releaseApprovalId: ids.secondaryReleaseApproval, status: "in_evaluation" }] : [])
       ]
     };
     await writeArtifact("demoState", validated, sessionId);
-    await persistAgentRecords(sessionId, recommended, [plan.run, ...workstreams.map((record) => record.run), ...evalRuns], planningAgentEvals);
+    await persistAgentRecords(sessionId, recommended, [plan.run, ...workstreams.map((record) => record.run)], planningAgentEvals);
     await writeArtifact("workflowReviews", { sessionId, featureId: recommended.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, secondary: secondary ? { featureId: secondary.id, implementationBrief: secondaryBrief, uxReview: secondaryUxAnnotated, feasibilityReview: secondaryFeasibilityAnnotated } : undefined, agentReasoning: allAgentReasoning, agentEvals: allAgentEvals }, sessionId);
     await writeArtifact("workflow", stored, sessionId);
     try {
