@@ -1,9 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { z } from "zod";
 import { cookies } from "next/headers";
 import { newSessionId, newWorkflowId } from "./workflow-actions";
 import { readArtifact, writeArtifact } from "./durable-artifacts";
 
 export const demoSessionCookie = "dailycart_demo_session";
+
+export const executionModeSchema = z.enum(["showcase", "full_verification"]);
+export type ExecutionMode = z.infer<typeof executionModeSchema>;
 
 export type DemoSession = {
   sessionId: string;
@@ -11,6 +15,7 @@ export type DemoSession = {
   status: "active" | "archived";
   createdAt: string;
   updatedAt: string;
+  executionMode: ExecutionMode;
   archivedAt?: string;
 };
 
@@ -64,9 +69,9 @@ export async function serverSessionId(): Promise<string | undefined> {
   return decodeSessionCookie(store.get(demoSessionCookie)?.value);
 }
 
-export async function createDemoSession(): Promise<DemoSession> {
+export async function createDemoSession(executionMode: ExecutionMode = "showcase"): Promise<DemoSession> {
   const now = new Date().toISOString();
-  const session: DemoSession = { sessionId: newSessionId(), workflowId: newWorkflowId(), status: "active", createdAt: now, updatedAt: now };
+  const session: DemoSession = { sessionId: newSessionId(), workflowId: newWorkflowId(), status: "active", createdAt: now, updatedAt: now, executionMode };
   await writeArtifact("structuredRecords", { [`demo_sessions:${session.sessionId}`]: { collection: "demo_sessions", id: session.sessionId, value: session, updatedAt: now } }, session.sessionId);
   return session;
 }

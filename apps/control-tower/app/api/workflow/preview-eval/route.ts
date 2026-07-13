@@ -11,8 +11,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-type PreviewBuild = { featureId: string; deploymentUrl: string; sourceMode: string; commitSha: string };
-type PreviewEval = { featureId: string; targetUrl: string; passed: boolean; score: number; checks: Array<{ name: string; passed: boolean; detail: string }>; sourceMode: string; evaluatedAt: string; githubRunUrl?: string };
+type PreviewBuild = { featureId: string; deploymentUrl: string; sourceMode: string; commitSha: string; revision?: number; suite?: string };
+type PreviewEval = { featureId: string; targetUrl: string; passed: boolean; score: number; checks: Array<{ name: string; passed: boolean; detail: string }>; sourceMode: string; evaluatedAt: string; githubRunUrl?: string; commitSha?: string; revision?: number; suite?: string };
 
 type GitHubRun = { id: number; name?: string; display_title?: string; status?: string; conclusion?: string | null; html_url: string; created_at: string };
 
@@ -260,14 +260,17 @@ export async function POST(request: Request) {
     if (!raw) throw new Error("Build product previews before running preview evaluations.");
     const builds: PreviewBuild[] = raw.builds ?? (raw.featureId && raw.deploymentUrl ? [{ featureId: raw.featureId, deploymentUrl: raw.deploymentUrl, sourceMode: raw.sourceMode ?? "mocked", commitSha: "legacy-missing" }] : []);
     if (!builds.length) throw new Error("Build product previews before running preview evaluations.");
-    const body = await request.json().catch(() => ({})) as { rerun?: boolean };
+    await request.json().catch(() => ({}));
     const actionId = request.headers.get("x-dailycart-action-id") ?? undefined;
-    const existing = body.rerun ? undefined : await readArtifact<{ evaluations?: PreviewEval[]; correctionPending?: boolean }>("workflowPreviewEval", sessionId);
+    const existing = await readArtifact<{ evaluations?: PreviewEval[]; correctionPending?: boolean }>("workflowPreviewEval", sessionId);
+    const workflow = await readArtifact<{ workflow?: { revision?: number } }>("workflow", sessionId);
+    const revision = workflow?.workflow?.revision ?? 0;
+    const suite = process.env.WORKFLOW_PREVIEW_EVAL_SUITE ?? "github-preview-browser-v1";
     const evaluations: PreviewEval[] = [];
     let errorCode: string | undefined;
     let errorDetail: string | undefined;
     for (const build of builds) {
-      const previous = existing?.evaluations?.find((item) => item.targetUrl === build.deploymentUrl);
+      const previous = existing?.evaluations?.find((item) => item.targetUrl === build.deploymentUrl && item.featureId === build.featureId && item.commitSha === build.commitSha && item.revision === revision && item.suite === suite && item.passed);
       if (previous) { evaluations.push(previous); continue; }
       const checks: PreviewEval["checks"] = [];
       let githubRunUrl: string | undefined;
@@ -294,7 +297,7 @@ export async function POST(request: Request) {
         checks.push({ name: "feature shell rendered", passed: true, detail: "Mock preview includes the feature-flagged product shell." });
         checks.push({ name: "keyboard recovery", passed: true, detail: "Focus is restored to the recovery action after interruption." });
       }
-      evaluations.push({ featureId: build.featureId, targetUrl: build.deploymentUrl, passed: checks.every((check) => check.passed), score: Math.round((checks.filter((check) => check.passed).length / checks.length) * 100), checks, sourceMode: build.sourceMode, evaluatedAt: new Date().toISOString(), githubRunUrl });
+      evaluations.push({ featureId: build.featureId, targetUrl: build.deploymentUrl, passed: checks.every((check) => check.passed), score: Math.round((checks.filter((check) => check.passed).length / checks.length) * 100), checks, sourceMode: build.sourceMode, evaluatedAt: new Date().toISOString(), githubRunUrl, commitSha: build.commitSha, revision, suite });
     }
     const allPassed = evaluations.every((evaluation) => evaluation.passed);
     await writeArtifact("workflowPreviewEval", { sessionId, workflowId: raw?.workflowId, evaluations, allPassed, correctionPending: !allPassed && !errorCode, errorCode, errorDetail }, sessionId);
