@@ -24,7 +24,25 @@ This report records observed production evidence. It does not treat configured c
 | Visible execution stages | Context Retrieval, Research, Support Insight, Analytics, PM, UX, Engineering Feasibility, EvalOps |
 | Refresh proof | Canonical `/runs` restored the same action, 100% progress, stage history, recommendations, and approval CTA after a full reload |
 
-The previously stuck zero-attempt action was repaired in place. It completed opportunity analysis and stopped at the required human feature gate. Therefore this report does not claim a new post-recovery Linear write, Slack message, Langfuse trace, second branch, preview evaluation, correction, or release approval. Those records will be appended only after the operator explicitly approves the current feature tracks.
+The previously stuck zero-attempt action was repaired in place. It completed opportunity analysis and initially stopped at the required human feature gate. The operator later approved those feature tracks; the resulting delivery and preview records are documented below. Release approval remains an un-crossed human boundary.
+
+### Current session delivery and preview proof
+
+The operator approved the feature tracks. The first delivery action reached READY previews but failed when GitHub rejected the Actions-specific `workflow_dispatch` operation with HTTP 403. The application now falls back to `repository_dispatch`, which uses the token's existing repository-write permission. The retry resumed at preview evaluation rather than duplicating planning, Linear tickets, Slack handoffs, pull requests, or Vercel builds.
+
+| Record | Verified value |
+|---|---|
+| Retry action | `ACTION-7E896E40F76A` |
+| Current phase | `awaiting_release_approval` |
+| Linear records | `DAI-25` through `DAI-32` |
+| Feature pull requests | [PR #6](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/6), [PR #7](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/7) |
+| Initial FEAT-0001 eval | Focus-restoration failure with captured browser trace; release blocked |
+| Correction | `10ec2f211245a190d957eeaabfb7698739fa81dd` |
+| Corrected FEAT-0001 eval | [GitHub run 29216966634](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29216966634) · 100/100 |
+| Current FEAT-0002 eval | [GitHub run 29217001688](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29217001688) · 100/100 |
+| Human boundary | Release approval is enabled but has not been granted |
+
+The action heartbeat is updated while GitHub browser runs are queued or in progress. Long-running provider work is no longer mistaken for a stalled action, and settled actions do not retain stale failure banners.
 
 ## Production workflow
 
