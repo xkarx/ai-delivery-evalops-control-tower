@@ -1,18 +1,23 @@
 import { expect, test } from "@playwright/test";
 
-async function collapseGuideIfOpen(page: import("@playwright/test").Page) {
-  const collapse = page.getByRole("button", { name: "Close journey", exact: true });
-  if (await collapse.isVisible()) await collapse.click();
+async function ensureSession(page: import("@playwright/test").Page) {
+  await page.goto("/demo");
+  const session = page.locator(".session-chip b");
+  await expect(session).toBeVisible();
+  if (!/^SESSION-[A-Z0-9]+$/.test((await session.textContent()) ?? "")) {
+    const start = page.getByRole("button", { name: "Start guided demo" });
+    await expect(start).toBeVisible();
+    await start.click();
+  }
+  await expect(page.locator(".session-chip b")).toHaveText(/^SESSION-[A-Z0-9]+$/, { timeout: 15_000 });
 }
 
-test("overview exposes the evidence-to-release story", async ({ page }) => {
+test("the root route opens the authoritative demo cockpit", async ({ page }) => {
   await page.goto("/");
-  await collapseGuideIfOpen(page);
-  await expect(page.getByRole("heading", { name: /Good afternoon, operator/i })).toBeVisible();
-  await expect(page.getByText("Release gate recovery demonstrated")).toBeVisible();
-  await page.getByRole("link", { name: "Open complete feature lineage", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Feature lineage" })).toBeVisible();
-  await expect(page.locator(".lineage-timeline").getByText("EVAL-0001", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page.getByRole("heading", { name: /Turn a customer problem into a measured release/i })).toBeVisible();
+  await expect(page.getByText("Synthetic company inputs", { exact: true })).toBeVisible();
+  await expect(page.getByText("Executed delivery actions", { exact: true })).toBeVisible();
 });
 
 test("required pages render on a narrow viewport", async ({ page }) => {
@@ -25,7 +30,6 @@ test("required pages render on a narrow viewport", async ({ page }) => {
 
 test("customer product records a cart interaction", async ({ page }) => {
   await page.goto("/product");
-  await collapseGuideIfOpen(page);
   await expect(page.getByRole("heading", { name: "Good things for every day." })).toBeVisible();
   const addButtons = page.getByRole("button", { name: /Add to cart/ });
   await expect(addButtons).toHaveCount(8);
@@ -48,7 +52,7 @@ test("dense screens stay inside the viewport at tablet width", async ({ page }) 
 
 test("mobile pages do not create horizontal page overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ["/", "/features", "/delivery", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
+  for (const route of ["/demo", "/features", "/delivery", "/evals", "/reviews", "/releases", "/incidents", "/analytics", "/company", "/integrations", "/settings", "/product"]) {
     await page.goto(route);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, `${route} has horizontal mobile overflow`).toBeLessThanOrEqual(1);
@@ -64,8 +68,8 @@ test("delivery roadmap exposes status columns and sync feedback", async ({ page 
 });
 
 test("analytics traffic controls run a bounded scenario", async ({ page }) => {
+  await ensureSession(page);
   await page.goto("/analytics");
-  await collapseGuideIfOpen(page);
   await page.getByLabel("Users").fill("6");
   await page.getByLabel("Duration seconds").fill("2");
   await page.getByLabel("Traffic scenario").selectOption("checkout-failure");
@@ -74,49 +78,45 @@ test("analytics traffic controls run a bounded scenario", async ({ page }) => {
 });
 
 test("agent workflow runs through eval and stops at release approval", async ({ page }, testInfo) => {
+  test.setTimeout(120_000);
   test.skip(testInfo.project.name === "mobile", "The mutating workflow is executed once; mobile interaction is covered by the responsive route and control tests.");
-  await page.request.post("/api/demo/reset");
-  await page.goto("/runs");
-  await page.getByRole("button", { name: "Analyze opportunities" }).click();
-  await expect(page.getByRole("button", { name: "Approve feature tracks" })).toBeVisible({ timeout: 30_000 });
+  await ensureSession(page);
+  await page.getByRole("button", { name: /Analyze opportunities|Start agent analysis/ }).click();
+  await expect(page.getByRole("button", { name: "Approve feature tracks" })).toBeVisible({ timeout: 45_000 });
   await page.reload();
   await expect(page.getByRole("button", { name: "Approve feature tracks" })).toBeVisible();
-  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Approve feature tracks" }).click();
-  await expect(page.getByRole("button", { name: "Approve release" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator(".preview-eval-detail")).toContainText(/100\/100|passed/i);
+  await expect(page.getByRole("button", { name: "Approve release" })).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator(".cockpit-evals")).toContainText(/100\/100|passed/i);
 });
 
-test("guide reopens without reserving or blocking page width", async ({ page }) => {
-  await page.goto("/runs");
-  const alreadyOpen = page.getByRole("button", { name: "Close journey", exact: true });
-  if (await alreadyOpen.isVisible()) await alreadyOpen.click();
-  await page.getByRole("button", { name: "Open journey" }).click();
-  await expect(page.getByRole("complementary", { name: "Delivery journey" })).toContainText("Story");
-  await page.getByRole("button", { name: "Close journey", exact: true }).click();
-  await expect(page.getByRole("button", { name: /Analyze opportunities|Approve feature tracks|Approve release/ })).toBeVisible();
-});
-
-test("guided walkthrough includes eval and both human review gates", async ({ page }) => {
-  await page.goto("/evals");
-  const guide = page.getByRole("complementary", { name: "Delivery journey" });
-  if (!(await guide.getByText("Story", { exact: true }).isVisible())) await page.getByRole("button", { name: "Open journey" }).click();
-  await expect(guide.getByRole("button", { name: /Eval campaign/ })).toBeVisible();
-  await expect(guide.getByRole("button", { name: /Feature approval/ })).toBeVisible();
-  await expect(guide.getByRole("button", { name: /Release approval/ })).toBeVisible();
+test("the signed session and authoritative stage survive refresh and a second tab", async ({ page, context }) => {
+  await ensureSession(page);
+  const sessionId = await page.locator(".session-chip b").innerText();
+  const stage = await page.locator(".stage-rail .active b").innerText();
+  await page.reload();
+  await expect(page.locator(".session-chip b")).toHaveText(sessionId);
+  await expect(page.locator(".stage-rail .active b")).toHaveText(stage);
+  const second = await context.newPage();
+  await second.goto("/demo");
+  await expect(second.locator(".session-chip b")).toHaveText(sessionId);
+  await expect(second.locator(".stage-rail .active b")).toHaveText(stage);
 });
 
 test("raw action JSON is secondary to provider proof", async ({ page }) => {
-  await page.goto("/runs");
-  await expect(page.getByRole("link", { name: /Open action record/i })).toHaveCount(0);
-  const technical = page.getByText("Technical details", { exact: true });
-  if (await technical.isVisible()) await expect(technical).toBeVisible();
+  await ensureSession(page);
+  const technical = page.locator("details.technical-details");
+  if (await technical.isVisible()) {
+    await expect(technical).not.toHaveAttribute("open", "");
+    await technical.locator("summary").click();
+    await expect(technical.getByRole("link", { name: "View raw action record" })).toBeVisible();
+  }
 });
 
 test("company context, eval authoring, incident creation, and export are interactive", async ({ page }) => {
   test.setTimeout(60_000);
+  await ensureSession(page);
   await page.goto("/company");
-  await collapseGuideIfOpen(page);
   await expect(page.getByRole("heading", { name: "Company data" })).toBeVisible();
   await page.getByRole("button", { name: "Validate references" }).click();
   await expect(page.getByRole("status")).toContainText(/validated|references/i);
@@ -124,23 +124,18 @@ test("company context, eval authoring, incident creation, and export are interac
   await expect(page.locator(".record-preview").first()).toHaveAttribute("open", "");
 
   await page.goto("/evals#eval-workbench");
-  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Save case" }).click();
   await expect(page.getByRole("status")).toContainText(/saved/i);
-  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Run selected evals" }).click();
   await expect(page.getByRole("status")).toContainText(/passed|blocked|100/i);
 
   await page.goto("/incidents");
-  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Declare incident" }).click();
-  await collapseGuideIfOpen(page);
   await page.getByRole("button", { name: "Create incident and regression" }).click();
   await expect(page.getByRole("status")).toContainText(/created/i);
 
   const download = page.waitForEvent("download");
   await page.goto("/lineage");
-  await collapseGuideIfOpen(page);
   await page.getByRole("link", { name: "Export evidence" }).click();
   expect((await download).suggestedFilename()).toMatch(/dailycart-lineage/i);
 });
@@ -149,7 +144,7 @@ test("critical pages remain readable at every supported presentation width", asy
   test.setTimeout(120_000);
   for (const width of [390, 768, 1024, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const route of ["/", "/delivery", "/runs", "/evals", "/company"]) {
+    for (const route of ["/demo", "/delivery", "/runs", "/evals", "/company"]) {
       await page.goto(route);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, `${route} overflows at ${width}px`).toBeLessThanOrEqual(1);

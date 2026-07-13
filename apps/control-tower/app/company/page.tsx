@@ -5,6 +5,8 @@ import { loadDemoState } from "@/lib/load-demo-state";
 import { loadCompanyContextPack } from "@dailycart/agents";
 import path from "node:path";
 import { CompanyActions } from "./company-actions";
+import { serverSessionId } from "@/lib/demo-session";
+import { SessionStageBanner } from "@/app/ui/session-stage-banner";
 
 const collections = [
   ["Customers", "50", "Persistent accounts and persona links", Users],
@@ -18,12 +20,14 @@ const collections = [
 export const dynamic = "force-dynamic";
 
 export default async function CompanyPage() {
-  const data = await loadDemoState();
+  const sessionId = await serverSessionId();
+  const data = await loadDemoState(sessionId);
   const contextPack = await loadCompanyContextPack(path.resolve(process.cwd(), "../.."));
   const records = contextPack.evidence.map((record) => ({ id: record.id, collection: record.kind, source: record.kind, title: record.title, summary: record.summary, sentiment: record.sentiment ?? "neutral", linked: record.tags?.includes("cart-persistence") ? "FEAT-0002" : "FEAT-0001", occurredAt: record.occurredAt, customerId: record.customerId, tags: record.tags }));
   return (
     <div className="page-container">
       <PageHeading eyebrow="Synthetic evidence" title="Company data" description="A deterministic, internally linked DailyCart workspace with realistic noise and conflict." actions={<CompanyActions />} />
+      <SessionStageBanner stage="problem_context" />
       <section className="company-hero panel"><div><span className="company-big-avatar">DC</span><div><span className="source-label">100% synthetic</span><h2>DailyCart Commerce</h2><p>Make everyday shopping predictable, fast, and trustworthy across devices.</p></div></div><dl><div><dt>Scenario</dt><dd>{data.scenario}</dd></div><div><dt>Seed</dt><dd>{data.seed}</dd></div><div><dt>Generated</dt><dd>{new Date(data.generatedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}</dd></div></dl></section>
       <div className="company-layout"><section className="collection-grid">{collections.map(([name, count, detail, Icon]) => <Link href="#collection-preview" className="panel collection-card" key={name} aria-label={`Open ${name} collection`}><span><Icon size={19} /></span><div><small>Collection</small><h2>{name}</h2><p>{detail}</p></div><strong>{count}</strong></Link>)}</section><aside className="panel strategy-card"><div className="section-title"><div><p className="eyebrow">Q3 strategy</p><h2>Trust every checkout</h2></div></div><p>Reduce preventable abandonment without masking reliability problems.</p><h3>Quarterly goals</h3><ol><li><span>01</span><div><b>Improve checkout completion</b><small>Baseline 18.3% → target 21%</small></div></li><li><span>02</span><div><b>Protect peak reliability</b><small>Error-free sessions ≥ 98%</small></div></li><li><span>03</span><div><b>Reduce contact burden</b><small>Checkout support −15%</small></div></li></ol></aside></div>
       <section className="panel context-pack"><div className="section-title"><div><p className="eyebrow">Agent context</p><h2>Company context pack</h2><p className="section-help">Version {contextPack.version} · {contextPack.evidenceIds.length} evidence IDs · seed {contextPack.manifest.seed}</p></div><span className="source-label">{contextPack.sourceMode}</span></div><div className="context-category-grid">{contextPack.categories.map((category) => <Link href="#collection-preview" className="context-category" key={category.id}><b>{category.label}</b><span>{category.files.length} files</span><small>{category.files.slice(0, 2).join(" · ")}</small></Link>)}</div></section>

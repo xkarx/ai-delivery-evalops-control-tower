@@ -31,7 +31,7 @@ export const recordWorkflowCompletion = inngest.createFunction(
         phase: data.phase,
         sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "deterministic-fallback",
         startedAt: new Date().toISOString()
-      });
+      }, data.sessionId);
       return { eventId, recordId };
     });
 
@@ -49,7 +49,7 @@ export const recordWorkflowCompletion = inngest.createFunction(
         sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "deterministic-fallback",
         completedAt
       };
-      await persistStructuredRecord("inngest_runs", recordId, output);
+      await persistStructuredRecord("inngest_runs", recordId, output, data.sessionId);
       return output;
     });
   }
@@ -73,14 +73,14 @@ async function callRoute(path: string, init: RequestInit = {}, identity?: { sess
 }
 
 async function bindActionToWorkflow(data: WorkflowActionEvent): Promise<void> {
-  const workflow = await readArtifact<Record<string, unknown>>("workflow");
-  if (workflow) await writeArtifact("workflow", { ...workflow, sessionId: data.sessionId, workflowInstanceId: data.workflowId, activeActionId: data.actionId });
+  const workflow = await readArtifact<Record<string, unknown>>("workflow", data.sessionId);
+  if (workflow) await writeArtifact("workflow", { ...workflow, sessionId: data.sessionId, workflowInstanceId: data.workflowId, activeActionId: data.actionId }, data.sessionId);
 }
 
-async function progress(actionId: string, input: { id: string; label: string; detail: string; progress: number; phase: string; agent?: string; skillId?: string; provider?: string }): Promise<void> {
+async function progress(actionId: string, sessionId: string, input: { id: string; label: string; detail: string; progress: number; phase: string; agent?: string; skillId?: string; provider?: string }): Promise<void> {
   const now = new Date().toISOString();
   const step: WorkflowProgressStep = { id: input.id, label: input.label, detail: input.detail, status: "succeeded", agent: input.agent, skillId: input.skillId, provider: input.provider, startedAt: now, completedAt: now };
-  await recordActionStep(actionId, step, { status: "running", progress: input.progress, phase: input.phase, message: input.detail, nextAction: "The workflow will continue automatically until the next human gate." });
+  await recordActionStep(actionId, step, { status: "running", progress: input.progress, phase: input.phase, message: input.detail, nextAction: "The workflow will continue automatically until the next human gate." }, sessionId);
 }
 
 async function waitForPreviewReadiness(actionId: string, identity: WorkflowActionEvent): Promise<void> {
@@ -88,11 +88,11 @@ async function waitForPreviewReadiness(actionId: string, identity: WorkflowActio
     const payload = await callRoute("/api/workflow/preview-status", {}, { sessionId: identity.sessionId, workflowId: identity.workflowId, actionId });
     const statuses = (payload.statuses ?? []) as Array<{ state?: string }>;
     if (statuses.length && statuses.every((item) => item.state === "READY")) {
-      await progress(actionId, { id: "preview-ready", label: "Preview deployments ready", detail: "Vercel reports every feature preview READY.", progress: 74, phase: "preview_ready", provider: "vercel" });
+      await progress(actionId, identity.sessionId, { id: "preview-ready", label: "Preview deployments ready", detail: "Vercel reports every feature preview READY.", progress: 74, phase: "preview_ready", provider: "vercel" });
       return;
     }
     if (statuses.some((item) => ["ERROR", "CANCELED"].includes(item.state ?? ""))) throw new Error("A Vercel preview deployment failed before evaluation.");
-    await updateAction(actionId, { status: "running", phase: "waiting_vercel", progress: 68, message: `Waiting for Vercel previews (${attempt}/36)…`, nextAction: "Preview evaluation starts automatically when every deployment is READY." });
+    await updateAction(actionId, { status: "running", phase: "waiting_vercel", progress: 68, message: `Waiting for Vercel previews (${attempt}/36)…`, nextAction: "Preview evaluation starts automatically when every deployment is READY." }, identity.sessionId);
     await new Promise((resolve) => setTimeout(resolve, 5_000));
   }
   throw new Error("Vercel previews did not become READY within three minutes.");
@@ -103,32 +103,32 @@ export const executeWorkflowAction = inngest.createFunction(
   async ({ event, step }) => {
     const data = event.data as WorkflowActionEvent;
     const identity = { sessionId: data.sessionId, workflowId: data.workflowId, actionId: data.actionId };
-    const original = await getAction(data.actionId);
+    const original = await getAction(data.actionId, data.sessionId);
     if (!original) throw new Error(`Action ${data.actionId} is missing.`);
     if (original.status !== "queued") return original;
-    await updateAction(data.actionId, { status: "running", attempts: original.attempts + 1, phase: "starting", progress: 2, message: "Durable workflow execution started.", nextAction: "Watch the execution timeline." });
+    await updateAction(data.actionId, { status: "running", attempts: original.attempts + 1, phase: "starting", progress: 2, message: "Durable workflow execution started.", nextAction: "Watch the execution timeline." }, data.sessionId);
     try {
       if (data.command === "analyze") {
-        await progress(data.actionId, { id: "context", label: "Company context retrieved", detail: "Loaded the versioned evidence pack and validated references.", progress: 12, phase: "context", agent: "context retrieval", skillId: "context-retrieval" });
+        await progress(data.actionId, data.sessionId, { id: "context", label: "Company context retrieved", detail: "Loaded the versioned evidence pack and validated references.", progress: 12, phase: "context", agent: "context retrieval", skillId: "context-retrieval" });
         await step.run("analyze-opportunities", () => callRoute("/api/workflow/run", { method: "POST" }, identity));
         await bindActionToWorkflow(data);
-        await progress(data.actionId, { id: "agents", label: "Specialist agents evaluated opportunities", detail: "PM ranking, UX review, engineering feasibility, and agent-output evals completed.", progress: 100, phase: "awaiting_feature_approval", agent: "PM + UX + feasibility", skillId: "feature-prioritization" });
-        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Review the evidence and approve the selected feature tracks.", error: undefined });
+        await progress(data.actionId, data.sessionId, { id: "agents", label: "Specialist agents evaluated opportunities", detail: "PM ranking, UX review, engineering feasibility, and agent-output evals completed.", progress: 100, phase: "awaiting_feature_approval", agent: "PM + UX + feasibility", skillId: "feature-prioritization" });
+        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_feature_approval", progress: 100, message: "Opportunity analysis is ready for human feature approval.", nextAction: "Review the evidence and approve the selected feature tracks.", error: undefined }, data.sessionId);
       }
       if (data.command === "approve_feature" || data.command === "retry") {
         if (data.command === "approve_feature") {
           await step.run("approve-feature-and-plan", () => callRoute("/api/workflow/run", { method: "POST", headers: { "x-dailycart-feature-approved": "true" } }, identity));
           await bindActionToWorkflow(data);
-          await progress(data.actionId, { id: "planning", label: "Delivery plan created", detail: "Approved scope was organized into workstreams, dependencies, owners, and readiness checks.", progress: 28, phase: "planning", agent: "TPM", skillId: "implementation-planning" });
+          await progress(data.actionId, data.sessionId, { id: "planning", label: "Delivery plan created", detail: "Approved scope was organized into workstreams, dependencies, owners, and readiness checks.", progress: 28, phase: "planning", agent: "TPM", skillId: "implementation-planning" });
           await step.run("sync-providers", () => callRoute("/api/workflow/sync", { method: "POST" }, identity));
-          await progress(data.actionId, { id: "providers", label: "Delivery records synchronized", detail: "Linear, Slack, Langfuse, Supabase, and Inngest records are linked.", progress: 42, phase: "provider_sync", provider: "provider adapters" });
+          await progress(data.actionId, data.sessionId, { id: "providers", label: "Delivery records synchronized", detail: "Linear, Slack, Langfuse, Supabase, and Inngest records are linked.", progress: 42, phase: "provider_sync", provider: "provider adapters" });
           await step.run("build-previews", () => callRoute("/api/workflow/preview", { method: "POST", body: JSON.stringify({ reconcile: true }) }, identity));
-          await progress(data.actionId, { id: "build", label: "Parallel product builds started", detail: "Feature branches, commits, pull requests, and Vercel preview deployments were created or reused.", progress: 62, phase: "building_preview", agent: "Engineering", skillId: "code-implementation" });
+          await progress(data.actionId, data.sessionId, { id: "build", label: "Parallel product builds started", detail: "Feature branches, commits, pull requests, and Vercel preview deployments were created or reused.", progress: 62, phase: "building_preview", agent: "Engineering", skillId: "code-implementation" });
         } else {
-          const existingPreview = await readArtifact<{ builds?: unknown[] }>("workflowPreview");
+          const existingPreview = await readArtifact<{ builds?: unknown[] }>("workflowPreview", data.sessionId);
           if (!existingPreview?.builds?.length) throw new Error("RETRY_STATE_MISSING: Existing preview builds were not found; start feature delivery again.");
           await bindActionToWorkflow(data);
-          await progress(data.actionId, { id: "resume", label: "Resumed failed preview evaluation", detail: "Reusing approved planning, provider records, pull requests, and READY previews.", progress: 62, phase: "preview_ready", agent: "EvalOps", skillId: "release-readiness" });
+          await progress(data.actionId, data.sessionId, { id: "resume", label: "Resumed failed preview evaluation", detail: "Reusing approved planning, provider records, pull requests, and READY previews.", progress: 62, phase: "preview_ready", agent: "EvalOps", skillId: "release-readiness" });
         }
         await step.run("wait-for-previews", () => waitForPreviewReadiness(data.actionId, data));
         const evaluation = await step.run("evaluate-previews", () => callRoute("/api/workflow/preview-eval", { method: "POST", body: JSON.stringify({ rerun: true }) }, identity));
@@ -136,26 +136,36 @@ export const executeWorkflowAction = inngest.createFunction(
         if (!allPassed) {
           const errorCode = String(evaluation.errorCode ?? "PREVIEW_EVAL_FAILED");
           if (errorCode === "PREVIEW_AUTH_FAILED" || errorCode === "PREVIEW_NOT_READY") throw new Error(`${errorCode}: ${String(evaluation.detail ?? "Preview infrastructure prevented evaluation.")}`);
-          await progress(data.actionId, { id: "blocked", label: "Critical preview eval blocked release", detail: "Engineering is applying the measured focus-restoration correction.", progress: 80, phase: "correcting_preview", agent: "EvalOps + Engineering", skillId: "release-readiness" });
+          await progress(data.actionId, data.sessionId, { id: "blocked", label: "Critical preview eval blocked release", detail: "Engineering is applying the measured focus-restoration correction.", progress: 80, phase: "correcting_preview", agent: "EvalOps + Engineering", skillId: "release-readiness" });
           await step.run("correct-preview", () => callRoute("/api/workflow/preview", { method: "POST", body: JSON.stringify({ correctBlocked: true }) }, identity));
           await step.run("wait-for-corrected-preview", () => waitForPreviewReadiness(data.actionId, data));
           const corrected = await step.run("evaluate-corrected-preview", () => callRoute("/api/workflow/preview-eval", { method: "POST", body: JSON.stringify({ rerun: true }) }, identity));
           if (!corrected.allPassed) throw new Error(`Corrected preview evaluation failed: ${String(corrected.detail ?? corrected.errorCode ?? "critical check failed")}`);
         }
-        await progress(data.actionId, { id: "eval", label: "Preview evaluations passed", detail: "Both current preview commits passed critical release checks.", progress: 100, phase: "awaiting_release_approval", agent: "EvalOps", skillId: "release-readiness" });
-        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_release_approval", progress: 100, message: "All preview checks passed. Human release approval is required.", nextAction: "Inspect the previews and eval evidence, then approve the release.", error: undefined });
+        await progress(data.actionId, data.sessionId, { id: "eval", label: "Preview evaluations passed", detail: "Both current preview commits passed critical release checks.", progress: 100, phase: "awaiting_release_approval", agent: "EvalOps", skillId: "release-readiness" });
+        return updateAction(data.actionId, { status: "waiting_human", phase: "awaiting_release_approval", progress: 100, message: "All preview checks passed. Human release approval is required.", nextAction: "Inspect the previews and eval evidence, then approve the release.", error: undefined }, data.sessionId);
       }
       if (data.command === "approve_release") {
         await step.run("approve-release", () => callRoute("/api/workflow/approve", { method: "POST", body: JSON.stringify({ reviewer: "operator", rationale: data.rationale ?? "Approved after current previews and critical evaluations passed." }) }, identity));
-        await progress(data.actionId, { id: "release-approved", label: "Human release approval recorded", detail: "The immutable release gate is approved; production promotion is starting.", progress: 35, phase: "deploying", agent: "operator" });
+        await progress(data.actionId, data.sessionId, { id: "release-approved", label: "Human release approval recorded", detail: "The immutable release gate is approved; production promotion is starting.", progress: 35, phase: "deploying", agent: "operator" });
         await step.run("deploy-release", () => callRoute("/api/workflow/deploy", { method: "POST" }, identity));
-        await progress(data.actionId, { id: "deployed", label: "Production release completed", detail: "GitHub, Vercel, Linear, and Slack release records were updated.", progress: 100, phase: "released", agent: "Release", skillId: "release-readiness", provider: "vercel" });
-        return updateAction(data.actionId, { status: "succeeded", phase: "released", progress: 100, message: "The approved release is live and ready for product analytics.", nextAction: "Run bounded product traffic and observe outcomes.", error: undefined });
+        await progress(data.actionId, data.sessionId, { id: "deployed", label: "Production release completed", detail: "GitHub, Vercel, Linear, and Slack release records were updated.", progress: 100, phase: "released", agent: "Release", skillId: "release-readiness", provider: "vercel" });
+        return updateAction(data.actionId, { status: "succeeded", phase: "released", progress: 100, message: "The approved release is live and ready for product analytics.", nextAction: "Run bounded product traffic and observe outcomes.", error: undefined }, data.sessionId);
+      }
+      if (data.command === "declare_incident") {
+        const result = await step.run("declare-incident", () => callRoute("/api/incidents", { method: "POST", body: JSON.stringify({
+          title: "Checkout recovery regression detected after release",
+          rootCause: "Observed checkout recovery behavior no longer matches the approved release baseline.",
+          severity: "SEV-3",
+          featureId: "FEAT-0001"
+        }) }, identity));
+        await progress(data.actionId, data.sessionId, { id: "incident", label: "Incident converted into regression protection", detail: `${String((result.incident as { id?: string } | undefined)?.id ?? "Incident")} created a durable regression case and provider follow-up.`, progress: 100, phase: "incident_learning", agent: "Incident Agent", skillId: "incident-to-regression" });
+        return updateAction(data.actionId, { status: "succeeded", phase: "incident_learning", progress: 100, message: "The production signal is linked to an incident, follow-up ticket, and regression case.", nextAction: "Inspect end-to-end lineage or start a new isolated demo.", externalRefs: (result.externalRefs ?? []) as Array<{ provider: string; id: string; url?: string }>, error: undefined }, data.sessionId);
       }
       throw new Error(`Command ${data.command} is not implemented by the guided runner.`);
     } catch (error) {
       const detail = error instanceof Error ? error.message : "Unexpected workflow action failure.";
-      await updateAction(data.actionId, { status: "failed", phase: "failed", message: "Workflow action failed.", nextAction: "Inspect the exact failure and retry this step.", error: { code: detail.split(":")[0] || "WORKFLOW_ACTION_FAILED", detail, retryable: true } });
+      await updateAction(data.actionId, { status: "failed", phase: "failed", message: "Workflow action failed.", nextAction: "Inspect the exact failure and retry this step.", error: { code: detail.split(":")[0] || "WORKFLOW_ACTION_FAILED", detail, retryable: true } }, data.sessionId);
       throw error;
     }
   }

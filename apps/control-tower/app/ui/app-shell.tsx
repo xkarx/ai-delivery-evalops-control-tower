@@ -24,10 +24,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { RuntimeMode } from "@/lib/runtime-mode";
-import { DemoGuide } from "./demo-guide";
 
 const nav = [
-  { href: "/", label: "Overview", icon: CircleGauge },
+  { href: "/demo", label: "Demo cockpit", icon: CircleGauge },
   { href: "/product", label: "Customer product", icon: ShoppingBag },
   { href: "/features", label: "Feature portfolio", icon: Layers3 },
   { href: "/delivery", label: "Delivery roadmap", icon: GitBranch },
@@ -46,19 +45,12 @@ const nav = [
 export function AppShell({ children, runtimeMode }: { children: React.ReactNode; runtimeMode: RuntimeMode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const pauseJourney = () => {
-    void fetch("/api/workflow/presentation", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ command: "pause", reason: "manual navigation" })
-    });
-  };
 
   return (
     <div className="shell">
       <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
         <div className="brand-row">
-          <Link href="/" className="brand" onClick={() => setOpen(false)}>
+          <Link href="/demo" className="brand" onClick={() => setOpen(false)}>
             <span className="brand-mark"><ShoppingCart size={18} /></span>
             <span><b>DailyCart</b><small>Delivery OS</small></span>
           </Link>
@@ -74,7 +66,7 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
           {nav.map(({ href, label, icon: Icon }) => {
             const active = href === "/" ? pathname === href : pathname.startsWith(href);
             return (
-              <Link key={href} href={href} className={active ? "nav-link active" : "nav-link"} onClick={() => { setOpen(false); pauseJourney(); }}>
+              <Link key={href} href={href} className={active ? "nav-link active" : "nav-link"} onClick={() => setOpen(false)}>
                 <Icon size={17} /><span>{label}</span>
               </Link>
             );
@@ -96,7 +88,6 @@ export function AppShell({ children, runtimeMode }: { children: React.ReactNode;
           </div>
         </header>
         <main>{children}</main>
-        <DemoGuide runtimeMode={runtimeMode} />
       </div>
     </div>
   );

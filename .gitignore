@@ -21,6 +21,10 @@ artifacts/agent-handoffs.json
 artifacts/eval-authored-cases.json
 artifacts/structured-records.json
 artifacts/workflow-external-sync.json
+artifacts/sessions/
+artifacts/eval-authored-last-run.json
+artifacts/product-events.json
+artifacts/workflow-presentations.json
 company/.generation-tmp/
 .vercel
 .env*

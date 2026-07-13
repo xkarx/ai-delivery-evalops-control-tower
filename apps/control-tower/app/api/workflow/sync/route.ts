@@ -6,22 +6,26 @@ import { loadDemoState } from "@/lib/load-demo-state";
 import { buildWorkflowHandoffs, persistHandoffThread } from "@/lib/workflow-handoffs";
 import { requireOperatorAccess } from "@/lib/operator-auth";
 import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
+import { requestSessionId } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type SyncState = { sessionId?: string; workflowId?: string; ticketRecords: Array<{ internalId: string; externalId: string; identifier: string; url: string; sourceMode: string }>; notification?: { provider: string; url: string; sourceMode: string }; handoffThread?: AgentHandoffThreadResult; trace?: { url: string; sourceMode: string }; workflowEvent?: { url: string; sourceMode: string }; errors: string[] };
 
-export async function POST() {
+export async function POST(request: Request) {
   const denied = await requireOperatorAccess();
   if (denied) return denied;
+  const sessionId = requestSessionId(request);
+  if (!sessionId) return NextResponse.json({ ok: false, message: "An active demo session is required." }, { status: 409 });
   const root = path.resolve(process.cwd(), "../..");
   try {
-    const existing = await readArtifact<SyncState>("workflowSync");
-    const workflow = await readArtifact<{ sessionId?: string; workflowInstanceId?: string; featureId: string; featureTitle?: string; featureBatchId?: string; featureTracks?: Array<{ featureId: string }>; evidenceIds?: string[]; ticketIds?: string[]; engineeringRunIds?: string[]; blockedCampaignId?: string; passedCampaignId?: string; releaseApprovalId?: string; workflow?: { id?: string; phase?: string } ; handoffThread?: AgentHandoffThreadResult }>("workflow");
+    const existing = await readArtifact<SyncState>("workflowSync", sessionId);
+    const workflow = await readArtifact<{ sessionId?: string; workflowInstanceId?: string; featureId: string; featureTitle?: string; featureBatchId?: string; featureTracks?: Array<{ featureId: string }>; evidenceIds?: string[]; ticketIds?: string[]; engineeringRunIds?: string[]; blockedCampaignId?: string; passedCampaignId?: string; releaseApprovalId?: string; workflow?: { id?: string; phase?: string } ; handoffThread?: AgentHandoffThreadResult }>("workflow", sessionId);
     if (!workflow) throw new Error("No active workflow was found.");
+    if (workflow.sessionId && workflow.sessionId !== sessionId) throw new Error("The workflow belongs to a different demo session.");
     if (workflow.workflow?.phase === "awaiting_feature_approval") throw new Error("Human feature approval is required before Linear or Slack delivery writes.");
-    const data = await loadDemoState();
+    const data = await loadDemoState(sessionId);
     const suite = createConnectorSuite({ env: process.env });
     const state: SyncState = existing && (!existing.sessionId || existing.sessionId === workflow.sessionId) ? existing : { ticketRecords: [], errors: [] };
     state.sessionId = workflow.sessionId;
@@ -72,7 +76,7 @@ export async function POST() {
         const trace = await suite.trace.startTrace({ id: traceId, name: "DailyCart V1 delivery workflow", sessionId: workflow.sessionId, input: { featureId: workflow.featureId, ticketIds: data.tickets.map((ticket) => ticket.id) }, metadata: { source: "control-tower-workflow-sync", mode: process.env.INTEGRATION_MODE ?? "mock", sessionId: workflow.sessionId, workflowId: workflow.workflowInstanceId }, tags: ["dailycart", "delivery", "v1"] });
         state.trace = { url: trace.url, sourceMode: trace.sourceMode };
         for (const run of data.runs.filter((candidate) => Boolean(candidate.featureId && featureIds.has(candidate.featureId)))) await suite.trace.addObservation({ id: run.traceId, traceId: trace.externalId, name: `${run.agent}:${run.skillId ?? "role-contract"}`, input: { contextPackId: run.contextPackId, evidenceIds: run.citedEvidenceIds, ticketIds: run.ticketIds }, output: { status: run.status, steps: run.steps, reasoningSummary: run.reasoningSummary }, metadata: { runId: run.id, skillId: run.skillId, skillVersion: run.skillVersion, latencyMs: run.latencyMs, costUsd: run.costUsd, sourceMode: run.sourceMode }, startedAt: run.startedAt, endedAt: run.finishedAt });
-        const reviews = await readArtifact<{ agentEvals?: Array<{ id: string; runId: string; criterion: string; score: number; passed: boolean; rationale: string }> }>("workflowReviews");
+        const reviews = await readArtifact<{ agentEvals?: Array<{ id: string; runId: string; criterion: string; score: number; passed: boolean; rationale: string }> }>("workflowReviews", sessionId);
         for (const evaluation of reviews?.agentEvals ?? []) await suite.trace.addScore({ traceId: trace.externalId, name: `${evaluation.runId}_${evaluation.id}`.slice(0, 120), value: evaluation.score, comment: `${evaluation.criterion}: ${evaluation.rationale}` });
         try { await suite.trace.addScore({ traceId: trace.externalId, name: "workflow_completed", value: true, comment: "Agent outputs, evaluations, approvals, tickets, and delivery records are linked." }); } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Trace score write failed."); }
       } catch (error) { state.errors.push(error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Trace write failed."); }
@@ -85,11 +89,11 @@ export async function POST() {
     }
     try {
       const selectedFeature = data.features.find((feature) => feature.id === workflow.featureId);
-      await persistStructuredRecord("features", workflow.featureId, selectedFeature ?? { title: workflow.featureTitle, featureBatchId: workflow.featureBatchId });
-      await persistStructuredRecord("workflow_runs", workflow.workflowInstanceId ?? workflow.workflow?.id ?? `workflow-${Date.now()}`, { workflowType: "dailycart_delivery", sessionId: workflow.sessionId, status: "succeeded", featureId: workflow.featureId, phase: "ready_to_release", ticketIds: state.ticketRecords.map((record) => record.internalId), traceUrl: state.trace?.url });
-      for (const ticket of state.ticketRecords) await persistStructuredRecord("external_references", `${ticket.internalId}:${ticket.identifier}`, ticket);
+      await persistStructuredRecord("features", workflow.featureId, selectedFeature ?? { title: workflow.featureTitle, featureBatchId: workflow.featureBatchId }, sessionId);
+      await persistStructuredRecord("workflow_runs", workflow.workflowInstanceId ?? workflow.workflow?.id ?? `workflow-${Date.now()}`, { workflowType: "dailycart_delivery", sessionId, status: "succeeded", featureId: workflow.featureId, phase: "ready_to_release", ticketIds: state.ticketRecords.map((record) => record.internalId), traceUrl: state.trace?.url }, sessionId);
+      for (const ticket of state.ticketRecords) await persistStructuredRecord("external_references", `${ticket.internalId}:${ticket.identifier}`, ticket, sessionId);
     } catch (error) { state.errors.push(error instanceof Error ? `supabase-storage: ${error.message}` : "Supabase workflow state write failed."); }
-    await writeArtifact("workflowSync", state);
+    await writeArtifact("workflowSync", state, sessionId);
     return NextResponse.json({ ok: state.errors.length === 0, partial: state.errors.length > 0 && state.ticketRecords.length > 0, sync: state });
   } catch (error) {
     return NextResponse.json({ ok: false, message: "Workflow records could not be synchronized.", detail: error instanceof Error ? error.message : "Unexpected synchronization error." }, { status: 502 });

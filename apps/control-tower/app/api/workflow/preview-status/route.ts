@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 import { readArtifact } from "@/lib/durable-artifacts";
+import { requestSessionId } from "@/lib/demo-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Build = { featureId: string; deploymentId: string; externalDeploymentId?: string; deploymentUrl: string; commitSha: string; sourceMode: string };
 
-export async function GET(): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
   try {
-    const preview = await readArtifact<{ builds?: Build[] }>("workflowPreview");
+    const sessionId = requestSessionId(request);
+    if (!sessionId) return NextResponse.json({ ok: false, message: "An active demo session is required." }, { status: 409 });
+    const preview = await readArtifact<{ builds?: Build[] }>("workflowPreview", sessionId);
     const builds = preview?.builds ?? [];
     if (!builds.length) return NextResponse.json({ ok: false, message: "No preview deployments exist." }, { status: 404 });
     if (process.env.INTEGRATION_MODE !== "live") return NextResponse.json({ ok: true, statuses: builds.map((build) => ({ featureId: build.featureId, deploymentId: build.deploymentId, externalDeploymentId: build.externalDeploymentId, state: "READY", url: build.deploymentUrl, commitSha: build.commitSha, checkedAt: new Date().toISOString() })) });

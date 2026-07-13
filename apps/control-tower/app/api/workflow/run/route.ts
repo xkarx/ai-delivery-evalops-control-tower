@@ -88,10 +88,10 @@ function appendUnique<T extends { id: string }>(items: T[], additions: T[]): T[]
   return [...byId.values()];
 }
 
-async function persistAgentRecords(feature: { id: string; title: string }, runs: AgentRun[], evaluations: AgentOutputEval[]): Promise<void> {
-  await persistStructuredRecord("features", feature.id, { title: feature.title, agentRunIds: runs.map((run) => run.id), sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked" });
-  for (const run of runs) await persistStructuredRecord("workflow_runs", run.id, { workflowType: `agent:${run.agent}`, status: run.status, featureId: feature.id, skillId: run.skillId, skillVersion: run.skillVersion, contextPackId: run.contextPackId, evidenceIds: run.citedEvidenceIds, toolCalls: run.toolCalls, steps: run.steps, reasoningSummary: run.reasoningSummary, traceId: run.traceId, latencyMs: run.latencyMs, costUsd: run.costUsd, sourceMode: run.sourceMode });
-  for (const evaluation of evaluations) await persistStructuredRecord("eval_results", evaluation.id, evaluation);
+async function persistAgentRecords(sessionId: string, feature: { id: string; title: string }, runs: AgentRun[], evaluations: AgentOutputEval[]): Promise<void> {
+  await persistStructuredRecord("features", feature.id, { sessionId, title: feature.title, agentRunIds: runs.map((run) => run.id), sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "mocked" }, sessionId);
+  for (const run of runs) await persistStructuredRecord("workflow_runs", run.id, { sessionId, workflowType: `agent:${run.agent}`, status: run.status, featureId: feature.id, skillId: run.skillId, skillVersion: run.skillVersion, contextPackId: run.contextPackId, evidenceIds: run.citedEvidenceIds, toolCalls: run.toolCalls, steps: run.steps, reasoningSummary: run.reasoningSummary, traceId: run.traceId, latencyMs: run.latencyMs, costUsd: run.costUsd, sourceMode: run.sourceMode }, sessionId);
+  for (const evaluation of evaluations) await persistStructuredRecord("eval_results", evaluation.id, { ...evaluation, sessionId }, sessionId);
 }
 
 /**
@@ -111,10 +111,12 @@ export async function POST(request: Request) {
   const ids = sessionIdentifiers(sessionId);
   const runKey = `${RUN_KEY}:${sessionId}`;
   const executionSourceMode = process.env.INTEGRATION_MODE === "live" ? "live" as const : "simulated" as const;
-  const existing = await readArtifact<StoredWorkflowRun>("workflow");
+  const existing = await readArtifact<StoredWorkflowRun>("workflow", sessionId);
   const featureApproved = request.headers.get("x-dailycart-feature-approved") === "true";
-  const belongsToSession = existing && (existing.sessionId === sessionId || (!existing.sessionId && existing.phase === "awaiting_feature_approval"));
-  if (belongsToSession && !(featureApproved && existing.phase === "awaiting_feature_approval")) {
+  // The command route writes a minimal session binding before execution. That
+  // binding proves identity but does not mean the agent workflow has run.
+  const hasExecutedWorkflow = Boolean(existing?.featureId && existing?.phase && existing?.workflow?.id);
+  if (existing && hasExecutedWorkflow && (existing.sessionId === sessionId || (!existing.sessionId && existing.phase === "awaiting_feature_approval")) && !(featureApproved && existing.phase === "awaiting_feature_approval")) {
     if (!existing.handoffThread) {
       try {
         const handoffThread = await postAgentHandoffThread(
@@ -124,7 +126,7 @@ export async function POST(request: Request) {
         );
         await persistHandoffThread(root, handoffThread);
         existing.handoffThread = handoffThread;
-        await writeArtifact("workflow", existing);
+        await writeArtifact("workflow", existing, sessionId);
       } catch (error) {
         const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Agent handoff notification failed.";
         return NextResponse.json({ ok: true, partial: true, reused: true, workflow: { ...existing, reused: true }, handoffError: detail });
@@ -163,10 +165,10 @@ export async function POST(request: Request) {
     ])).flat();
     const blockingAgentEvals = agentEvals.filter((evaluation) => !evaluation.passed && evaluation.mode !== "mocked-judge");
     if (blockingAgentEvals.length) {
-      await writeArtifact("workflowReviews", { featureId: selected.id, featureBatchId, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, agentReasoning, agentEvals, blocked: true });
+      await writeArtifact("workflowReviews", { sessionId, featureId: selected.id, featureBatchId, implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, agentReasoning, agentEvals, blocked: true }, sessionId);
       return NextResponse.json({ ok: false, message: "Agent output evaluation blocked feature approval.", detail: blockingAgentEvals.map((evaluation) => `${evaluation.criterion}: ${evaluation.rationale}`).join("; "), agentEvals }, { status: 422 });
     }
-    await persistAgentRecords(selected, [pm.run, uxReview.run, feasibilityReview.run], agentEvals);
+    await persistAgentRecords(sessionId, selected, [pm.run, uxReview.run, feasibilityReview.run], agentEvals);
     if (!featureApproved) {
       const pendingWorkflow = DeliveryWorkflow.start({ id: ids.project, featureId: selected.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
       pendingWorkflow.requestFeatureApproval(ids.featureApproval, "pm-agent");
@@ -194,8 +196,8 @@ export async function POST(request: Request) {
       } catch {
         // Approval remains usable when Slack is unavailable; the UI labels the fallback.
       }
-      await writeArtifact("workflow", pending);
-      await writeArtifact("workflowReviews", { featureId: selected.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, agentReasoning, agentEvals });
+      await writeArtifact("workflow", pending, sessionId);
+      await writeArtifact("workflowReviews", { sessionId, featureId: selected.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, agentReasoning, agentEvals }, sessionId);
       return NextResponse.json({ ok: true, featureApprovalRequired: true, workflow: { ...pending, recommendation: selected, recommendations: pmRaw.opportunities.slice(0, 2), uxReview, feasibilityReview, implementationBrief: pm.implementationBrief, featureBatchId } });
     }
     const recommended = { ...selected, status: "approved" as const, sourceMode: "simulated" as const };
@@ -203,7 +205,7 @@ export async function POST(request: Request) {
     const plan = { ...planRaw, run: annotateAgentRun(planRaw.run, { skillId: "implementation-planning", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds }) };
     const planningAgentEvals = await evaluateAgentOutput({ run: plan.run, actual: { featureId: recommended.id, evidenceIds: recommended.evidenceIds, tickets: plan.tickets, implementationBriefId: plan.implementationBrief.id }, allowedEvidenceIds: contextPack.evidenceIds, requiredFields: ["featureId", "evidenceIds", "tickets", "implementationBriefId"], semanticCriteria: ["workstreams and ownership are clear", "dependencies and milestones are actionable", "readiness risks are explicit"], ordinal: 4, now });
     const planningBlockers = planningAgentEvals.filter((evaluation) => !evaluation.passed && evaluation.mode !== "mocked-judge");
-    if (planningBlockers.length) { await writeArtifact("workflowReviews", { featureId: recommended.id, featureBatchId, agentReasoning, agentEvals: [...agentEvals, ...planningAgentEvals], blocked: true }); return NextResponse.json({ ok: false, message: "Delivery planning evaluation blocked implementation.", detail: planningBlockers.map((evaluation) => evaluation.rationale).join("; ") }, { status: 422 }); }
+    if (planningBlockers.length) { await writeArtifact("workflowReviews", { sessionId, featureId: recommended.id, featureBatchId, agentReasoning, agentEvals: [...agentEvals, ...planningAgentEvals], blocked: true }, sessionId); return NextResponse.json({ ok: false, message: "Delivery planning evaluation blocked implementation.", detail: planningBlockers.map((evaluation) => evaluation.rationale).join("; ") }, { status: 422 }); }
     const allAgentEvals = [...agentEvals, ...planningAgentEvals];
     const workstreamRaw = await executeIndependentEngineeringWorkstreams(recommended, plan.tickets, { runStartOrdinal: ids.engineeringStart });
     const workstreams = workstreamRaw.map((record) => ({ ...record, run: annotateAgentRun(record.run, { skillId: "code-implementation", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: recommended.evidenceIds }) }));
@@ -252,7 +254,7 @@ export async function POST(request: Request) {
       agentRunSchema.parse({ id: ids.secondaryEvalBlockedRun, agent: "eval", status: "failed", startedAt: now, finishedAt: now, featureId: secondary.id, ticketIds: secondaryPlan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: `trace-${ids.secondaryEvalBlockedRun.toLowerCase()}`, costUsd: 0, latencyMs: 12, retries: 0, steps: [{ name: "critical-regression", status: "failed", durationMs: 12, detail: `Blocked by ${secondaryFailedCampaign.results.find((result) => !result.passed)?.caseId ?? "critical case"}` }], sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary.evidenceIds }),
       agentRunSchema.parse({ id: ids.secondaryEvalPassedRun, agent: "eval", status: "succeeded", startedAt: now, finishedAt: now, featureId: secondary.id, ticketIds: secondaryPlan.tickets.slice(0, 2).map((ticket) => ticket.id), traceId: `trace-${ids.secondaryEvalPassedRun.toLowerCase()}`, costUsd: 0, latencyMs: 12, retries: 0, steps: [{ name: "corrected-regression", status: "succeeded", durationMs: 12, detail: `Passed ${secondaryPassedCampaign.weightedScore}/100 after correction` }], sourceMode: "simulated", skillId: "release-readiness", skillVersion: "1.0.0", contextPackId: contextPack.version, featureBatchId, citedEvidenceIds: secondary.evidenceIds })
     ] : [];
-    if (secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan) await persistAgentRecords(secondary, [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run), ...secondaryEvalRuns], []);
+    if (secondary && secondaryUxAnnotated && secondaryFeasibilityAnnotated && secondaryPlan) await persistAgentRecords(sessionId, secondary, [secondaryUxAnnotated.run, secondaryFeasibilityAnnotated.run, secondaryPlan.run, ...secondaryWorkstreams.map((record) => record.run), ...secondaryEvalRuns], []);
 
     const workflow = DeliveryWorkflow.start({ id: ids.project, featureId: recommended.id, actor: "pm-agent", sourceMode: "simulated" }, () => now);
     workflow.requestFeatureApproval(ids.featureApproval, "pm-agent");
@@ -264,7 +266,7 @@ export async function POST(request: Request) {
     workflow.recordEvalGate({ campaignId: passedCampaign.id, releaseAllowed: true, reason: "Corrected campaign passed; human release approval required.", actor: "eval-agent", releaseApprovalId: ids.releaseApproval });
     const workflowSnapshot = workflow.snapshot();
 
-    const data = await loadDemoState();
+    const data = await loadDemoState(sessionId);
     const decision = decisionSchema.parse({ id: ids.decision, featureId: recommended.id, outcome: "approved", rationale: "Evidence-backed scope approved for delivery.", reviewer: "product-council", decidedAt: now, sourceMode: "simulated" });
     const next: DemoState = {
       ...data,
@@ -319,10 +321,10 @@ export async function POST(request: Request) {
         ...(secondary && secondaryPlan && secondaryFailedCampaign && secondaryPassedCampaign ? [{ featureId: secondary.id, featureTitle: secondary.title, prdId: secondaryPlan.implementationBrief.id, ticketIds: secondaryPlan.tickets.map((ticket) => ticket.id), engineeringRunIds: secondaryWorkstreams.map((record) => record.run.id), blockedCampaignId: secondaryFailedCampaign.id, passedCampaignId: secondaryPassedCampaign.id, featureApprovalId: ids.secondaryFeatureApproval, releaseApprovalId: ids.secondaryReleaseApproval, status: "ready_to_release" }] : [])
       ]
     };
-    await writeArtifact("demoState", validated);
-    await persistAgentRecords(recommended, [plan.run, ...workstreams.map((record) => record.run), ...evalRuns], planningAgentEvals);
-    await writeArtifact("workflowReviews", { featureId: recommended.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, secondary: secondary ? { featureId: secondary.id, implementationBrief: secondaryBrief, uxReview: secondaryUxAnnotated, feasibilityReview: secondaryFeasibilityAnnotated } : undefined, agentReasoning: allAgentReasoning, agentEvals: allAgentEvals });
-    await writeArtifact("workflow", stored);
+    await writeArtifact("demoState", validated, sessionId);
+    await persistAgentRecords(sessionId, recommended, [plan.run, ...workstreams.map((record) => record.run), ...evalRuns], planningAgentEvals);
+    await writeArtifact("workflowReviews", { sessionId, featureId: recommended.id, featureBatchId, recommendations: pmRaw.opportunities.slice(0, 2), implementationBrief: pm.implementationBrief, uxReview, feasibilityReview, secondary: secondary ? { featureId: secondary.id, implementationBrief: secondaryBrief, uxReview: secondaryUxAnnotated, feasibilityReview: secondaryFeasibilityAnnotated } : undefined, agentReasoning: allAgentReasoning, agentEvals: allAgentEvals }, sessionId);
+    await writeArtifact("workflow", stored, sessionId);
     try {
       const allHandoffs = buildWorkflowHandoffs({ ...stored, workflowId: stored.workflow.id, evidenceIds: recommended.evidenceIds });
       const chat = createConnectorSuite({ env: process.env }).chat;
@@ -341,7 +343,7 @@ export async function POST(request: Request) {
       }
       await persistHandoffThread(root, handoffThread);
       stored.handoffThread ??= handoffThread;
-      await writeArtifact("workflow", stored);
+      await writeArtifact("workflow", stored, sessionId);
       return NextResponse.json({ ok: true, reused: false, workflow: stored });
     } catch (error) {
       const detail = error instanceof ConnectorError ? `${error.provider}: ${error.message}` : "Agent handoff notification failed.";

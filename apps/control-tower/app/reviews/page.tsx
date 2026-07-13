@@ -5,14 +5,18 @@ import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { ReviewDecision } from "./review-decision";
 import { ApprovalPacket } from "./approval-packet";
+import { serverSessionId } from "@/lib/demo-session";
+import { SessionStageBanner } from "@/app/ui/session-stage-banner";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewsPage() {
-  const data = await loadDemoState();
+  const sessionId = await serverSessionId();
+  const data = await loadDemoState(sessionId);
   const pending = data.approvals.filter((approval) => approval.status === "pending");
   return <div className="page-container">
     <PageHeading eyebrow="Human control" title="Human review queue" description="Agents propose; authorized reviewers decide at feature, preview, and release boundaries." actions={<Link className="button secondary" href="/evals#eval-workbench"><Scale size={15} /> Calibration report</Link>} />
+    <SessionStageBanner stage={pending.some((approval) => approval.stage === "release") ? "release_approval" : "feature_approval"} />
     <section className="review-metrics metric-grid">
       <article className="metric-card"><span className="metric-icon amber"><Clock3 size={19} /></span><div><p>Awaiting review</p><strong>{pending.length}</strong><small>Persisted approval gates</small></div></article>
       <article className="metric-card"><span className="metric-icon green"><UserCheck size={19} /></span><div><p>Resolved</p><strong>{data.approvals.filter((approval) => approval.status !== "pending").length}</strong><small>Rationales recorded</small></div></article>

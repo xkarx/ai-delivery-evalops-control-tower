@@ -4,14 +4,18 @@ import { PageHeading } from "@/app/ui/page-heading";
 import { StatusPill } from "@/app/ui/status-pill";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { getRuntimeMode } from "@/lib/runtime-mode";
+import { serverSessionId } from "@/lib/demo-session";
+import { SessionStageBanner } from "@/app/ui/session-stage-banner";
 
 export default async function ReleasesPage() {
-  const data = await loadDemoState();
+  const sessionId = await serverSessionId();
+  const data = await loadDemoState(sessionId);
   const deployment = data.deployments[0];
   const runtimeMode = getRuntimeMode();
   return (
     <div className="page-container">
       <PageHeading eyebrow="Release operations" title="Deployments & releases" description="Commit-aware previews and production releases protected by eval and human approval gates." actions={<Link className="button primary" href="/runs"><Rocket size={15} /> Prepare release</Link>} />
+      <SessionStageBanner stage="deployment_report" />
       <section className="release-hero panel"><div className="release-icon"><Rocket size={24} /></div><div><div className="release-title"><span className="mono-id">REL-0001</span><StatusPill status={deployment?.status ?? "ready"} /></div><h2>Checkout recovery guidance · V1</h2><p>Production deployment recorded after corrected eval campaign and release-manager approval.</p><div className="release-links"><span><GitCommit size={14} /> {deployment?.commitSha}</span><Link href="/lineage">FEAT-0001 <ExternalLink size={12} /></Link><Link href="/evals">EVAL-0002 <ExternalLink size={12} /></Link></div></div><div className="release-score"><span>Gate score</span><strong>94</strong><small>Threshold 85</small></div></section>
       <div className="release-layout">
         <section className="panel release-checks"><div className="section-title"><div><p className="eyebrow">Immutable decision evidence</p><h2>Release gate checklist</h2></div><StatusPill status="passed" /></div>{[
