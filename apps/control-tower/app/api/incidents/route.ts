@@ -5,6 +5,7 @@ import { requireOperatorOrWorkflowService } from "@/lib/operator-auth";
 import { loadDemoState } from "@/lib/load-demo-state";
 import { persistStructuredRecord, readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { requestSessionId } from "@/lib/demo-session";
+import { createIncidentNumericId } from "@/lib/incident-id";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,7 +32,12 @@ export async function POST(request: Request) {
   }
   const body = await request.json().catch(() => ({})) as { title?: string; rootCause?: string; severity?: string; featureId?: string };
   if (!body.title?.trim() || !body.rootCause?.trim()) return NextResponse.json({ ok: false, message: "Title and root cause are required." }, { status: 400 });
-  const data = await loadDemoState(sessionId); const ordinal = Math.max(0, ...data.incidents.map((item) => Number(item.id.split("-")[1]))) + 1; const numericId = `${Date.now()}${String(ordinal).padStart(2, "0")}`; const at = new Date().toISOString();
+  const data = await loadDemoState(sessionId);
+  // Timestamp + bounded numeric entropy keeps schema-safe decimal IDs even after
+  // many incident generations. Re-parsing and concatenating prior IDs eventually
+  // produced scientific notation (for example, `1.7e+27`) and failed validation.
+  const numericId = createIncidentNumericId();
+  const at = new Date().toISOString();
   const incident = incidentSchema.parse({ id: `INC-${numericId}`, featureId: body.featureId ?? "FEAT-0001", title: body.title, severity: body.severity ?? "SEV-3", status: "open", detectedAt: at, rootCause: body.rootCause, regressionCaseId: `EVALCASE-${numericId}`, sourceMode: process.env.INTEGRATION_MODE === "live" ? "live" : "simulated" });
   const evalCase = evalCaseSchema.parse({ id: incident.regressionCaseId, datasetVersion: `dailycart-incidents@${at.slice(0, 10)}`, category: "regression", input: { incidentId: incident.id, featureId: incident.featureId, rootCause: incident.rootCause }, expected: { mustDetectRegression: true }, critical: false, sourceMode: incident.sourceMode });
   const authored = await readArtifact<EvalCase[]>("evalAuthoredCases", sessionId) ?? []; await writeArtifact("evalAuthoredCases", [...authored, evalCase], sessionId);

@@ -16,6 +16,31 @@ Agent-output evaluations and preview evaluations are separate evidence. Agent-ou
 
 Full Verification is asynchronous: worker start can take up to 15 seconds, analysis and provider synchronization commonly take 30–90 seconds each, previews and browser evaluations commonly take 1–3 minutes each, and correction/rebuild/rerun commonly takes 2–5 minutes. Human approval phases have no automatic timeout. These are operator estimates, not additional live records.
 
+## Final Showcase verification — 2026-07-13
+
+| Record | Verified value |
+|---|---|
+| Session | `SESSION-1783989470962867714F2AA26` |
+| Workflow | `WORKFLOW-1783989470962AAFB444925EA` |
+| Feature approval | `APR-38024961` |
+| Release approval | `APR-38024962` |
+| Linear delivery records | DAI-83, DAI-84, DAI-85 |
+| GitHub product change | [PR #29](https://github.com/xkarx/ai-delivery-evalops-control-tower/pull/29) · commit `bd4f42f66e7e9e2893f9a61225ec8becd69f1b32` |
+| Vercel preview | [Preview](https://ai-delivery-evalops-control-tower-control-tower-1spoeo8yi.vercel.app) · `dpl_5aq1fyQPEHBLhtFjTkouXvubCTzt` |
+| Preview browser evaluation | [GitHub Actions run 29299190991](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29299190991) · `RUN-38024982` · 100/100 |
+| Release action | `ACTION-CCF53DB2A34C` · released |
+| Model trace | [Langfuse trace](https://us.cloud.langfuse.com/project/cmrg2filf07tzad0dz3hwdbbi/traces/dailycart-workflow-1783989470962aafb444925ea) |
+| Durable orchestration | [Inngest event `01KXF4FB4NS4B52GCEGNFV25ZE`](https://app.inngest.com/env/production/events/01KXF4FB4NS4B52GCEGNFV25ZE) |
+| Product traffic | `TRAFFIC-20260710-0001` · 100 events · 24 users · 5 completed checkouts · 12 feature exposures |
+
+The Showcase run completed the model-backed analysis, human gates, live delivery records, exact preview evaluation, release, and bounded product-outcome path. The operator passcode was rotated before this verification and remains deployment-only.
+
+### Post-release retry race and repair
+
+The same hosted session exposed two separate retry defects. PR #31 made action reuse command-scoped, so `declare_incident` created `ACTION-D1E33FF57418` instead of reusing the completed release action. A delayed worker then repeated the incident provider call and created DAI-89 and DAI-90. Those duplicate records are retained as audit evidence. PR #32 persists the first incident result under the workflow action ID and returns it on every later retry before contacting Linear or Slack. The PR #32 quality, Playwright browser, and Vercel preview checks passed in [workflow 29310784484](https://github.com/xkarx/ai-delivery-evalops-control-tower/actions/runs/29310784484).
+
+A final production probe then failed before any provider write because the old incident ID generator re-parsed and concatenated increasingly large prior IDs. Once JavaScript represented that number in scientific notation, both the incident and regression-case schemas rejected it. The closing patch replaces that recursion with timestamp-plus-bounded numeric entropy. This preserves decimal, schema-safe IDs regardless of session history and prevents the validation failure from obscuring retry verification.
+
 ## Guided workflow recovery deployment — 2026-07-12
 
 | Record | Observed value |
