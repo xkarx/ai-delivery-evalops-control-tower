@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AvailableWorkflowAction, ProviderActivity, WorkflowAction, WorkflowCommand, WorkflowPresentation } from "@dailycart/schemas";
 import { shouldRecoverWorkflowAction } from "@/lib/workflow-recovery";
+import { actionIsBusyAtPhase } from "@/lib/workflow-human-gates";
 
 type Status = {
   started: boolean; sessionId?: string; workflowId?: string; phase: string; nextAction: string;
@@ -93,7 +94,7 @@ export function WorkflowAction() {
   }
 
   const action = status?.activeAction;
-  const busy = requesting || action?.status === "queued" || action?.status === "running";
+  const busy = requesting || actionIsBusyAtPhase(action, status?.phase);
   const available = status?.availableActions?.[0] ?? (!status?.started ? { command: "analyze" as const, label: "Analyze opportunities", enabled: true } : undefined);
   const icon = busy ? <Loader2 size={15} className="spin" /> : available?.command === "retry" ? <RotateCcw size={15} /> : status?.phase === "released" ? <Check size={15} /> : <Play size={15} />;
   const stalled = shouldRecoverWorkflowAction(action, now);

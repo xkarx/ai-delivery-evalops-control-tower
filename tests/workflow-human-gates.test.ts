@@ -1,0 +1,57 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  actionIsBusyAtPhase,
+  isHumanGatePhase,
+  shouldReconcileHumanGateAction,
+} from "../apps/control-tower/lib/workflow-human-gates";
+
+describe("workflow human gates", () => {
+  it("recognizes the two operator decision phases", () => {
+    expect(isHumanGatePhase("awaiting_feature_approval")).toBe(true);
+    expect(isHumanGatePhase("awaiting_release_approval")).toBe(true);
+    expect(isHumanGatePhase("preview_evaluating")).toBe(false);
+  });
+
+  it("reconciles stale queued or running actions at a persisted human gate", () => {
+    expect(
+      shouldReconcileHumanGateAction(
+        { status: "running", phase: "awaiting_feature_approval" },
+        "awaiting_feature_approval",
+      ),
+    ).toBe(true);
+    expect(
+      shouldReconcileHumanGateAction(
+        { status: "waiting_human", phase: "awaiting_feature_approval" },
+        "awaiting_feature_approval",
+      ),
+    ).toBe(false);
+    expect(
+      shouldReconcileHumanGateAction(
+        { status: "running", phase: "preview_evaluating" },
+        "awaiting_feature_approval",
+      ),
+    ).toBe(false);
+  });
+
+  it("does not treat a reconciled human gate as busy", () => {
+    expect(
+      actionIsBusyAtPhase(
+        { status: "running", phase: "awaiting_feature_approval" },
+        "awaiting_feature_approval",
+      ),
+    ).toBe(false);
+    expect(
+      actionIsBusyAtPhase(
+        { status: "running", phase: "preview_evaluating" },
+        "preview_evaluating",
+      ),
+    ).toBe(true);
+    expect(
+      actionIsBusyAtPhase(
+        { status: "queued", phase: "queued" },
+        "awaiting_feature_approval",
+      ),
+    ).toBe(true);
+  });
+});

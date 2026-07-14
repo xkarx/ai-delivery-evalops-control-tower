@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DemoStage, ProviderActivity, WorkflowAction, WorkflowCommand } from "@dailycart/schemas";
 import { shouldRecoverWorkflowAction } from "@/lib/workflow-recovery";
+import { actionIsBusyAtPhase } from "@/lib/workflow-human-gates";
 
 type AgentEval = { criterion: string; score: number; passed: boolean; rationale: string; mode: string };
 type AgentRun = {
@@ -193,7 +194,7 @@ export function DemoCockpit() {
     : status?.phase === "waiting_vercel"
       ? { title: executionMode === "showcase" ? "Waiting for the Vercel preview" : "Waiting for Vercel previews", detail: `Evaluation begins only after ${executionMode === "showcase" ? "the exact deployment is" : "both exact deployments are"} READY.` }
       : phaseBase;
-  const busy = working || ["queued", "running"].includes(status?.activeAction?.status ?? "");
+  const busy = working || actionIsBusyAtPhase(status?.activeAction, status?.phase);
   const primary = status?.availableActions?.[0];
   const currentProviders = useMemo(() => (status?.providerActivity ?? []).filter((item) => item.stage === current.id), [current.id, status?.providerActivity]);
   const stageState = status?.activeAction?.status === "failed" || status?.phase === "failed"
