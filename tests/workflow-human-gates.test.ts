@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   actionIsBusyAtPhase,
+  authoritativeWorkflowPhase,
   isHumanGatePhase,
   shouldReconcileHumanGateAction,
 } from "../apps/control-tower/lib/workflow-human-gates";
@@ -53,5 +54,25 @@ describe("workflow human gates", () => {
         "awaiting_feature_approval",
       ),
     ).toBe(true);
+  });
+
+  it("validates human decisions against the current gate instead of the action's stale parent phase", () => {
+    expect(
+      authoritativeWorkflowPhase(
+        {
+          status: "waiting_human",
+          phase: "awaiting_release_approval",
+          parentPhase: "awaiting_feature_approval",
+        },
+        "awaiting_release_approval",
+      ),
+    ).toBe("awaiting_release_approval");
+
+    expect(
+      authoritativeWorkflowPhase(
+        { status: "failed", phase: "failed", parentPhase: "preview_evaluating" },
+        "failed",
+      ),
+    ).toBe("preview_evaluating");
   });
 });

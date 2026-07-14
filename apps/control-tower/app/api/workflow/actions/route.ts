@@ -5,7 +5,7 @@ import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { createWorkflowAction, latestAction, newWorkflowId, readActions, updateAction } from "@/lib/workflow-actions";
 import { inngest } from "@/lib/inngest/client";
 import { createDemoSession, demoSessionCookie, encodeSessionCookie, executionModeSchema, getDemoSession, requestSessionId } from "@/lib/demo-session";
-import { shouldReconcileHumanGateAction } from "@/lib/workflow-human-gates";
+import { authoritativeWorkflowPhase, shouldReconcileHumanGateAction } from "@/lib/workflow-human-gates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -95,7 +95,7 @@ export async function POST(request: Request): Promise<Response> {
     // The action record is authoritative while resumable work is active or
     // paused at a human gate. The workflow aggregate can lag behind it during
     // serverless persistence, especially after a refresh.
-    const authoritativePhase = active?.parentPhase ?? active?.phase ?? workflow?.workflow?.phase;
+    const authoritativePhase = authoritativeWorkflowPhase(active, workflow?.workflow?.phase);
     validateCommand(command, authoritativePhase, active?.status);
     const revision = (workflow?.workflow?.revision ?? 0) + (command === "retry" ? (active?.attempts ?? 0) + 1 : 0);
     const executionMode = demoSession?.executionMode ?? executionModeSchema.parse(body.executionMode ?? "showcase");
