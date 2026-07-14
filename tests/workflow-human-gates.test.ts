@@ -4,7 +4,9 @@ import {
   actionIsBusyAtPhase,
   authoritativeWorkflowPhase,
   isHumanGatePhase,
+  phaseForNewCommand,
   shouldReconcileHumanGateAction,
+  shouldReuseBusyAction,
 } from "../apps/control-tower/lib/workflow-human-gates";
 
 describe("workflow human gates", () => {
@@ -74,5 +76,21 @@ describe("workflow human gates", () => {
         "failed",
       ),
     ).toBe("preview_evaluating");
+  });
+
+  it("does not reuse a delayed action for a different command", () => {
+    const delayedRelease = { status: "running" as const, command: "approve_release" as const };
+    expect(shouldReuseBusyAction(delayedRelease, "approve_release")).toBe(true);
+    expect(shouldReuseBusyAction(delayedRelease, "declare_incident")).toBe(false);
+  });
+
+  it("uses the released workflow phase for a post-release incident", () => {
+    expect(
+      phaseForNewCommand(
+        { status: "running", phase: "starting", parentPhase: "awaiting_release_approval" },
+        "released",
+        "declare_incident",
+      ),
+    ).toBe("released");
   });
 });

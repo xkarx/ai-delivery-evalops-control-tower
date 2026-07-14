@@ -5,7 +5,7 @@ import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { createWorkflowAction, latestAction, newWorkflowId, readActions, updateAction } from "@/lib/workflow-actions";
 import { inngest } from "@/lib/inngest/client";
 import { createDemoSession, demoSessionCookie, encodeSessionCookie, executionModeSchema, getDemoSession, requestSessionId } from "@/lib/demo-session";
-import { authoritativeWorkflowPhase, shouldReconcileHumanGateAction } from "@/lib/workflow-human-gates";
+import { phaseForNewCommand, shouldReconcileHumanGateAction, shouldReuseBusyAction } from "@/lib/workflow-human-gates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,7 +87,7 @@ export async function POST(request: Request): Promise<Response> {
           : "Review the release packet and approve production release."
       }, sessionId);
     }
-    if (active && ["queued", "running"].includes(active.status)) {
+    if (active && shouldReuseBusyAction(active, command)) {
       const response = NextResponse.json({ ok: true, reused: true, actionId: active.actionId, sessionId, workflowId, status: active.status, statusUrl: `/api/workflow/actions/${active.actionId}` }, { status: 202 });
       if (createdSession) response.cookies.set(demoSessionCookie, encodeSessionCookie(sessionId), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 12 });
       return response;
@@ -95,7 +95,7 @@ export async function POST(request: Request): Promise<Response> {
     // The action record is authoritative while resumable work is active or
     // paused at a human gate. The workflow aggregate can lag behind it during
     // serverless persistence, especially after a refresh.
-    const authoritativePhase = authoritativeWorkflowPhase(active, workflow?.workflow?.phase);
+    const authoritativePhase = phaseForNewCommand(active, workflow?.workflow?.phase, command);
     validateCommand(command, authoritativePhase, active?.status);
     const revision = (workflow?.workflow?.revision ?? 0) + (command === "retry" ? (active?.attempts ?? 0) + 1 : 0);
     const executionMode = demoSession?.executionMode ?? executionModeSchema.parse(body.executionMode ?? "showcase");
