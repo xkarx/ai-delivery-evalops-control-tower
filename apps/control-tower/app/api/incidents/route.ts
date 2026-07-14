@@ -9,10 +9,26 @@ import { requestSessionId } from "@/lib/demo-session";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type IncidentActionResult = {
+  ok: true;
+  sessionId: string;
+  incident: unknown;
+  evalCase: unknown;
+  run: unknown;
+  externalRefs: Array<{ provider: string; url: string; id: string }>;
+  partial: boolean;
+};
+
 export async function POST(request: Request) {
   const denied = await requireOperatorOrWorkflowService(request); if (denied) return denied;
   const sessionId = requestSessionId(request);
   if (!sessionId) return NextResponse.json({ ok: false, message: "A signed demo session is required." }, { status: 409 });
+  const actionId = request.headers.get("x-dailycart-action-id")?.trim();
+  if (actionId) {
+    const records = await readArtifact<Record<string, { value?: IncidentActionResult }>>("structuredRecords", sessionId);
+    const existing = records?.[`incident_action_results:${actionId}`]?.value;
+    if (existing?.ok) return NextResponse.json({ ...existing, reused: true });
+  }
   const body = await request.json().catch(() => ({})) as { title?: string; rootCause?: string; severity?: string; featureId?: string };
   if (!body.title?.trim() || !body.rootCause?.trim()) return NextResponse.json({ ok: false, message: "Title and root cause are required." }, { status: 400 });
   const data = await loadDemoState(sessionId); const ordinal = Math.max(0, ...data.incidents.map((item) => Number(item.id.split("-")[1]))) + 1; const numericId = `${Date.now()}${String(ordinal).padStart(2, "0")}`; const at = new Date().toISOString();
@@ -72,5 +88,7 @@ export async function POST(request: Request) {
   await writeArtifact("demoState", next, sessionId);
   await persistStructuredRecord("workflow_runs", run.id, { ...run, sessionId, incidentId: incident.id, evalCaseId: evalCase.id }, sessionId);
   await persistStructuredRecord("incidents", incident.id, { ...incident, sessionId, runId: run.id, externalRefs }, sessionId);
-  return NextResponse.json({ ok: true, sessionId, incident, evalCase, run, externalRefs, partial: externalRefs.length < 2 });
+  const result: IncidentActionResult = { ok: true, sessionId, incident, evalCase, run, externalRefs, partial: externalRefs.length < 2 };
+  if (actionId) await persistStructuredRecord("incident_action_results", actionId, result, sessionId);
+  return NextResponse.json(result);
 }
