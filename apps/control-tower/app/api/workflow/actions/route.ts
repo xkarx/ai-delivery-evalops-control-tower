@@ -5,6 +5,7 @@ import { readArtifact, writeArtifact } from "@/lib/durable-artifacts";
 import { createWorkflowAction, latestAction, newWorkflowId, readActions, updateAction } from "@/lib/workflow-actions";
 import { inngest } from "@/lib/inngest/client";
 import { createDemoSession, demoSessionCookie, encodeSessionCookie, executionModeSchema, getDemoSession, requestSessionId } from "@/lib/demo-session";
+import { shouldReconcileHumanGateAction } from "@/lib/workflow-human-gates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,7 +72,21 @@ export async function POST(request: Request): Promise<Response> {
     const demoSession = await getDemoSession(sessionId);
     const workflowId = workflow?.workflowInstanceId ?? demoSession?.workflowId ?? newWorkflowId();
     const actions = await readActions(sessionId);
-    const active = latestAction(actions, sessionId);
+    let active = latestAction(actions, sessionId);
+    const storedPhase = workflow?.workflow?.phase;
+    if (shouldReconcileHumanGateAction(active, storedPhase)) {
+      active = await updateAction(active.actionId, {
+        status: "waiting_human",
+        phase: storedPhase,
+        progress: 100,
+        message: storedPhase === "awaiting_feature_approval"
+          ? "Opportunity analysis is ready for human feature approval."
+          : "Preview checks are ready for human release approval.",
+        nextAction: storedPhase === "awaiting_feature_approval"
+          ? "Review and approve the selected feature tracks."
+          : "Review the release packet and approve production release."
+      }, sessionId);
+    }
     if (active && ["queued", "running"].includes(active.status)) {
       const response = NextResponse.json({ ok: true, reused: true, actionId: active.actionId, sessionId, workflowId, status: active.status, statusUrl: `/api/workflow/actions/${active.actionId}` }, { status: 202 });
       if (createdSession) response.cookies.set(demoSessionCookie, encodeSessionCookie(sessionId), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 12 });

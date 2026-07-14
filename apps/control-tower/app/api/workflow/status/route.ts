@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import type { DemoStage, ProviderActivity, WorkflowAction } from "@dailycart/schemas";
 import { configuredOperatorPasscode, isOperatorAuthorized } from "@/lib/operator-auth";
 import { readArtifact } from "@/lib/durable-artifacts";
-import { getAction, latestAction, readActions } from "@/lib/workflow-actions";
+import { getAction, latestAction, readActions, updateAction } from "@/lib/workflow-actions";
 import { getDemoSession, requestSessionId } from "@/lib/demo-session";
+import { shouldReconcileHumanGateAction } from "@/lib/workflow-human-gates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -159,7 +160,24 @@ export async function GET(request: Request): Promise<Response> {
       readArtifact<unknown[]>("productEvents", sessionId)
     ]);
 
-    const activeAction = stored?.activeActionId ? await getAction(stored.activeActionId, sessionId) : latestAction(actions, sessionId);
+    let activeAction = stored?.activeActionId ? await getAction(stored.activeActionId, sessionId) : latestAction(actions, sessionId);
+    const storedPhase = stored?.workflow?.phase;
+    // The workflow aggregate may reach a human gate immediately before the
+    // worker's final action write. Heal that narrow race so refresh never
+    // hides a required decision behind a stale running state.
+    if (shouldReconcileHumanGateAction(activeAction, storedPhase)) {
+      activeAction = await updateAction(activeAction.actionId, {
+        status: "waiting_human",
+        phase: storedPhase,
+        progress: 100,
+        message: storedPhase === "awaiting_feature_approval"
+          ? "Opportunity analysis is ready for human feature approval."
+          : "Preview checks are ready for human release approval.",
+        nextAction: storedPhase === "awaiting_feature_approval"
+          ? "Review and approve the selected feature tracks."
+          : "Review the release packet and approve production release."
+      }, sessionId);
+    }
     // Queueing a release/incident/retry must not make the timeline jump back
     // to a synthetic `queued` phase. The aggregate remains the source of
     // truth until execution has actually started; actions may carry the phase
